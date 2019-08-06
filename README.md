@@ -1,4 +1,4 @@
-WORKSHOP_TITLE
+Introduction to Machine Learning with the Tidyverse
 ================
 
 ### rstudio::conf 2020
