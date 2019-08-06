@@ -25,7 +25,7 @@ can remove these instructions from the README.
 
 ## Overview
 
-ABSTRACT
+This workshop provides a gentle introduction to machine learning and to the tidyverse packages that do machine learning. You'll learn how to train and assess predictive models with several common machine learning algorithms, as well as how to do feature engineering to improve the predictive accuracy of your models. We will focus on learning the basic theory and best practices that support machine learning, and we will do it with a modern suite of R packages known as tidymodels. Tidymodels packages, like parsnip, recipes, and rsample provide a grammar for modeling and work seamlessly with R's tidyverse packages. Students should feel comfortable plotting with ggplot2 and using the dplyr and purrr packages. You can brush up on these topics by working through the online tutorials at https://rstudio.cloud/learn/primers.
 
 ## Learning objectives
 
