@@ -33,7 +33,15 @@ Students will learn to train, assess, and generate predictions from several comm
 
 ## Is this course for me?
 
-THREE_QUESTIONS
+This workshop is appropriate for attendees who answer yes to the questions below:
+
+- Can you use mutate and purrr to transform a data frame that contains list columns?
+
+- Can you use the ggplot2 package to make a large variety of graphs?
+
+If you answered "no" to either question, you can brush up on these topics by working through the online tutorials at https://rstudio.cloud/learn/primers.
+
+If you already use machine learning methods like random forests, neural networks, cross-validation or feature engineering, this course is NOT for you; register for Max Kuhn's Applied Machine Learning Workshop instead.
 
 ## Prework
 
