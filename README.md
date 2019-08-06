@@ -29,7 +29,7 @@ This workshop provides a gentle introduction to machine learning and to the tidy
 
 ## Learning objectives
 
-LEARNING_OBJECTIVES
+Students will learn to train, assess, and generate predictions from several common machine learning methods with the tidymodels suite of packages.
 
 ## Is this course for me?
 
