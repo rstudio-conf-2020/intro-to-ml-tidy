@@ -3,16 +3,7 @@ Introduction to Machine Learning with the Tidyverse
 
 ### rstudio::conf 2020
 
-by Alison Hill and Garret Grolemund
-
------
-
-INSTRUCTIONS FOR INSTRUCTORS: Please insert information about your
-workshop below. Then, add workshop content in the materials folder and
-link to each session’s materials from the schedule below. You are
-welcomed to add more rows to the schedule. We just ask that you take
-breaks at the specified times. Once you are done adding information, you
-can remove these instructions from the README.
+by Alison Hill and Garrett Grolemund
 
 -----
 
