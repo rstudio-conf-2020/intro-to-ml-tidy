@@ -1,0 +1,21 @@
+[build]
+  base    = "site/"
+  publish = "site/public"
+  command = "hugo"
+
+[context.production.environment]
+  HUGO_VERSION = "0.62.2"
+  HUGO_ENV = "production"
+  HUGO_ENABLEGITINFO = "true"
+
+[context.branch-deploy.environment]
+  HUGO_VERSION = "0.62.2"
+
+[context.deploy-preview.environment]
+  HUGO_VERSION = "0.62.2"
+
+[context.deploy-preview]
+  command = "hugo -b $DEPLOY_PRIME_URL --buildFuture"
+
+[context.branch-deploy]
+  command = "hugo -b $DEPLOY_PRIME_URL --buildFuture"
