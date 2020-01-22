@@ -1,6 +1,6 @@
 [build]
-  base    = "site/"
-  publish = "site/public"
+  base = "site"
+  publish = "public"
   command = "hugo"
 
 [context.production.environment]
