@@ -60,7 +60,7 @@ Please bring a laptop to class that has the following installed:
     
         install.packages(c("tidyverse", "tidymodels", "remotes", 
                             "rpart.plot", "rattle", "vip", "AmesHousing", 
-                            "kknn", "rpart", "ranger", "party"))
+                            "kknn", "rpart", "ranger", "partykit"))
         
         # and
         

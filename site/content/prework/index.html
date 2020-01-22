@@ -12,42 +12,19 @@ date: "2020-01-01T00:00:00Z"  # Add today's date.
 <li><p>A recent version of R (&gt;=3.6.0), which is available for free at <a href="https://cran.r-project.org/" class="uri">https://cran.r-project.org/</a></p></li>
 <li><p>A recent version of RStudio Desktop (&gt;=1.2.1500), available for free at <a href="https://www.rstudio.com/download" class="uri">https://www.rstudio.com/download</a> (RStudio Desktop Open Source License)</p></li>
 <li><p>The R packages we will use, which you can install by connecting to the internet, opening RStudio, and running at the command line:</p>
-<pre><code>install.packages(c(&quot;tidyverse&quot;, &quot;tidymodels&quot;, 
+<pre class="r"><code>install.packages(c(&quot;tidyverse&quot;, &quot;tidymodels&quot;, 
                    &quot;remotes&quot;, &quot;rpart.plot&quot;, &quot;rattle&quot;, 
                    &quot;vip&quot;, &quot;AmesHousing&quot;, &quot;kknn&quot;, 
-                   &quot;rpart&quot;, &quot;ranger&quot;, &quot;party&quot;))
+                   &quot;rpart&quot;, &quot;ranger&quot;, &quot;partykit&quot;))
 
 # and
 
 remotes::install_github(
-c(&quot;tidymodels/workflows&quot;, 
-  &quot;tidymodels/tune&quot;, 
-  &quot;tidymodels/modeldata&quot;))</code></pre></li>
+  c(&quot;tidymodels/workflows&quot;, 
+    &quot;tidymodels/tune&quot;, 
+    &quot;tidymodels/modeldata&quot;))</code></pre></li>
 </ul>
 <p>And don’t forget your power cord!</p>
 <p>On the day of the class, we’ll provide you with an RStudio Server Pro login that contains all of the course materials. We will use the software listed above only as an important backup should there be problems with the classroom server connection.</p>
 <p>We look forward to meeting you,</p>
 <p>Alison</p>
-<hr />
-<p>From CRAN:</p>
-<pre class="r"><code>install.packages(
-  c(
-  &quot;tidyverse&quot;, 
-  &quot;tidymodels&quot;, 
-  &quot;remotes&quot;, 
-  &quot;rpart.plot&quot;, 
-  &quot;rattle&quot;, 
-  &quot;vip&quot;,
-  &quot;rpart&quot;,
-  &quot;ranger&quot;,
-  &quot;party&quot;,
-  &quot;AmesHousing&quot;,
-  &quot;kknn&quot;
-  ))</code></pre>
-<p>From GitHub:</p>
-<pre class="r"><code>remotes::install_github(
-  c(
-  &quot;tidymodels/workflows&quot;, 
-  &quot;tidymodels/tune&quot;,
-  &quot;tidymodels/modeldata&quot;
-  ))</code></pre>

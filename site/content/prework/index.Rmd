@@ -15,18 +15,18 @@ Please bring a laptop to class that has the following installed:
 
 * The R packages we will use, which you can install by connecting to the internet, opening RStudio, and running at the command line:
 
-    ```
+    ```{r eval = FALSE}
     install.packages(c("tidyverse", "tidymodels", 
                        "remotes", "rpart.plot", "rattle", 
                        "vip", "AmesHousing", "kknn", 
-                       "rpart", "ranger", "party"))
+                       "rpart", "ranger", "partykit"))
     
     # and
     
     remotes::install_github(
-    c("tidymodels/workflows", 
-      "tidymodels/tune", 
-      "tidymodels/modeldata"))
+      c("tidymodels/workflows", 
+        "tidymodels/tune", 
+        "tidymodels/modeldata"))
     ```
 
 And don't forget your power cord!
@@ -36,35 +36,3 @@ On the day of the class, we'll provide you with an RStudio Server Pro login that
 We look forward to meeting you,
 
 Alison
-
-----
-
-From CRAN:
-
-```{r eval = FALSE}
-install.packages(
-  c(
-  "tidyverse", 
-  "tidymodels", 
-  "remotes", 
-  "rpart.plot", 
-  "rattle", 
-  "vip",
-  "rpart",
-  "ranger",
-  "party",
-  "AmesHousing",
-  "kknn"
-  ))
-```
-
-From GitHub:
-
-```{r eval = FALSE}
-remotes::install_github(
-  c(
-  "tidymodels/workflows", 
-  "tidymodels/tune",
-  "tidymodels/modeldata"
-  ))
-```
