@@ -18,8 +18,9 @@ can remove these instructions from the README.
 
 :spiral_calendar: January 27 and 28, 2020  
 :alarm_clock:     09:00 - 17:00  
-:hotel:           \[ADD ROOM\]  
-:writing_hand:    [rstd.io/conf](http://rstd.io/conf)
+:hotel:           Continental Ballroom Room 5 (Ballroom Level)
+:writing_hand:    [https://rstd.io/conf20-intro-ml](https://rstd.io/conf20-intro-ml)
+:bento:           Lunch in Grand Ballroom A (Grand Ballroom Level)
 
 -----
 
@@ -45,10 +46,33 @@ If you already use machine learning methods like random forests, neural networks
 
 ## Prework
 
-\[ADD INFORMATION YOU WANT LEARNERS TO HAVE / STEPS THEY WANT THEM TO
-COMPLETE PRIOR TO THE WORKSHOP. THIS COULD BE A LINK TO A THREAD ON
-RSTUDIO COMMUNITY, PACKAGE INSTALL INSTRUCTIONS, HOW TO GET AN
-RSTUDIO.CLOUD ACCOUNT, ETC.\]
+Please bring a laptop to class that has the following installed:
+
+  - A recent version of R (\>=3.6.0), which is available for free at
+    cran.r-project.org
+
+  - A recent version of RStudio Desktop (\>=1.2.1500), available for
+    free at www.rstudio.com/download (RStudio Desktop Open Source
+    License)
+
+  - The R packages we will use, which you can install by connecting to
+    the internet, opening RStudio, and running at the command line:
+    
+        install.packages(c("tidyverse", "tidymodels", "remotes", 
+                            "rpart.plot", "rattle", "vip", "AmesHousing", 
+                            "kknn", "rpart", "ranger", "party"))
+        
+        # and
+        
+        remotes::install_github(c("tidymodels/workflows", "tidymodels/tune", "tidymodels/modeldata"))
+
+And don’t forget your power cord\!
+
+On the day of the class, we’ll provide you with an RStudio Server Pro
+login that contains all of the course materials. We will use the
+software listed above only as an important backup should there be
+problems with the classroom server connection.
+
 
 ## Schedule
 
