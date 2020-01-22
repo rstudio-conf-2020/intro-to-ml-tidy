@@ -1,0 +1,211 @@
+---
+title: "04-Ensembling"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(tidymodels)
+library(tune)
+
+fit_split <- function(formula, model, split, ...) {
+  wf <- workflows::add_model(workflows::add_formula(workflows::workflow(), formula, blueprint = hardhat::default_formula_blueprint(indicators = FALSE)), model)
+  tune::last_fit(wf, split, ...)
+}
+```
+
+```{r}
+# read in the data
+stackoverflow <- read_rds(here::here("Day-1/exercises/data/stackoverflow.rds"))
+
+# split the data
+set.seed(100) # Important!
+so_split <- initial_split(stackoverflow, strata = remote)
+so_train <- training(so_split)
+so_test  <- testing(so_split)
+```
+
+
+# Day One - How to get good predictions from models  
+
+## 5. Ensembling
+
+# Your turn 1
+
+Group activity
+
+1. Make 10 bootstrapped classification trees
+
+1. Take single data point and run it through each tree - what class gets predicted each time?
+
+# Your Turn 2
+
+Group activity (continued)
+
+Tally up your trees.
+
+Calculate your team's accuracy.
+
+Now we combine votes- wisdom of the crowd!
+
+<!--start with random forest- no args-->
+
+# Your Turn 3
+
+Fill in the blanks. Use `fit_split()`, `metric_set()`, and `collect_predictions()` to
+
+1. Fit a random forest model with the ranger package; use the formula `remote ~ .`
+2. Set accuracy and roc_auc as the metrics.
+3. Look at the predictions you've collected- what does each row represent?
+4. Keep `set.seed(100)` - don't remove or change that number.  
+
+*Hint: Be sure to remove every `_` before running the code!*
+
+
+```{r}
+rf_spec <- rand_forest() %>% 
+  set_engine("ranger") %>% 
+  set_mode("classification")
+
+set.seed(100)
+rf_fit <- fit_split(remote ~ ., 
+                    model = rf_spec, 
+                    split = so_split,
+                    metrics = metric_set(accuracy, roc_auc)) 
+
+rf_fit %>% 
+  collect_predictions()
+```
+
+<!-- each row is the majority vote of several trees- how many?
+We can't know for sure - only know total trees
+Each tree sees ~63.2% of rows-->
+<!-- key points: > .50 = remote; each row is the proportion of trees that voted for each outcome -->
+
+# Your Turn 4
+
+Use `collect_metrics()` and compare the area under the ROC curve to our single decision tree- what do you notice?
+
+```{r}
+rf_fit %>% 
+  collect_metrics()
+```
+
+
+# Your Turn 5
+
+Fill in the blanks. Use `collect_predictions()` and `roc_curve()` to
+
+1. Calculate the data needed to construct the full ROC curve- remember you need to name the column with the true class, and the column with the class probabilities.
+
+2. Examine the ROC curve tibble and plot- how are they different from the single decision tree?
+
+3. If we wanted specificity to be greater than .9, what probability threshold would we choose? What is the highest value of sensitivity we think we can achieve in this case?
+
+*Hint: Be sure to remove every `_` before running the code!*
+
+```{r}
+rf_roc <- rf_fit %>% 
+  collect_predictions() %>% 
+  roc_curve(remote, .pred_Remote)
+
+rf_roc
+
+rf_roc %>% 
+  autoplot()
+```
+
+# Your Turn 6
+
+Fill in the blank. Use `set_args()` to update your `rf_spec` to use 1, 2, 3, and 19 variables at each split. Which value maximizes the area under the ROC curve?
+
+```{r}
+rf_spec <- rf_spec %>% 
+  set_args(mtry = 10)
+
+set.seed(100)
+rf_fit <- fit_split(remote ~ ., 
+                    model = rf_spec, 
+                    split = so_split,
+                    metrics = metric_set(roc_auc)) 
+
+rf_fit %>% 
+  collect_metrics()
+```
+
+
+# Your Turn 7
+
+add variable importance, try plotting it (this might be too much- perhaps move to slides only)
+
+```{r}
+rf_spec <- rand_forest() %>% 
+  set_engine("ranger", importance = "permutation") %>% 
+  set_mode("classification")
+
+set.seed(100)
+rf_fitwf <- fit_split(remote ~ ., 
+                    model = rf_spec, 
+                    split = so_split,
+                    metrics = metric_set(roc_auc)) 
+
+rf_fit <- rf_fitwf %>% 
+  pluck(".workflow", 1) %>% 
+  workflows::pull_workflow_fit() 
+
+vip::vip(rf_fit, geom = "point")
+```
+
+
+
+---
+
+ignore code here, testing things out
+
+```{r}
+# try just bagging without random forest
+set.seed(100) # Important!
+so_boots <- bootstraps(so_train)
+
+# use same decision tree model spec
+dt_spec <- 
+  decision_tree() %>%          
+  set_engine(engine = "rpart") %>% 
+  set_mode("classification")
+dt_spec
+
+set.seed(100) # Important!
+bdt_fit <- fit_resamples(remote ~ years_coded_job + salary, 
+                    model = dt_spec, 
+                    resamples = so_boots,
+                    control = control_resamples(save_pred = TRUE)) 
+
+bdt_fit %>% 
+  collect_metrics(summarize = FALSE)
+
+bdt_fit %>% 
+  collect_metrics()
+
+# must save predictions
+bdt_fit %>%   
+  collect_predictions()
+
+# how many trees voted on row 1? How about row 6?
+bdt_fit %>%   
+  collect_predictions() %>% 
+  count(.row)
+
+# look at actual votes-
+bdt_fit %>%   
+  collect_predictions() %>% 
+  janitor::tabyl(.row, .pred_class)
+```
+
+
+### Day One Recap: Avoid overfitting with data splitting
+
+Data splitting means dividing your data into a training set to build your model and a test set to test your model against. This is a good idea because:
+
+* **Test sets provide an unbiased estimate of performance accuracy** - Your model hasn’t seen the test set, it will need to predict it the same way it will need to predict future data.
+
+* **Testing avoids overfitting** - Test accuracy will drop as soon as you begin overfitting your data, so improve your model until the test accuracy drops.

@@ -1,0 +1,109 @@
+---
+title: "03-Resampling"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(AmesHousing)
+library(tidymodels)
+library(tune)
+
+ames <- make_ames() %>% 
+  dplyr::select(-matches("Qu"))
+
+fit_data <- function(formula, model, data, ...) {
+  wf <- workflows::add_model(workflows::add_formula(workflows::workflow(), formula), model)
+  fit(wf, data, ...)
+}
+
+fit_split <- tune::last_fit
+```
+
+how old are you, write it down (this is the population)
+
+get in groups and take the average (this is a sample)
+
+use that average per group
+
+sampling variation affects variation
+
+how 
+-larger samples reduce sampling variation
+-resampling then averaging reduces sampling
+
+# Day One - How to get good predictions from models  
+
+## 4. Sampling and Resampling
+
+a. Thought experiment  
+b. What would it look like if you had selection bias? What if you  
+c. had a bigger/smaller sample  
+d. The more samples you take, if you take more and then average,  
+you can get closer  
+e. Entry to bootstrapping  
+f. Fireside chat style  
+g. But in reality you can’t just keep collecting new samples  
+h. Here is the idea- resample your own idea- the central idea being that the variation you got reflects the variation in the population. This works!  
+i. Some kinds of interactive something- survey?  
+j. Have handout at the end
+
+## Some musing by Alison on bootstrapping
+
+1. Sampling
+
+We are now in an election year! There is a very interesting phenomenon that starts pretty early in the election cycle, and that is polling. In America, we do polls every day leading up to an election. Many are opinion polls about issues, but there are also forced choice polls- who are you planning to vote for?
+
+Now, we can't poll everyone- that is what the election is for! So what do we do instead? We instead randomly (this is first key) ask people who they'll vote for, then calculate the proportion voting for each candidate, and assume that that is meaningful (this is the second key) about what will happen in reality, when we actually poll everyone. And it turns out that a sample is enough to tell us something meaningful when we can't reasonably sample the whole population. Of course, the bigger the sample and the lower the error, the better. 
+
+** In general, the larger the sample, the lower the variability **
+
+** Caveat: a smaller random sample is better than a larger non-random one- why? **
+
+But (this is the big but!)- samples are inherently variable. They can be noisy. We know this intuitively when we see polls jumping around everyday; one candidate can be up in one and down in the other. What drives this variability? A lot- namely how the data was collected (how was the question phrased?), how big the sample was (the "n"), who ended up in the sample (were the questions asked online or landline?), and any other potential factors (Florida or California?).
+
+So how can we minimize sampling variation if all we have is one sample? First, we can use domain knowledge to our advantage- you need to identify potential confounders and try to mitigate them when collecting the data in the first place. Going even further, you could stratify by known confounders, like collecting a random sample both online and via landlane; but time + money limit our abilities here). Second, we can increase the sample size (but time + money limit our abilities here too). 
+
+2. Bootstrapping
+
+
+
+
+---
+
+
+
+2. Resampling
+
+### Garrett's Explanation fo samplign and bootstrapping written on the plane trip back (if useful)
+
+1. Sampling
+    a. We have this question. We have these data sources, there is a whole population of data out there, but due to time and money limitations, we can only collect a small sample of all of the possible data. But that's okay, because a sample is enough to get an idea of the relationship.
+    b. How can we describe this relationship? There are many ways, but let's use the simplest. We will describe the relationship with a straight line, by choosing the line that minimizes the residuals. If the line has a slope, a relationship exists between the variables. If the line is flat, there is no relationship. Congratulations—you've done linear regression!
+    c. Let's rewind and do it all over again, but this time suppose the population of data actually looks like this: there is no relationship, the line is flat. Let's think about how we might actually take our sample. Suppose we send out a survey and one group of similar people responds at a much higher rate (lower left). Then we'd have response bias. Our sample would look like this and because of the bias it looks like there is a relationship. Or suppose we throw out all of these observations for some reason, then we also have bias and again it looks like there is a relationship. This is a problem, because in real life we can't see all of these population points, we only see the sample. So we cannot tell that the sample doesn't align with reality.
+    d. So we want to avoid bias when we collect our data! One way to avoid it is to randomly sample the data. Here are some random samples. The larger and more random your sample is, the more likely it accurately reflects reality. But randomness is not a panacea! Could we get this sample with random sampling (a very non-representative one)? You bet! The chance of that happening is very small, but it could happen—and again we wouldn't know that our sample doesn't align with reality. We'd think the relationship looks like this. 
+    e. But there's another problem with random sampling as well. Let's fit a line to these normal looking samples. The line are all slightly different! What's more, none of them match the true line that we could fit to the underlying data! This is called sampling variation. A sample can yield a general picture of the truth, but you shouldn't expect it to give a 100% accurate view of reality. Each estimate will be affected by  sample variation—and we don't know by how much. We're seeing the world through a glass, darkly.
+    f. How much sampling variation will there be? It depends on the underlying population. If there is a large spread of values, i.e. a weak relationship, then samples can vary more from one to another and there will be more sampling variation (picture it). If there is a small spread of values, then samples won't be able to vary as much and there will be less sampling variation (picture it). It is really helpful to know how much sampling variation we are dealing with, but again we don't get to see the population data, so we don't know.
+    g. Let's consolidate this knowledge by filling out a handout and then applying it to some questions.
+        i. (reframe as one of the question) Depending on how much control we have, we might consider one way to reduce the sampling variation. If we know the range of possible values of x, we can stratify on x, which means we can divide x into representative groups and then randomly sample within each group. This won't completely eliminate sampling variation, but it will reduce it because it will prevent very extreme samples like the ones we saw before.
+        ii. You can also take bigger samples to reduce sampling variation
+        iii. Other questions should be quizzes about common real life errors that happened when people thought about data.
+        
+2. Bootstrapping
+   a. Say we've sampled some data. We could fit an actual line to it with `lm()`. Let's see how much we can deduce about reality from this line:
+       i. We've done our best to avoid sampling bias, so we can feel hopeful that our model reflects reality. 
+       ii. But we know that it is probably not an exactly accurate picture of reality due to sampling variation. 
+       iii. We also know that some data sources create more sampling variation than others—but we don't know how much sampling variation our data source creates, so we don't know how far our model could be off. 
+       iv. If we could take more samples from the population, we could see whether we're in this situation, where you should feel pretty good about your model (small variation and all of the lines have non-zero slope); or this situation, where you should be a little more cautious (large variation around a flat line). But usually we cannot take more samples from the population. And here we reach an impasse.
+   c. But that is okay because we have enough information to pull ourselves up by our own bootstraps! Debate this with your team: if I gave you a data set that accurately resembled the real population, could you use it to make many samples and see what sort of variation occurs in the real population? Would that accurately represent the variation in the original data set? Yes. Do we have a data set that accurately resembles the original data set? Yes. Where is it? Here's a hint. It is our sample!
+
+### Recap: Reduce sample variation with resampling or bootstrapping
+
+To reduce sample variation, take multiple samples and average their results. This will always work, no matter what property of the samples you are measuring, be it predictions, accuracy, or anything else. In practice though, taking new samples is impossible. You will need to resort to bootstrapping. To bootstrap:
+
+* **Treat your sample data as the population** - Your sample data is your best representation of the underlying population. If it isn’t similar to the population in important ways, than you’re in trouble no matter what you do.
+
+* **Use it to create new samples** - How? By sampling with replacement until you have a sample as large as your original sample. Yes, some points will be sampled more than once and some not at all. Essentially you are treating your sample as an infinite population of points whose values occur with the same probabilities as the values in your original sample
+
+* **Keep track of out-of-bag samples** - Out-of-bag samples are points that weren’t selected when you made a given bootstrap sample. We’ll use these later on in various ways.
+
+Today we will apply bootstrapping to improve the predictions of our decision trees. Tomorrow we will apply resampling in a new way to create cross-validation.
