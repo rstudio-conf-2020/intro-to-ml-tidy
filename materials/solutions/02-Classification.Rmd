@@ -1,0 +1,155 @@
+---
+title: "02-Classification"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(tidymodels)
+library(tune)
+
+fit_split <- function(formula, model, split, ...) {
+  wf <- workflows::add_model(workflows::add_formula(workflows::workflow(), formula, blueprint = hardhat::default_formula_blueprint(indicators = FALSE)), model)
+  tune::last_fit(wf, split, ...)
+}
+
+# read in the data
+stackoverflow <- read_rds(here::here("materials/data/stackoverflow.rds"))
+
+# split the data
+set.seed(100) # Important!
+so_split <- initial_split(stackoverflow, strata = remote)
+so_train <- training(so_split)
+so_test  <- testing(so_split)
+```
+
+# Your Turn 1
+
+Get in your teams. Have one member think of an animal; other members try to guess it by asking yes/no questions about it. Go!
+
+Write down how many questions it takes your team.
+
+# Your Turn 2
+
+Using the `so_train` and `so_test` datasets (be sure to run the setup chunk!), how many individuals in our training set are remote? How about in the testing set?
+
+```{r}
+so_train %>% 
+  count(remote)
+
+so_test %>% 
+  count(remote)
+```
+
+# Your Turn 3
+
+Fill in the blanks. Use the `tree_spec` model provided and `fit_split()` to:
+
+1. Train a CART-based model with the formula = `remote ~ years_coded_job + salary`.
+
+2. Predict remote status with the testing data.
+
+3. Remind yourself what the output looks like!
+
+4. Keep `set.seed(100)` at the start of your code.  
+
+*Hint: Be sure to remove every `_` before running the code!*
+
+```{r}
+tree_spec <- 
+  decision_tree() %>%         
+  set_engine("rpart") %>%      
+  set_mode("classification") 
+
+set.seed(100) # Important!
+tree_fit <- fit_split(remote ~ years_coded_job + salary, 
+                      model = tree_spec, 
+                      split = so_split) 
+
+tree_fit
+```
+
+# Your Turn 4
+
+Use `collect_predictions()` and `count()` to count the number of individuals (i.e., rows) by their true and predicted remote status. In groups, answer the following questions:
+
+1. How many predictions did we make?
+2. How many times is "remote" status predicted?
+3. How many respondents are actually remote?
+4. How many predictions did we get right?
+
+*Hint: You can create a 2x2 table using* `count(var1, var2)`
+
+```{r}
+tree_fit %>%   
+  collect_predictions() %>% 
+  count(.pred_class, truth = remote)
+```
+
+# Your Turn 4
+
+Fill in the blanks. Use `fit_split()`, `metric_set()`, and `collect_metrics()` to estimate:
+
+1. accuracy, 
+2. sensitivity, and 
+3. specificity. 
+
+What do you notice?
+
+```{r}
+set.seed(100) # Important!
+dt_fit <- fit_split(remote ~ years_coded_job + salary, 
+                    model = dt_spec, 
+                    split = so_split,
+                    metrics = metric_set(accuracy, sens, spec)) 
+
+dt_fit %>%   
+  collect_metrics()
+```
+
+
+# Your Turn 5
+
+Use `metric_set()` to use roc_auc as the performance metric. Answer the following?
+
+1. What is the value- thumbs up or thumbs down?
+2. Look at the predictions you've collected- do you notice anything different?
+3. Which variable contains the probability that someone is classified as remote?
+
+```{r}
+set.seed(100) # Important!
+dt_fit <- fit_split(remote ~ years_coded_job + salary, 
+                    model = dt_spec, 
+                    split = so_split,
+                    metrics = metric_set(roc_auc)) 
+
+# what is it?
+dt_fit %>%   
+  collect_metrics()
+
+# different from before? Yes- probabilities not classes!
+dt_fit %>%   
+  collect_predictions()
+```
+
+# Your Turn 6
+
+Edit the code below to:
+
+1. Add a pipe after `collect_predictions()` to calculate the data needed to construct the full ROC curve- remember you need to name the column with the true class, and the column with the class probabilities.
+
+2. Examine the ROC curve tibble- if you increased/decreased the threshold from 0.5, what would happen to sensitivity? Specificity?
+
+3. Plot the ROC curve- how does it look to you?
+
+```{r}
+dt_roc <- dt_fit %>%   
+  collect_predictions() %>% 
+  roc_curve(remote, .pred_Remote) 
+
+dt_roc
+
+dt_roc %>% 
+  autoplot()
+```
+
