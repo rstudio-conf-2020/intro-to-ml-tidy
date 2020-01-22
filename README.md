@@ -18,8 +18,8 @@ can remove these instructions from the README.
 
 :spiral_calendar: January 27 and 28, 2020  
 :alarm_clock:     09:00 - 17:00  
-:hotel:           Continental Ballroom Room 5 (Ballroom Level)
-:writing_hand:    [https://rstd.io/conf20-intro-ml](https://rstd.io/conf20-intro-ml)
+:hotel:           Continental Ballroom Room 5 (Ballroom Level)  
+:writing_hand:    [https://rstd.io/conf20-intro-ml](https://rstd.io/conf20-intro-ml)  
 :bento:           Lunch in Grand Ballroom A (Grand Ballroom Level)
 
 -----
