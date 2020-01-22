@@ -1,0 +1,151 @@
+---
+title: "01-Workflows"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(AmesHousing)
+library(tidymodels)
+library(tune)
+library(workflows)
+
+ames <- make_ames() %>% 
+  dplyr::select(-matches("Qu"))
+
+set.seed(100)
+ames_split <- initial_split(ames)
+ames_train <- training(ames_split)
+ames_test <- testing(ames_split)
+
+fit_data <- function(object, model, data, ...) {
+  if (inherits(object, "formula")) {
+    object <- add_model(add_formula(workflow(), object, blueprint = hardhat::default_formula_blueprint(indicators = FALSE, ...)))
+  }
+  fit(object, data, ...)
+}
+
+fit_split <- function(object, model, split, ...) {
+  if (inherits(object, "formula")) {
+    object <- add_model(add_formula(workflow(), object, blueprint = hardhat::default_formula_blueprint(indicators = FALSE)), model)
+  }
+  tune::last_fit(object, split, ...)
+}
+
+# pca_rec <- 
+#   recipe(Sale_Price ~ ., data = ames) %>%
+#     step_novel(all_nominal()) %>%
+#     step_dummy(all_nominal()) %>%
+#     step_zv(all_predictors()) %>%
+#     step_center(all_predictors()) %>%
+#     step_scale(all_predictors()) %>%
+#     step_pca(all_predictors(), num_comp = 5)
+```
+
+# Day Two - How to build a prediction pipeline   
+
+***
+
+## 1. Workflows
+
+### Your Turn 1
+
+Build a workflow that uses a linear model to predict `Sale_Price` with `Bedrooms_AbvGr`, `Full_Bath` and `Half_Bath` in `ames`. Save it as `bb_wf`.
+
+```{r}
+lm_spec <- 
+  linear_reg() %>% 
+  set_engine("lm")
+
+bb_wf <- 
+  workflow() %>% 
+  add_formula(Sale_Price ~ Bedroom_AbvGr + Full_Bath + Half_Bath) %>% 
+  add_model(lm_spec)
+```
+
+
+### Your Turn 2
+
+Test the linear model that predicts `Sale_Price` with _everything else in `ames`_ on `ames_split`. What RMSE do you get?
+
+Hint: Create a new workflow by updating `bb_wf`.
+
+```{r}
+all_wf <- 
+  bb_wf %>% 
+  update_formula(Sale_Price ~ .)
+
+fit_split(all_wf, split = ames_split) %>% 
+  collect_metrics()
+```
+
+### Your Turn 3
+
+Fill in the blanks to test the regression tree model that predicts `Sale_Price` with _everything else in `ames`_ on `ames_split`. What RMSE do you get?
+
+Hint: Create a new workflow by updating `all_wf`.
+
+```{r}
+rt_spec <- 
+  decision_tree() %>%          
+  set_engine(engine = "rpart") %>% 
+  set_mode("regression")
+
+rt_wf <- 
+  all_wf %>% 
+  update_model(rt_spec)
+
+fit_split(rt_wf, split = ames_split) %>% 
+  collect_metrics()
+```
+
+
+### Your Turn 4
+
+But what about the predictions of our model? Save the fitted object from your regression tree, and use collect_predictions() to see the predictions generated from the test data.
+
+```{r}
+all_fitwf <- fit_split(rt_wf, split = ames_split)
+all_fitwf %>% 
+  collect_predictions()
+```
+
+
+### Your Turn 5
+
+cut as exercise- slides only
+
+What's in fitted workflow? Use pluck to find out.
+
+```{r}
+all_fitwf %>% 
+  pluck(".workflow", 1)
+
+all_fitwf %>% 
+  pluck(".workflow", 1) %>% 
+  pull_workflow_fit()
+
+all_fitwf %>% 
+  pluck(".workflow", 1) %>% 
+  pull_workflow_spec()
+
+all_fitwf %>% 
+  pluck(".workflow", 1) %>% 
+  pull_workflow_preprocessor()
+```
+
+
+
+### Recap: Machine Learning is about workflows
+
+In Machine Learning, you want to engineer a pipeline that can take new data as input and produce predictions as output—the best predictions. But a pipeline is more than a model. It includes:
+
+* **Preprocessing** - what Machine Learners call “feature engineering.
+
+* **Modeling**
+
+* **Postprocessing** - anything you would do to your predictions after you generate them, like aggregation, back transforming, etc. 
+
+Most R engines do some combination of all three of these, which makes them hard to separate out. But you can also explicitly do some of each on your own. We will do that with workflows.
+
+***
