@@ -1,0 +1,84 @@
+/* fix navbar font weight */
+
+.navbar-light .navbar-nav>.nav-item>.nav-link,
+.navbar-light .navbar-nav>.nav-item>.nav-link:focus,
+.navbar-light .navbar-nav>.nav-item>.nav-link:hover {
+  font-weight: 500;
+}
+
+/* change dark headers and body text color */
+
+h1, h2, h3, h4, h5, h6 {
+  color: #404040;
+}
+
+body {
+  color: #404040;
+}
+
+.portrait-title h2 {
+  color: #404040;
+}
+
+/* fix padding of profile description */
+
+section#profile-page.pt-5 div.container div.row div.col-12.col-lg-8{
+  padding-top: 30px !important;
+}
+
+/* Navbar */
+
+/* set max height of logo */
+
+.navbar-brand img {
+  max-height: 44px;
+}
+
+.navbar {
+  min-height: 80px !important;
+}
+
+#navbar-main {
+    box-shadow: none;
+}
+
+
+a.nav-link {
+  text-transform: uppercase;
+}
+
+body {
+  margin-top: 80px !important;
+}
+
+/* White space */
+
+
+.hero-lead {
+  padding-top: 2em;
+  padding-bottom: 2em;
+  font-size: 1rem;
+}
+
+.hero-media {
+  padding-left: 2em;
+}
+
+a.hero-cta-alt:active,
+a.hero-cta-alt:focus,
+a.hero-cta-alt:hover {
+  transform: none;
+}
+
+.wg-hero .btn {
+  color: white;
+}
+
+/* code */
+pre {
+	font-size: 1rem;
+}
+
+table {
+	font-size: .9rem;
+}

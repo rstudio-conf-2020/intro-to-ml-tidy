@@ -1,0 +1,25 @@
+# Theme metadata
+name = "conf_2020"
+
+# Is theme light or dark?
+light = true
+
+# Primary
+primary ="#E7553C" 
+primary_light = "rgba(231,85,60,.8)"
+primary_dark = "rgba(231,85,60,.8)"
+
+# Links
+link = "#E7553C"
+link_hover = "rgba(231,85,60,.8)"
+
+# Menu
+menu_primary = "#E7553C"
+menu_text = "#f8f8f8"
+menu_text_active = "#fff"
+menu_title = "#fff"
+
+# Backgrounds
+background = "#f8f8f8"
+home_section_odd = "#f8f8f8"
+home_section_even = "#f8f8f8"
