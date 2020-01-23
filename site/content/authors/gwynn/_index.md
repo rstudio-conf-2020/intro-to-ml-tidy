@@ -1,6 +1,6 @@
 ---
 # Display name
-name: Gwynn Sturdevant
+name: gwynn sturdevant
 
 # Username (this should match the folder name)
 authors:
@@ -10,32 +10,38 @@ authors:
 superuser: true
 
 # Role/position
-role: Professor of Artificial Intelligence
+role: Data Scientist
 
 # Organizations/Affiliations
 organizations:
-- name: Stanford University
-  url: ""
+- name: Volanno
+  url: "www.volanno.com"
 
 # Short bio (displayed in user profile at end of posts)
-bio: My research interests include distributed robotics, mobile computing and programmable matter.
+bio: Dr. Gwynn Sturdevant specializes in algorithmic development of methods used for improving transportation efficiencies. 
 
 interests:
-- Artificial Intelligence
-- Computational Linguistics
-- Information Retrieval
+- Aviation analytics
+- Machine learning
+- Monte Carlo methods
 
 education:
   courses:
-  - course: PhD in Artificial Intelligence
-    institution: Stanford University
-    year: 2012
-  - course: MEng in Artificial Intelligence
-    institution: Massachusetts Institute of Technology
-    year: 2009
-  - course: BSc in Artificial Intelligence
-    institution: Massachusetts Institute of Technology
-    year: 2008
+  - course: PhD in Statistics
+    institution: University of Auckland
+    year: 2016
+  - course: Diploma in Teaching (Secondary)
+    institution: University of Auckland
+    year: 2003
+  - course: MS in Mathematics
+    institution: Northern Arizona University
+    year: 2003
+  - course: BS in Mathematics
+    institution: St Mary's College of Maryland
+    year: 1999
+  - course: Advanced Diploma in Spanish
+    institution: Univesity of Salamanca
+    year: 1998
 
 # Social/Academic Networking
 # For available icons, see: https://sourcethemes.com/academic/docs/page-builder/#icons
@@ -44,16 +50,13 @@ education:
 social:
 - icon: envelope
   icon_pack: fas
-  link: '#contact'  # For a direct email link, use "mailto:test@example.org".
+  link: 'mailto:nzgwynn@gmail.com'  # For a direct email link, use "mailto:test@example.org".
 - icon: twitter
   icon_pack: fab
-  link: https://twitter.com/GeorgeCushen
-- icon: google-scholar
-  icon_pack: ai
-  link: https://scholar.google.co.uk/citations?user=sIwtMXoAAAAJ
+  link: https://twitter.com/nzgwynn
 - icon: github
   icon_pack: fab
-  link: https://github.com/gcushen
+  link: https://github.com/nzgwynn
 # Link to a PDF of your resume/CV from the About widget.
 # To enable, copy your resume/CV to `static/files/cv.pdf` and uncomment the lines below.
 # - icon: cv
@@ -69,6 +72,4 @@ user_groups:
 - Teaching Assistants
 ---
 
-Nelson Bighetti is a professor of artificial intelligence at the Stanford AI Lab. His research interests include distributed robotics, mobile computing and programmable matter. He leads the Robotic Neurobiology group, which develops self-reconfiguring robots, systems of self-organizing robots, and mobile sensor networks.
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed neque elit, tristique placerat feugiat ac, facilisis vitae arcu. Proin eget egestas augue. Praesent ut sem nec arcu pellentesque aliquet. Duis dapibus diam vel metus tempus vulputate.
+Dr. Gwynn Sturdevant specializes in algorithmic development of methods used for improving transportation efficiencies. Dr. Sturdevant currently works at Volanno, a company that specializes in providing consulting services to the transportation industry. During her tenure at Volanno, she has worked on analytical projects in the rail and the aviation sectors including: improving Terminal Arrival Efficiency Rate estimation, developing an algorithm to predict train arrival times in a multi-agency rail operating environment, and developing methods to produce unbiased algorithmic results. Dr. Sturdevant developed an extensive Shiny application to assist in balancing trials as a post-doctoral fellow with Ken Kleinman (University of Massachusetts, Amherst and Harvard University). Dr. Sturdevant has a PhD in Statistics from the University of Auckland, the birthplace of R, where she studied under Thomas Lumley (University of Auckland and University of Washington) and Ross Ihaka. She focused on finding long-term effects, after cessation of treatments, when noisy measurements cross a threshold in biometric data. 
