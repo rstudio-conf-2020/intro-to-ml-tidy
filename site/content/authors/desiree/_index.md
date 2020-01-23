@@ -70,4 +70,4 @@ user_groups:
 - Teaching Assistants
 ---
 
-Based out of Atlanta, Desirée is a recent PhD grad in neuroscience and a former RStudio summer intern. She enjoys creating visual guides to statistical and coding-related topics.
+Based out of Atlanta, Desirée is a recent PhD grad in neuroscience. As a grad student, she studied families of rhesus monkeys and the underlying genes that contribute to their social behavior. As an RStudio intern, Desiree developed resources to help educators use a variety of RStudio tools in their teaching. She enjoys using illustration to create visual guides to statistical and coding-related topics.
