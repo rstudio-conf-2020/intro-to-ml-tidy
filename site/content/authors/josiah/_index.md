@@ -10,7 +10,7 @@ authors:
 superuser: true
 
 # Role/position
-role: Customer Sucess
+role: Customer Success
 
 # Organizations/Affiliations
 organizations:
