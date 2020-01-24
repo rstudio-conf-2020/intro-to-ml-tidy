@@ -18,7 +18,7 @@ fit_data <- function(formula, model, data, ...) {
 }
 
 fit_split <- function(formula, model, split, ...) {
-  wf <- workflows::add_model(workflows::add_formula(workflows::workflow(), formula, blueprint = hardhat::default_formula_blueprint(indicators = FALSE)), model)
+  wf <- workflows::add_model(workflows::add_formula(workflows::workflow(), formula, blueprint = hardhat::default_formula_blueprint(indicators = FALSE, allow_novel_levels = TRUE)), model)
   tune::last_fit(wf, split, ...)
 }
 ```
@@ -34,8 +34,6 @@ Let's review the handout answers in light of our conversation.
 # Your Turn 3
 
 Write a pipe that creates a learner that uses `lm()` to fit a linear regression. Save it as `lm_spec` and look at the object. What does it return?
-
-*Hint: you'll need https://tidymodels.github.io/parsnip/articles/articles/Models.html*
 
 ```{r}
 lm_spec <- 
@@ -59,34 +57,26 @@ give the same results as
 lm(Sale_Price ~ Gr_Liv_Area, data = ames)
 ```
 
+
 # Your Turn 5
 
-Fill in the blanks. Use `predict()` to:
-
-1. Use your linear model to predict sale prices; save the tibble as `price_pred`
-
-2. Add a pipe and use `mutate()` to add a column with the observed sale prices; name it `truth`
-
-*Hint: Be sure to remove every `_` before running the code!*
+Challenge: can you fit the model that uses `Bedroom_AbvGr`, `Full_Bath` and `Half_Bath` to predict `Sale_Price`? Save the result as `bedbath_fit`.
 
 ```{r}
-lm_fit <- fit_data(Sale_Price ~ Gr_Liv_Area, 
-                   model = lm_spec, 
-                   data = ames)
-
-price_pred <- lm_fit %>% 
-  predict(new_data = ames) %>% 
-  mutate(truth = ames$Sale_Price)
-
-price_pred
+bedbath_fit <- fit_data(Sale_Price ~ Bedroom_AbvGr + Full_Bath + Half_Bath, model = lm_spec, data = ames)
+bedbath_fit
 ```
+
+
 
 # Your Turn 6
 
+(Slide of overfit and appropriately fit models)
 In your teams, decide which model:
 
 1. Has the smallest residuals  
 2. Will have lower prediction error. Why?  
+
 
 # Your Turn 7
 
@@ -95,60 +85,51 @@ Fill in the blanks. Use `initial_split()`, `training()`, `testing()`, `fit_data(
 1. Split ames into training and test sets. Save the rsplit!  
 2. Extract the training data. Fit a linear model to it. Save the model!  
 3. Extract the test data.  
-4. Measure the RMSE of your linear model with your test set.  
+4. Use your linear model to predict the values in your test set.  
 5. Keep `set.seed(100)` at the start of your code.  
 
 *Hint: Be sure to remove every `_` before running the code!*
 
 ```{r}
 set.seed(100) # Important!
+ames_split <- initial_split(ames)
 
-ames_split  <- initial_split(ames)
-ames_train  <- training(ames_split)
-ames_test   <- testing(ames_split)
+ames_train <- training(ames_split)
+lm_fit <- fit_data(Sale_Price ~ Gr_Liv_Area, 
+                   model = lm_spec, 
+                   data = ames_train)
 
-lm_fit      <- fit_data(Sale_Price ~ Gr_Liv_Area, 
-                        model = lm_spec, 
-                        data = ames_train)
-
-price_pred  <- lm_fit %>% 
-  predict(new_data = ames_test) %>% 
-  mutate(price_truth = ames_test$Sale_Price)
-
-rmse(price_pred, truth = price_truth, estimate = .pred)
+ames_test <- testing(ames_split)
+lm_pred <- predict(lm_fit, new_data = ames_test)
 ```
 
 
 
 # Your Turn 8
 
-Rewrite your code from the previous exercise using `fit_split()` and `collect_metrics()` to:
-
-1. Split **ames** into training and test sets. Save the rsplit!
-
-1. Fit a linear model to the training set, then use the model to predict new observations from the test set.
-
-1. Extract the rmse- is it the same as what we just calculated in our previous exercise `53885`?
-
+Compute the test RMSE for our `Sale_Price ~ Bedroom_AbvGr + Full_Bath + Half_Bath` model. You will need to train the model on `ames_train` and use the result to predict the values of `ames_test`.
 
 ```{r}
-set.seed(100) # Important!
+bb_fit <- fit_data(Sale_Price ~ Bedroom_AbvGr + Full_Bath + Half_Bath, model = lm_spec, data = ames_train)
 
-ames_split <- initial_split(ames)
+bb_pred <- predict(bb_fit, new_data = ames_test)
 
-lm_split <- fit_split(Sale_Price ~ Gr_Liv_Area, 
-                      model = lm_spec, 
-                      split = ames_split)
-
-lm_split %>% 
-  collect_metrics()
+rmse_vec(truth = ames_test$Sale_Price, estimate = bb_pred$.pred)
 ```
+
 
 # Your Turn 9
 
-Write a pipe to create a model that uses the rpart package to fit a regression tree. Save it as `rt_spec` and look at the object. What does it return?
+Wrap this all up with `fit_split()` and `collect_metrics()`.
 
-*Hint: you'll need https://tidymodels.github.io/parsnip/articles/articles/Models.html*
+```{r}
+fit_split(Sale_Price ~ Bedroom_AbvGr + Full_Bath + Half_Bath, model = lm_spec, split = ames_split) %>% collect_metrics()
+```
+
+
+# Your Turn 10
+
+Write a pipe to create a model that uses the rpart package to fit a regression tree. Save it as `rt_spec` and look at the object. What does it return?
 
 ```{r}
 rt_spec <- 
@@ -158,12 +139,11 @@ rt_spec <-
 rt_spec
 ```
 
-# Your Turn 10
+# Your Turn 11
 
 Use `fit_split()` and `collect_metrics()` again, this time to fit a regression tree model to the training data with formula = Sale_Price ~ Gr_Liv_Area; then predict new sale prices with the testing data. Compare the rmse here to one using the linear model for the same formula- which is better?
 
 ```{r}
-set.seed(100) # Important!
 fit_split(Sale_Price ~ Gr_Liv_Area, 
           model = lm_spec, 
           split = ames_split) %>% 
@@ -175,3 +155,5 @@ fit_split(Sale_Price ~ Gr_Liv_Area,
           split = ames_split) %>% 
   collect_metrics()
 ```
+
+

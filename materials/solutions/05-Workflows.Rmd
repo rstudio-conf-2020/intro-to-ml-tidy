@@ -1,5 +1,5 @@
 ---
-title: "01-Workflows"
+title: "05-Workflows"
 output: html_document
 ---
 
@@ -42,13 +42,7 @@ fit_split <- function(object, model, split, ...) {
 #     step_pca(all_predictors(), num_comp = 5)
 ```
 
-# Day Two - How to build a prediction pipeline   
-
-***
-
-## 1. Workflows
-
-### Your Turn 1
+# Your Turn 1
 
 Build a workflow that uses a linear model to predict `Sale_Price` with `Bedrooms_AbvGr`, `Full_Bath` and `Half_Bath` in `ames`. Save it as `bb_wf`.
 
@@ -64,7 +58,7 @@ bb_wf <-
 ```
 
 
-### Your Turn 2
+# Your Turn 2
 
 Test the linear model that predicts `Sale_Price` with _everything else in `ames`_ on `ames_split`. What RMSE do you get?
 
@@ -79,11 +73,11 @@ fit_split(all_wf, split = ames_split) %>%
   collect_metrics()
 ```
 
-### Your Turn 3
+# Your Turn 3
 
 Fill in the blanks to test the regression tree model that predicts `Sale_Price` with _everything else in `ames`_ on `ames_split`. What RMSE do you get?
 
-Hint: Create a new workflow by updating `all_wf`.
+*Hint: Create a new workflow by updating `all_wf`.*
 
 ```{r}
 rt_spec <- 
@@ -100,9 +94,9 @@ fit_split(rt_wf, split = ames_split) %>%
 ```
 
 
-### Your Turn 4
+# Your Turn 4
 
-But what about the predictions of our model? Save the fitted object from your regression tree, and use collect_predictions() to see the predictions generated from the test data.
+But what about the predictions of our model? Save the fitted object from your regression tree, and use `collect_predictions()` to see the predictions generated from the test data.
 
 ```{r}
 all_fitwf <- fit_split(rt_wf, split = ames_split)
@@ -111,7 +105,7 @@ all_fitwf %>%
 ```
 
 
-### Your Turn 5
+# Your Turn 5
 
 cut as exercise- slides only
 
@@ -134,18 +128,3 @@ all_fitwf %>%
   pull_workflow_preprocessor()
 ```
 
-
-
-### Recap: Machine Learning is about workflows
-
-In Machine Learning, you want to engineer a pipeline that can take new data as input and produce predictions as output—the best predictions. But a pipeline is more than a model. It includes:
-
-* **Preprocessing** - what Machine Learners call “feature engineering.
-
-* **Modeling**
-
-* **Postprocessing** - anything you would do to your predictions after you generate them, like aggregation, back transforming, etc. 
-
-Most R engines do some combination of all three of these, which makes them hard to separate out. But you can also explicitly do some of each on your own. We will do that with workflows.
-
-***

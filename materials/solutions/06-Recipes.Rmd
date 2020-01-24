@@ -1,0 +1,186 @@
+---
+title: "06-Recipes"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(AmesHousing)
+library(tidymodels)
+library(tune)
+library(workflows)
+
+ames <- make_ames() %>% 
+  dplyr::select(-matches("Qu"))
+
+set.seed(100)
+ames_split <- initial_split(ames)
+ames_train <- training(ames_split)
+ames_test <- testing(ames_split)
+
+fit_data <- function(object, model, data, ...) {
+  if (inherits(object, "formula")) {
+    object <- add_model(add_formula(workflow(), object, blueprint = hardhat::default_formula_blueprint(indicators = FALSE, ...)))
+  }
+  fit(object, data, ...)
+}
+
+fit_split <- function(object, model, split, ...) {
+  if (inherits(object, "formula")) {
+    object <- add_model(add_formula(workflow(), object, blueprint = hardhat::default_formula_blueprint(indicators = FALSE)), model)
+  }
+  tune::last_fit(object, split, ...)
+}
+
+# pca_rec <- 
+#   recipe(Sale_Price ~ ., data = ames) %>%
+#     step_novel(all_nominal()) %>%
+#     step_dummy(all_nominal()) %>%
+#     step_zv(all_predictors()) %>%
+#     step_center(all_predictors()) %>%
+#     step_scale(all_predictors()) %>%
+#     step_pca(all_predictors(), num_comp = 5)
+```
+
+# Your Turn 1
+
+Write a recipe for the `Sale_Price ~ `. variables that:
+1. Adds a novel level to all factors  
+2. Convert all factors to dummy variables  
+3. Catches any zero variance variables  
+4. Centers all of the predictors  
+5. Scales all of the predictors  
+6. Computes the first 5 principal components  
+
+Save the result as `pca_rec`  
+
+```{r}
+pca_rec <- 
+  recipe(Sale_Price ~ ., data = ames) %>%
+    step_novel(all_nominal()) %>%
+    step_dummy(all_nominal()) %>%
+    step_zv(all_predictors()) %>%
+    step_center(all_predictors()) %>%
+    step_scale(all_predictors()) %>%
+    step_pca(all_predictors(), num_comp = 5)
+```
+
+
+# Your Turn 2
+
+Make a workflow that combines `pca_rec` and with `lm_spec`.
+
+```{r}
+pca_wf <-
+  workflow() %>% 
+    add_recipe(pca_rec) %>% 
+    add_model(lm_spec)
+```
+
+# Your Turn 3
+
+Try our pca workflow on `ames_split`. What is the RMSE?
+
+```{r}
+pca_wf %>% 
+  fit_split(split = ames_split) %>% 
+  collect_metrics()
+```
+
+# Your Turn 4
+
+The Box-Cox transformation provides an alternative to centering and scaling data. Modify the code below to build a new pca recipe that uses a box-cox transformation instead of centering and scaling the data. Then update `pca_wf` to use the new recipe.
+
+*Hint: Guess. Use tab completion. Or visit <http://tidymodels.github.io/recipes/reference/index.html>.*
+
+```{r eval = FALSE}
+bc_rec <- 
+  recipe(Sale_Price ~ ., data = ames) %>%
+    step_novel(all_nominal()) %>%
+    step_dummy(all_nominal()) %>%
+    step_zv(all_predictors()) %>%
+    step_center(all_predictors()) %>%
+    step_scale(all_predictors()) %>%
+    step_pca(all_predictors(), num_comp = 5)
+
+bc_wf <- 
+  pca_wf %>% 
+    ____________(bc_rec)
+```
+
+```{r}
+bc_rec <- 
+  recipe(Sale_Price ~ ., data = ames) %>%
+    step_novel(all_nominal()) %>%
+    step_dummy(all_nominal()) %>%
+    step_zv(all_predictors()) %>%
+    step_BoxCox(all_predictors()) %>%
+    step_pca(all_predictors(), num_comp = 5)
+
+bc_wf <- 
+  pca_wf %>% 
+    update_recipe(bc_rec)
+```
+
+# Your Turn 5
+
+Add a recipe step to downsample the remote variable majority class in the training set prior to model training. Edit your workflow, then re-fit the model and examine the metrics. Is the ROC AUC better than chance (.5)?
+
+```{r}
+library(modeldata)
+data(stackoverflow)
+
+set.seed(100) # Important!
+so_split <- initial_split(stackoverflow, strata = Remote)
+so_train <- training(so_split)
+so_test  <- testing(so_split)
+
+tree_spec <- 
+  decision_tree() %>%         
+  set_engine("rpart") %>%      
+  set_mode("classification") 
+
+so_rec <- recipe(Remote ~ ., data = so_train) %>% 
+  step_dummy(all_nominal(), -all_outcomes()) %>% 
+  step_lincomb(all_predictors())
+
+so_wf <- workflow() %>% 
+  add_model(tree_spec) %>% 
+  add_recipe(so_rec)
+
+set.seed(1980)
+so_wf %>% 
+  fit_split(split = so_split) %>% 
+  collect_metrics()
+```
+
+Answer:
+```{r}
+library(modeldata)
+data(stackoverflow)
+
+set.seed(100) # Important!
+so_split <- initial_split(stackoverflow, strata = Remote)
+so_train <- training(so_split)
+so_test  <- testing(so_split)
+
+tree_spec <- 
+  decision_tree() %>%         
+  set_engine("rpart") %>%      
+  set_mode("classification") 
+
+so_down <- recipe(Remote ~ ., data = so_train) %>% 
+  step_dummy(all_nominal(), -all_outcomes()) %>% 
+  step_lincomb(all_predictors()) %>% 
+  step_downsample(Remote)
+
+so_downwf <- workflow() %>% 
+  add_model(tree_spec) %>% 
+  add_recipe(so_down)
+
+set.seed(1980)
+so_downwf %>% 
+  fit_split(split = so_split) %>% 
+  collect_metrics()
+```
+

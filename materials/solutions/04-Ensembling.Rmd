@@ -16,7 +16,7 @@ fit_split <- function(formula, model, split, ...) {
 
 ```{r}
 # read in the data
-stackoverflow <- read_rds(here::here("Day-1/exercises/data/stackoverflow.rds"))
+stackoverflow <- read_rds(here::here("materials/data/stackoverflow.rds"))
 
 # split the data
 set.seed(100) # Important!
