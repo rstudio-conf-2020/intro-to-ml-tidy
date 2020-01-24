@@ -15,7 +15,7 @@ role: Data Scientist
 # Organizations/Affiliations
 organizations:
 - name: Volanno
-  url: "www.volanno.com"
+  url: https://www.volanno.com
 
 # Short bio (displayed in user profile at end of posts)
 bio: Dr. Gwynn Sturdevant specializes in algorithmic development of methods used for improving transportation efficiencies. 
