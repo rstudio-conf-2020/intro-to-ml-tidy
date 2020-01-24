@@ -19,6 +19,21 @@ organizations:
 
 # Short bio (displayed in user profile at end of posts)
 
+interests:
+- Statistics / Data Science 
+- Meta-research 
+- Genetics / Omics
+- Autism
+
+education:
+  courses:
+  - course: PhD in Epidemiology
+    institution: Karolinska Institute 
+    year: 2012
+  - course: MSc in Biology
+    institution: Stockholm University
+    year: 2007
+
 # Social/Academic Networking
 # For available icons, see: https://sourcethemes.com/academic/docs/page-builder/#icons
 #   For an email link, use "fas" icon pack, "envelope" icon, and a link in the
@@ -42,5 +57,5 @@ user_groups:
 - Teaching Assistants
 ---
 
-Hasse Walum is an Instructor in the Department of Pediatrics at Emory University. He conducts his research at the Marcus Autism Center and enjoys coding in R, thinking about issues related to scientific rigor, and analyzing gene expression data.
+Hasse grew up in Sweden but has lived in Atlanta the last 7 years. A large part of his research experience has focused on genetic and hormonal perspectives on pair-bonding (monogamous) behavior. Hasse currently works as an Instructor at the Marcus Autism Center, studying the role of developmental gene expression patterns in autism. Some of Hasse’s other interest include coding in R, scientific rigor and reproducibility, and creative writing. 
 
