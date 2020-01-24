@@ -1,11 +1,13 @@
 <footer class="site-footer">
-  {{ if or (site.GetPage "terms.md") (site.GetPage "privacy.md") }}
+  {{ if or (site.GetPage "terms.md") (site.GetPage "license.md") }}
   <p class="powered-by">
-    {{ with site.GetPage "privacy.md" }}
-      {{ printf "<a href=\"%s\">%s</a>" .RelPermalink .Title | safeHTML }}
+    {{ with site.GetPage "license.md" }}
+        <p class="powered-by">
+        {{ printf "<a href=\"%s\">%s <br> %s </a>" .RelPermalink .Title .LinkTitle  | safeHTML }}<br>
+         </p>
     {{ end }}
     {{ with site.GetPage "terms.md" }}
-      {{ if site.GetPage "privacy.md" }} &middot; {{ end }}
+      {{ if site.GetPage "license.md" }} &middot; {{ end }}
       {{ printf "<a href=\"%s\">%s</a>" .RelPermalink .Title | safeHTML }}
     {{ end }}
   </p>
@@ -14,9 +16,11 @@
   <p class="powered-by">
     {{ with site.Copyright }}{{ replace . "{year}" now.Year | markdownify}} &middot; {{ end }}
 
-    Powered by the
+    Made with the <a href="https://cran.r-project.org/" target="_blank" rel="noopener"><i class="fab fa-r-project"></i></a>&nbsp;<a href="https://github.com/rstudio/blogdown" target="_blank" rel="noopener">blogdown</a> package and
+    a custom
     <a href="https://sourcethemes.com/academic/" target="_blank" rel="noopener">Academic theme</a> for
-    <a href="https://gohugo.io" target="_blank" rel="noopener">Hugo</a>.
+<a href="https://gohugo.io" target="_blank" rel="noopener">Hugo</a>
+    by <a href="http://desiree.rbind.io/" target="_blank" rel="noopener">Desirée De Leon</a>.
 
     {{ if not (in (slice "docs" "updates") .Type) }}
     <span class="float-right" aria-hidden="true">
