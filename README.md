@@ -1,4 +1,4 @@
-[![Netlify Status](https://api.netlify.com/api/v1/badges/fc33b987-b580-4145-afc9-7d8427bf77f1/deploy-status)](https://app.netlify.com/sites/epic-wiles-895d0a/deploys)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/fc33b987-b580-4145-afc9-7d8427bf77f1/deploy-status)](https://app.netlify.com/sites/conf20-intro-ml/deploys)
 
 Introduction to Machine Learning with the Tidyverse
 ================
