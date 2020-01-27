@@ -1,0 +1,123 @@
+---
+title: "04-Ensembling"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(tidymodels)
+library(tune)
+
+source(here::here("exercises/04-helpers.R"))
+
+fit_split <- function(formula, model, split, ...) {
+  wf <- workflows::add_model(workflows::add_formula(workflows::workflow(), formula, blueprint = hardhat::default_formula_blueprint(indicators = FALSE)), model)
+  tune::last_fit(wf, split, ...)
+}
+
+get_tree_fit <- function(results) {
+  results %>% 
+    pluck(".workflow", 1) %>% 
+    pull_workflow_fit() 
+}
+
+# read in the data
+stackoverflow <- read_rds(here::here("exercises/data/stackoverflow.rds"))
+
+# split the data
+set.seed(100) # Important!
+so_split <- initial_split(stackoverflow, strata = remote)
+so_train <- training(so_split)
+so_test  <- testing(so_split)
+```
+
+# Your turn 1
+
+Fill in the blanks to return the accuracy and ROC AUC for the vanilla decision tree model.
+
+```{r}
+vanilla_tree_spec <-
+  decision_tree() %>% 
+  set_engine("rpart") %>% 
+  set_mode("classification")
+
+set.seed(100) # Important!
+_________(remote ~ ., 
+          model = ________, 
+          split = so_split) %>% 
+  _________
+```
+
+
+# Your Turn 2
+
+Create a new classification tree model spec; call it `big_tree_spec`. 
+Set the cost complexity to `0`, and the minimum number of data points in a node to split to be `1`. 
+
+Compare the metrics of the big tree to the vanilla tree- which one predicts the test set better?
+
+*Hint: you'll need https://tidymodels.github.io/parsnip/reference/decision_tree.html*
+
+```{r}
+
+```
+
+
+# Your Turn 3
+
+Let's combine bootstrapping with decision trees.
+
+Do **Round 1** on your handouts.
+
+# Your Turn 4
+
+Now, let's add the aggregating part.
+
+Do **Round 2** on your handouts.
+
+# Your Turn 5
+
+Create a new model spec called `rf_spec`, which will learn an ensemble of classification trees from our training data using the **ranger** package. 
+
+Compare the metrics of the random forest to your two single tree models (vanilla and big)- which predicts the test set better?
+
+*Hint: you'll need https://tidymodels.github.io/parsnip/articles/articles/Models.html*
+
+```{r}
+
+```
+
+# Your Turn 6
+
+Challenge: Make 4 more random forest model specs, each using 4, 8, 12, and 20 variables at each split. Which value maximizes the area under the ROC curve?
+
+*Hint: you'll need https://tidymodels.github.io/parsnip/reference/rand_forest.html*
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+
+# Your Turn 7
+
+Make a new model spec called `treebag_imp_spec` to fit a bagged classification tree model. Set the variable `importance` mode to "permutation". Plot the variable importance- which variable was the most important?
+
+```{r}
+
+```
+
+
+
+

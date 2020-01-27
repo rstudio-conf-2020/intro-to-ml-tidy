@@ -1,0 +1,200 @@
+---
+title: "08-Tune"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(AmesHousing)
+library(tidymodels)
+library(tune)
+library(workflows)
+
+ames <- make_ames() %>% 
+  dplyr::select(-matches("Qu"))
+
+set.seed(100)
+ames_split <- initial_split(ames)
+ames_train <- training(ames_split)
+ames_test <- testing(ames_split)
+
+fit_data <- function(object, model, data, ...) {
+  if (inherits(object, "formula")) {
+    object <- add_model(add_formula(workflow(), object, blueprint = hardhat::default_formula_blueprint(indicators = FALSE, ...)))
+  }
+  fit(object, data, ...)
+}
+
+fit_split <- function(object, model, split, ...) {
+  if (inherits(object, "formula")) {
+    object <- add_model(add_formula(workflow(), object, blueprint = hardhat::default_formula_blueprint(indicators = FALSE)), model)
+  }
+  tune::last_fit(object, split, ...)
+}
+```
+
+# Your Turn 1
+
+Combine the recipe and model below into a new workflow named `knn_wf`. Can you tell what type of model this uses?
+
+Fit the workflow to `cv_folds` and collect its RMSE.
+
+```{r}
+normalize_rec <-
+  recipe(Sale_Price ~ ., data = ames) %>% 
+    step_novel(all_nominal()) %>% 
+    step_dummy(all_nominal()) %>% 
+    step_zv(all_predictors()) %>% 
+    step_center(all_predictors()) %>% 
+    step_scale(all_predictors())
+
+knn5_spec <- 
+  nearest_neighbor(neighbors = 5) %>% 
+    set_engine("kknn") %>% 
+    set_mode("regression")
+```
+
+
+# Your Turn 2
+
+Repeat the process in Your Turn 1 with a similar workflow that uses `neighbors = 10`. Does the RMSE change?
+
+```{r}
+
+```
+
+
+# Your Turn 3
+
+Use `expand_grid()` to create a grid of values for `neighbors` that spans from 10 to 20. Save the result as `k10_20`.
+
+```{r}
+
+```
+
+
+# Your Turn 4
+
+Create a knn workflow that tunes over `neighbors` and uses your `normalize_rec` recipe. Then use `tune_grid`, `cv_folds` and `k10_20` to find the best value of `neighbors`. Save the output of `tune_grid`.
+
+```{r}
+___________ <- 
+  nearest_neighbor(neighbors = ___________) %>% 
+    set_engine("kknn") %>% 
+    set_mode("regression")
+
+knn_twf <-
+  ___________ %>% 
+    ___________ %>% 
+    ___________
+
+knn_results <- 
+  knn_twf %>%
+    ___________
+
+knn_results %>% 
+  ___________ %>% 
+  filter(.metric == "rmse")
+```
+
+# Your Turn 5
+
+Modify our PCA workflow below to find the best value for `num_comp` on the grid provided. Which is it? Use `show_best()` to see. Save the output of the fit function as `pca_results`.
+
+```{r}
+lm_spec <- 
+  linear_reg() %>% 
+  set_engine("lm")
+
+pca_rec <- 
+  recipe(Sale_Price ~ ., data = ames) %>%
+    step_novel(all_nominal()) %>%
+    step_dummy(all_nominal()) %>%
+    step_zv(all_predictors()) %>%
+    step_center(all_predictors()) %>%
+    step_scale(all_predictors()) %>%
+    step_pca(all_predictors(), num_comp = 5)
+
+pca_wf <-
+  workflow() %>% 
+    add_recipe(pca_rec) %>% 
+    add_model(lm_spec)
+
+nc10_40 <- expand_grid(num_comp = c(10,20,30,40))
+```
+
+```{r}
+
+```
+
+
+
+# Switch to Stackoverflow data
+
+```{r}
+library(modeldata)
+data(stackoverflow)
+
+# split the data
+set.seed(100) # Important!
+so_split <- initial_split(stackoverflow, strata = Remote)
+so_train <- training(so_split)
+so_test  <- testing(so_split)
+
+set.seed(100) # Important!
+so_folds <- vfold_cv(so_train, v = 10, strata = Remote)
+```
+
+
+# Your Turn 6
+
+Edit the random forest model to tune the `mtry` and `min_n` hyper-parameters; call the new model spec `rf_tuner`.
+
+Update the model for your workflow; save it as `rf_twf`.
+
+Tune the workflow to `so_folds` and show the best combination of hyper-parameters to maximize `roc_auc`.
+
+How does it compare to the average ROC AUC across folds from fit_resamples()?
+
+```{r}
+so_rec <- recipe(Remote ~ ., 
+                 data = so_train) %>% 
+  step_dummy(all_nominal(), -all_outcomes()) %>% 
+  step_lincomb(all_predictors()) %>% 
+  step_downsample(Remote)
+
+rf_spec <- 
+  rand_forest() %>% 
+    set_engine("ranger") %>% 
+    set_mode("classification")
+
+rf_wf <-
+  workflow() %>% 
+    add_recipe(so_rec) %>% 
+    add_model(rf_spec)
+```
+
+
+# Your Turn 7
+
+Use `select_best()`, `finalize_workflow()`, and `fit_split()` to take the best combination of hyper-parameters from `rf_results` and use them to predict the test set.
+
+How does our actual test ROC AUC compare to our cross-validated estimate?
+
+```{r}
+so_best <-
+  ___________ %>% 
+    ___________
+
+so_wfl_final <- 
+  rf_twf %>%
+    ___________
+
+so_test_results <-
+  ___________ %>% 
+    ___________(split = so_split)
+
+so_test_results %>% 
+  ___________
+```
+

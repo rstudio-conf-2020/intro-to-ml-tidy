@@ -1,0 +1,164 @@
+---
+title: "07-CV"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(AmesHousing)
+library(tidymodels)
+library(tune)
+library(workflows)
+
+ames <- make_ames() %>% 
+  dplyr::select(-matches("Qu"))
+
+set.seed(100)
+ames_split <- initial_split(ames)
+ames_train <- training(ames_split)
+ames_test <- testing(ames_split)
+
+fit_data <- function(object, model, data, ...) {
+  if (inherits(object, "formula")) {
+    object <- add_model(add_formula(workflow(), object, blueprint = hardhat::default_formula_blueprint(indicators = FALSE, ...)))
+  }
+  fit(object, data, ...)
+}
+
+fit_split <- function(object, model, split, ...) {
+  if (inherits(object, "formula")) {
+    object <- add_model(add_formula(workflow(), object, blueprint = hardhat::default_formula_blueprint(indicators = FALSE)), model)
+  }
+  tune::last_fit(object, split, ...)
+}
+```
+
+# Your Turn 1
+
+Run the first code chunk. Then fill in the blanks to:
+
+1. Create a split object that apportions 75% of `ames` to a training set and the remainder to a testing set.
+2. Fit the `all_wf` to the split object.
+3. Extract the rmse of the fit.
+
+```{r}
+lm_spec <- 
+  linear_reg() %>% 
+  set_engine("lm")
+
+all_wf <- 
+  workflow() %>% 
+  add_formula(Sale_Price ~ .) %>% 
+  add_model(lm_spec)
+
+set.seed(100)
+```
+
+```{r}
+new_split <- ___________(ames)
+all_wf %>% 
+  __________(split = new_split) %>% 
+  collect_metrics()
+```
+
+
+# Your Turn 2
+
+What would happen if you repeated this process? Would you get the same answers? Discuss in your team. 
+
+Note your answer from above. Then rerun just the last code chunk above. Do you get the same answer?
+
+# Your Turn 3
+
+Rerun the code below 10 times and then compute the mean of the results (so you will need to jot them down as you go).
+
+```{r}
+new_split <- initial_split(ames)
+all_wf %>% 
+  fit_split(split = new_split) %>% 
+  collect_metrics() %>% 
+  filter(.metric == "rmse") %>% 
+  pluck(".estimate")
+```
+
+## Your Turn 4
+
+Run the code below. What does it return?
+
+```{r}
+set.seed(100)
+cv_folds <- 
+    vfold_cv(ames, v = 10, strata = Sale_Price, breaks = 4)
+cv_folds
+```
+
+## Your Turn 5
+
+Modify the code below to use `fit_resamples` and `cv_folds` to cross-validate the `all_wf` workflow. Which RMSE do you collect at the end?
+
+```{r}
+all_wf %>% 
+  fit_split(split = new_split) %>% 
+  collect_metrics()
+```
+
+
+## Your Turn 6
+
+Create two new workflows, one that fits the bedbath model, 
+`Sale_Price ~ Bedroom_AbvGr + Full_Bath + Half_Bath` 
+and one that fits the square foot model, 
+`Sale_Price ~ Gr_Liv_Area`
+
+Then use `fit_resamples` and `cv_folds` to compare the performance of each.
+
+```{r}
+bb_wf <- 
+  ___________ %>% 
+    __________(Sale_Price ~ Bedroom_AbvGr + Full_Bath + Half_Bath) %>% 
+    __________(lm_spec)
+
+sqft_wf <- 
+  __________ %>% 
+    _________________________ %>% 
+    _________________________
+
+bb_wf %>% 
+  ____________________________ %>%  
+  ____________________
+
+sqft_wf %>% 
+  ____________________________ %>% 
+  ____________________
+```
+
+
+## Your Turn 7
+
+Work together with your teammates to complete the cross-validation handout.
+
+## Your Turn 8
+
+Modify the code below to return the **Mean Absolute Error.** Visit 
+tidymodels.github.io/yardstick/reference/index.html to find the right function to use.
+
+```{r}
+bb_wf <- 
+  workflow() %>% 
+    add_formula(Sale_Price ~ Bedroom_AbvGr + Full_Bath + Half_Bath) %>% 
+    add_model(lm_spec)
+
+sqft_wf <- 
+  workflow() %>% 
+    add_formula(Sale_Price ~ Gr_Liv_Area) %>% 
+    add_model(lm_spec)
+
+bb_wf %>% 
+  fit_resamples(resamples = cv_folds) %>% 
+  collect_metrics()
+
+sqft_wf %>% 
+  fit_resamples(resamples = cv_folds) %>% 
+  collect_metrics()
+```
+
