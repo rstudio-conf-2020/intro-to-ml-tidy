@@ -105,26 +105,3 @@ all_fitwf %>%
 ```
 
 
-# Your Turn 5
-
-cut as exercise- slides only
-
-What's in fitted workflow? Use pluck to find out.
-
-```{r}
-all_fitwf %>% 
-  pluck(".workflow", 1)
-
-all_fitwf %>% 
-  pluck(".workflow", 1) %>% 
-  pull_workflow_fit()
-
-all_fitwf %>% 
-  pluck(".workflow", 1) %>% 
-  pull_workflow_spec()
-
-all_fitwf %>% 
-  pluck(".workflow", 1) %>% 
-  pull_workflow_preprocessor()
-```
-

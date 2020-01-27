@@ -97,7 +97,7 @@ k10_20 <- expand_grid(neighbors = 10:20)
 
 # Your Turn 4
 
-Create a knn workflow that tunes over `neighbors`. Then use `fit_grid`, `cv_folds` and `k10_20` to find the best value of `neighbors`. Save the output of `fit_grid`.
+Create a knn workflow that tunes over `neighbors`. Then use `tune_grid`, `cv_folds` and `k10_20` to find the best value of `neighbors`. Save the output of `tune_grid`.
 
 ```{r}
 knn_tuner <- 
@@ -112,7 +112,7 @@ knn_twf <-
 
 knn_results <- 
   knn_twf %>%
-    fit_grid(resamples = cv_folds, grid = k10_20) 
+    tune_grid(resamples = cv_folds, grid = k10_20) 
 
 knn_results %>% 
   collect_metrics() %>% 
@@ -121,7 +121,7 @@ knn_results %>%
 
 # Your Turn 5
 
-Modify our PCA workflow below to find the best value for `num_comp`on the grid provided. Which is it? Use `show_best()` to see. Save the output of the fit function as `pca_results`.
+Modify our PCA workflow below to find the best value for `num_comp` on the grid provided. Which is it? Use `show_best()` to see. Save the output of the fit function as `pca_results`.
 
 ```{r}
 lm_spec <- 
@@ -169,7 +169,7 @@ nc10_40 <- expand_grid(num_comp = c(10,20,30,40))
 
 pca_results <-
   pca_twf %>% 
-    fit_grid(resamples = cv_folds, grid = nc10_40)
+    tune_grid(resamples = cv_folds, grid = nc10_40)
 
 pca_results %>% 
   show_best(metric = "rmse", maximize = FALSE)
