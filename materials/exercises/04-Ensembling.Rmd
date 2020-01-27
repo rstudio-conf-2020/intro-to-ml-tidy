@@ -8,7 +8,7 @@ library(tidyverse)
 library(tidymodels)
 library(tune)
 
-source(here::here("exercises/04-helpers.R"))
+source(here::here("materials/exercises/04-helpers.R"))
 
 fit_split <- function(formula, model, split, ...) {
   wf <- workflows::add_model(workflows::add_formula(workflows::workflow(), formula, blueprint = hardhat::default_formula_blueprint(indicators = FALSE)), model)
@@ -22,7 +22,7 @@ get_tree_fit <- function(results) {
 }
 
 # read in the data
-stackoverflow <- read_rds(here::here("exercises/data/stackoverflow.rds"))
+stackoverflow <- read_rds(here::here("materials/data/stackoverflow.rds"))
 
 # split the data
 set.seed(100) # Important!
