@@ -18,7 +18,7 @@ fit_split <- function(formula, model, split, ...) {
 get_tree_fit <- function(results) {
   results %>% 
     pluck(".workflow", 1) %>% 
-    pull_workflow_fit() 
+    workflows::pull_workflow_fit() 
 }
 
 # read in the data
