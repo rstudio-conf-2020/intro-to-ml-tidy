@@ -8,7 +8,7 @@ links:
 - icon: images
   icon_pack: fas
   name: slides
-  url: https://pedantic-pike-efd356.netlify.com/day-1/slides/02-classifying#33
+  url: https://pedantic-pike-efd356.netlify.com/day-1/slides/02-classifying
 projects: []
 slug: 02-classifying
 tags: []
@@ -18,6 +18,6 @@ weight: 3
 
 
 ```{r echo=FALSE}
-knitr::include_url("https://pedantic-pike-efd356.netlify.com/day-1/slides/02-classifying#33")
+knitr::include_url("https://pedantic-pike-efd356.netlify.com/day-1/slides/02-classifying")
 ```
 
