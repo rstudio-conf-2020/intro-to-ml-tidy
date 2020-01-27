@@ -79,9 +79,11 @@ problems with the classroom server connection.
 | 15:00 - 15:30 | *Coffee break*   |
 | 15:30 - 17:00 | Session 4        |
 
-## Instructor
+# Materials
 
-\[ADD INSTRUCTOR BIO\]
+[Overview](https://pedantic-pike-efd356.netlify.com/day-1/slides/00-overview#1)
+
+[Predicting](https://pedantic-pike-efd356.netlify.com/day-1/slides/01-predicting#1)
 
 -----
 
