@@ -1,0 +1,73 @@
+---
+title: "List columns lightning round!"
+author: "Handout 2 of Introduction to Machine Learning"
+date: "January 2020"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(tidymodels)
+library(AmesHousing)
+ames <- make_ames()
+
+fit_split <- function(formula, model, split, ...) {
+  wf <- workflows::add_model(workflows::add_formula(workflows::workflow(), formula, blueprint = hardhat::default_formula_blueprint(indicators = FALSE)), model)
+  tune::last_fit(wf, split, ...)
+}
+
+# split
+set.seed(100) # Important!
+ames_split  <- initial_split(ames)
+ames_train  <- training(ames_split)
+ames_test   <- testing(ames_split)
+
+lm_spec <- 
+   linear_reg() %>% # Pick linear regression
+   set_engine(engine = "lm") # set engine
+
+lm_split <- fit_split(Sale_Price ~ Gr_Liv_Area, 
+                      model = lm_spec, 
+                      split = ames_split) #<<
+
+simple_split <- lm_split %>% 
+  select(splits, id)
+```
+
+
+
+1. How can you return just the contents of the first cell in splits? Write the code.
+
+    ```{r}
+    simple_split
+    ```
+
+    \bigskip
+    \bigskip
+    
+1. Which tidyverse function could you use to run `testing()` on a row in splits? Complete the code to extract the test set as a list. Do not use a for loop. 
+
+    ```{r eval=FALSE}
+    simple_split %>% 
+      pluck("splits") %>%
+      ________________
+    ```
+
+    \bigskip
+    \bigskip
+
+1. Complete the code! Use a dplyr function to add the training data as a list column to the `simple_split` table.
+
+    
+    ```{r eval=FALSE}
+    simple_split %>%   
+      __________________
+    ```
+
+    ```{r echo=FALSE}
+    simple_split %>% 
+      mutate(train_set = map(splits, training))
+    ```

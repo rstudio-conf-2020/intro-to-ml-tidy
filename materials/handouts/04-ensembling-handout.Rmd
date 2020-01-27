@@ -1,0 +1,116 @@
+---
+title: "Ensembling"
+author: "Handout 4 of Introduction to Machine Learning"
+date: "January 2020"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(tidymodels)
+library(workflows)
+library(tune)
+
+# read in the data
+stackoverflow <- read_rds(here::here("materials/data/stackoverflow.rds"))
+
+set.seed(100) # Important!
+so_split <- initial_split(stackoverflow, strata = remote)
+so_train <- training(so_split)
+so_test  <- testing(so_split)
+```
+
+```{r bootstrap-tree, include=FALSE}
+get_boot_trees <- function(seed = 1, tree_depth = 4) {
+  # Make recipe
+  so_rec <- 
+    recipe(remote ~ ., 
+           data = stackoverflow) 
+  
+  # Make learner
+  tmp_tree_lnr <-
+    decision_tree(tree_depth = tree_depth) %>%         
+    set_engine("rpart", model = TRUE) %>%      
+    set_mode("classification")
+  
+  # Make workflow
+  temp_flow <- 
+    workflow() %>% 
+    add_model(tmp_tree_lnr) %>% 
+    add_recipe(so_rec) 
+  
+  # Begin resampling
+  set.seed(seed)
+  so_boots <- so_train %>% 
+    bootstraps(times = 1) %>% 
+    pluck("splits", 1)
+  
+  boot_fit <- temp_flow %>% 
+    fit(data = analysis(so_boots)) %>% 
+    pull_workflow_fit() %>% 
+    pluck("fit")
+  
+  boot_fit
+}
+```
+
+```{r bootstrap-predict, include=FALSE}
+get_boot_votes <- function(seed = 1, team = 1) {
+  tree <- get_boot_trees(seed)
+  set.seed(seed * team)
+  start <- sample((nrow(so_test)/2 - 4), 1)
+  mini_test <- so_test %>% 
+    mutate(obs = row_number()) %>%  
+    group_by(remote) %>% 
+    slice(start:(start + 4))
+  preds <- 
+    tree %>% 
+    predict(mini_test, type = "class") %>% 
+    enframe(name = "row_num", value = "estimate") %>% 
+    bind_cols(select(mini_test, truth = remote, obs)) %>% 
+    select(obs, truth, estimate)
+  preds
+}
+```
+
+We'll assign each team a number. Your team number determines which ten observations from the testing set you'll predict (Round 1) and vote on (Round 2).
+
+Team #: _____________  
+
+# Round 1: Predict
+
+Pick a random seed to use: _____________  
+*Shh. Don't tell any of your teammates.* 
+
+Use the `get_boot_votes()` function provided to:
+
++ build a single classification tree, 
++ train it with one bootstrapped sample, and 
++ predict your 10 observations from the testing set. 
+
+Your output will look like this. Use it to fill in the table on the back of this page.
+
+```{r}
+get_boot_votes(seed = 0, team = 2020)
+```
+
+What was your bootstrapped tree's overall accuracy?
+
+(over)
+\clearpage
+
+```{r echo = FALSE, out.width="100%"}
+knitr::include_graphics("images/ensembling.jpeg")
+```
+
+
+
+
+# Round 2: Vote!
+
+Now, as a team, form a voting committee. You have your tree's votes for those 10 observations already filled in the table above. Your job now is to tally up the number of votes for `Remote / Not Remote` across all team members' trees. Fill in the second half of the table with your team.
+
+What was your team's overall accuracy, across each members' bootstrapped trees?

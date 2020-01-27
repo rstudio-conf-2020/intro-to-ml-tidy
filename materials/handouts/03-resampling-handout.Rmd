@@ -1,0 +1,106 @@
+---
+title: "Sampling & Resampling"
+author: "Handout 3 of Introduction to Machine Learning"
+date: "January 2020"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+
+```
+
+
+**Problem #1:**
+
+You cannot measure all the things (in the population).
+
+\bigskip
+
+**Solution #1:**
+
+Take a __________________.
+
+\bigskip
+\bigskip
+
+
+
+**Problem #2:**
+
+Your sample could be biased.
+
+\bigskip
+
+**Solution #2:**
+
+Take a __________________ sample.
+
+\bigskip
+\bigskip
+
+
+
+**Problem #3:**
+
+But now you have to worry about sampling __________________. 
+
+Why worry? Because it affects how well your model can make accurate predictions.
+
+\bigskip
+
+**Solutions:**
+
+1. 
+1. 
+1. 
+
+\bigskip
+\bigskip
+    
+\clearpage
+
+
+Let’s say *more flexible models* is our only option. We cannot start over; we cannot get more data. Now we have two new problems!
+
+**Problems:**
+
+1. Less flexible models tend to have more __________________ (they may miss more noise, but at the cost of missing some signal too)
+
+    \bigskip
+
+1. More flexible models tend have more __________________ (they may catch more signal, but at the cost of picking up too much noise)
+
+    \bigskip
+
+Why worry?
+
+1. It is really hard to do anything with model __________________ (once the signal is gone, it is gone)…
+
+    \bigskip
+
+1. Model __________________, on the other hand, we have methods for (because the signal is there, and the noise is estimable) 
+
+    \bigskip
+
+**Solution:**
+
+Bootstrapping: resampling from our __________________ data with __________________.
+
+\bigskip
+\bigskip
+\bigskip
+\bigskip
+
+**Problem:**
+
+But now you have many (re-)samples, and many models. 
+
+\bigskip
+
+**Solution:**
+
+Model __________________.
+
