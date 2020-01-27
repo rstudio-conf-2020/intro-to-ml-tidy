@@ -1,0 +1,22 @@
+---
+title: 'Session 04: Data & Workflows'
+draft: true
+date: '2019-08-29'
+slug: 04-data-workflows
+categories: []
+tags: []
+lastmod: '2019-09-09T11:21:55-07:00'
+featured: no
+projects: []
+weight: 5
+links:
+- icon: images
+  icon_pack: fas
+  name: slides
+  url: /slides/04-data-workflows.html
+---
+
+
+```{r echo=FALSE}
+knitr::include_url("/slides/04-data-workflows.html")
+```

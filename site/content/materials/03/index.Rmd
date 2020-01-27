@@ -1,0 +1,20 @@
+---
+title: 'Session 03: Graphics for Communication'
+draft: true
+date: '2019-08-29'
+categories: []
+tags: []
+lastmod: '2019-09-09T11:21:55-07:00'
+featured: no
+projects: []
+weight: 4
+links:
+- icon: images
+  icon_pack: fas
+  name: slides
+  url: /slides/03-graphics.html
+---
+
+```{r echo=FALSE}
+knitr::include_url("/slides/03-graphics.html")
+```

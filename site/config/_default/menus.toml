@@ -12,8 +12,13 @@
   name = "Prework"
   url = "prework"
   weight = 20
+  
+[[main]]
+  name = "Materials"
+  url = "materials"
+  weight = 30
 
 [[main]]
   name = "People"
   url = "people"
-  weight = 30
+  weight = 40

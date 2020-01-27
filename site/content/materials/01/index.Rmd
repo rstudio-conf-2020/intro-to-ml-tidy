@@ -1,0 +1,20 @@
+---
+title: 'Session 01: Predicting'
+draft: false
+slug: 01-predicting
+categories: []
+tags: []
+featured: no
+projects: []
+weight: 2
+links:
+- icon: images
+  icon_pack: fas
+  name: slides
+  url: https://pedantic-pike-efd356.netlify.com/day-1/slides/01-predicting
+---
+
+
+```{r echo=FALSE}
+knitr::include_url("https://pedantic-pike-efd356.netlify.com/day-1/slides/01-predicting#1")
+```
