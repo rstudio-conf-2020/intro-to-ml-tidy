@@ -1,0 +1,117 @@
+---
+title: "02-Classification"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(tidymodels)
+library(tune)
+
+fit_split <- function(formula, model, split, ...) {
+  wf <- workflows::add_model(workflows::add_formula(workflows::workflow(), formula, blueprint = hardhat::default_formula_blueprint(indicators = FALSE)), model)
+  tune::last_fit(wf, split, ...)
+}
+
+get_tree_fit <- function(results) {
+  results %>% 
+    pluck(".workflow", 1) %>% 
+    workflows::pull_workflow_fit() 
+}
+```
+
+
+```{r}
+# read in the data
+stackoverflow <- read_rds(here::here("Day-1/exercises/data/stackoverflow.rds"))
+
+# split the data
+set.seed(100) # Important!
+so_split <- initial_split(stackoverflow, strata = remote)
+so_train <- training(so_split)
+so_test  <- testing(so_split)
+```
+
+# Your Turn 1
+
+Get in your teams. Have one member think of an animal; other members try to guess it by asking yes/no questions about it. Go!
+
+Write down how many questions it takes your team.
+
+# Your Turn 2
+
+In your teams, discuss what qualities made for a good versus a bad question.
+
+# Your Turn 3
+
+Using the `so_train` and `so_test` datasets, how many individuals in our training set are remote? How about in the testing set?
+
+```{r}
+so_train %>% 
+  ____________
+
+so_test %>% 
+  ____________
+```
+
+
+# Your Turn 4
+
+Fill in the blanks. Use `fit_split()` and `collect_predictions()` to
+
+1. Fit a classification tree model with the formula `remote ~ years_coded_job + salary`
+2. Look at the predictions you've collected- which variable corresponds to the predictions? What kind of variable is it?
+3. Keep `set.seed(100)` at the start of your code.  
+
+*Hint: Be sure to remove every `_` before running the code!*
+
+```{r}
+tree_spec <- 
+  decision_tree() %>%          
+  set_engine(engine = "rpart") %>% 
+  set_mode("classification")
+
+set.seed(100) # Important!
+tree_fit <- fit_split(________, 
+                      ________, 
+                      ________) 
+
+tree_fit %>%   
+  ________
+```
+
+# Your Turn 5
+
+Use `collect_predictions()` and `count()` to count the number of individuals (i.e., rows) by their true and predicted remote status. In groups, answer the following questions:
+
+1. How many predictions did we make?
+2. How many times is "remote" status predicted?
+3. How many respondents are actually remote?
+4. How many predictions did we get right?
+
+```{r}
+tree_fit %>%   
+  ____________ %>% 
+  count(____________, ____________)
+```
+
+# Your Turn 6
+
+Use `collect_predictions()` and `roc_curve` to calculate the data needed to construct the full ROC curve.
+
+What is the threshold for achieving specificity > .75?
+
+```{r}
+tree_fit %>%   
+  ____________ %>% 
+  roc_curve(truth = ____________, estimate = ____________)
+```
+
+
+# Your Turn 7
+
+Add a `autoplot()` to visualize the ROC AUC.
+
+```{r}
+
+```
