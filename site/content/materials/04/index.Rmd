@@ -1,8 +1,8 @@
 ---
-title: 'Session 04: Data & Workflows'
-draft: true
+title: 'Session 04: Ensembling'
+draft: false
 date: '2019-08-29'
-slug: 04-data-workflows
+slug: 04-ensembling
 categories: []
 tags: []
 lastmod: '2019-09-09T11:21:55-07:00'
@@ -13,10 +13,10 @@ links:
 - icon: images
   icon_pack: fas
   name: slides
-  url: /slides/04-data-workflows.html
+  url: https://pedantic-pike-efd356.netlify.com/day-1/slides/04-ensembling#1
 ---
 
 
 ```{r echo=FALSE}
-knitr::include_url("/slides/04-data-workflows.html")
+knitr::include_url("https://pedantic-pike-efd356.netlify.com/day-1/slides/04-ensembling#1")
 ```

@@ -1,6 +1,6 @@
 ---
-title: 'Session 03: Graphics for Communication'
-draft: true
+title: 'Session 03: Sampling & Resampling'
+draft: false
 date: '2019-08-29'
 categories: []
 tags: []
@@ -12,9 +12,9 @@ links:
 - icon: images
   icon_pack: fas
   name: slides
-  url: /slides/03-graphics.html
+  url: https://pedantic-pike-efd356.netlify.com/day-1/slides/03-resampling#1
 ---
 
 ```{r echo=FALSE}
-knitr::include_url("/slides/03-graphics.html")
+knitr::include_url("https://pedantic-pike-efd356.netlify.com/day-1/slides/03-resampling#1")
 ```
