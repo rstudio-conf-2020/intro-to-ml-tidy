@@ -8,7 +8,7 @@ tags: []
 lastmod: '2019-09-09T11:21:55-07:00'
 featured: no
 projects: []
-weight: 5
+weight: 7
 links:
 - icon: images
   icon_pack: fas
