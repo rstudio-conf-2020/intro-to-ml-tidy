@@ -1,5 +1,8 @@
 [![Netlify Status](https://api.netlify.com/api/v1/badges/fc33b987-b580-4145-afc9-7d8427bf77f1/deploy-status)](https://app.netlify.com/sites/conf20-intro-ml/deploys)
 
+<!-- Markdown snippet -->
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/rstudio-conf-2020/intro-to-ml-tidy)
+
 Introduction to Machine Learning with the Tidyverse
 ================
 
