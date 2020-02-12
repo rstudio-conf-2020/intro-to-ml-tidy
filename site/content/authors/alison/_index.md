@@ -18,7 +18,7 @@ organizations:
   url: https://www.rstudio.com/
 
 # Short bio (displayed in user profile at end of posts)
-bio: My research interests include distributed robotics, mobile computing and programmable matter.
+bio: I love building things with R, mainly models, plots, and websites. I have a PhD in developmental psychology, and now work at RStudio. I live in Portland, OR with my husband and toddler.
 
 interests:
 - Predictive modeling & statistics
