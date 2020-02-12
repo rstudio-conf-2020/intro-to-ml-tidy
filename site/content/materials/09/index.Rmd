@@ -1,0 +1,30 @@
+---
+title: 'Appendix'
+draft: false
+date: '2020-02-11'
+url: appendix
+categories: []
+tags: []
+lastmod: '2020-02-11T11:21:55-07:00'
+featured: no
+projects: []
+weight: 10
+disable_jquery: true
+---
+
+
+```{r echo=FALSE, warning = FALSE, message = FALSE}
+library(tidyverse)
+library(DT)
+
+tmf <- read_csv(here::here("site/content/materials/09/tm-functions.csv")) 
+
+tmf %>% 
+    datatable(rownames = FALSE,
+              class = 'cell-border stripe',
+              filter = list(position = 'top'),
+              options = list(autoWidth = TRUE,
+                             bInfo = FALSE,
+                             paging = FALSE),
+              escape = FALSE)
+```
