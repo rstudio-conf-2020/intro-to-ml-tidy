@@ -41,14 +41,14 @@ hero_media = "2020-Conf-600x600.jpg"
 #   Display link(s) by specifying a URL and label below. Icon is optional for `[cta]`.
 #   Remove a link/note by deleting a cta/note block.
 [cta]
-  url = "info"
-  label = "More info"
+  url = "materials"
+  label = "Start Here"
   icon_pack = "fas"
-  icon = "info-circle"
+  icon = "map-marker"
   
 [cta_alt]
-  url = ""
-  label = ""
+  url = "https://education.rstudio.com/blog/2020/02/conf20-intro-ml/"
+  label = "Read blog post"
 
 # Note. An optional note to show underneath the links.
 [cta_note]
@@ -57,4 +57,4 @@ hero_media = "2020-Conf-600x600.jpg"
 
 Welcome! This is the website for a two-day workshop offered January 27-28 at rstudio::conf 2020 in San Francisco, CA. 
 
-This workshop provides a gentle introduction to machine learning and to the tidyverse packages that do machine learning. 
+This workshop provided a gentle introduction to machine learning and to [tidymodels](https://github.com/tidymodels). 
