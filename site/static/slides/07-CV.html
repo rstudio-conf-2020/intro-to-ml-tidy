@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Cross-validation</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Alison Hill" />
+    <meta name="date" content="2020-02-14" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/countdown/countdown.css" rel="stylesheet" />
+    <script src="libs/countdown/countdown.js"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+    <link rel="stylesheet" href="assets/css/my-theme.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/my-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+
+
+
+
+class: title-slide, center
+
+&lt;span class="fa-stack fa-4x"&gt;
+  &lt;i class="fa fa-circle fa-stack-2x" style="color: #ffffff;"&gt;&lt;/i&gt;
+  &lt;strong class="fa-stack-1x" style="color:#E7553C;"&gt;7&lt;/strong&gt;
+&lt;/span&gt; 
+
+# Cross-validation
+
+## Machine Learning in the Tidyverse
+
+### Alison Hill &amp;#183; Garrett Grolemund
+
+#### [https://conf20-intro-ml.netlify.com/](https://conf20-intro-ml.netlify.com/) &amp;#183; [https://rstd.io/conf20-intro-ml](https://rstd.io/conf20-intro-ml)    
+
+
+---
+class: middle, center
+
+# Quiz
+
+What property of models is Machine Learning most concerned about?
+
+--
+
+Predictions.
+
+
+---
+class: middle, center, frame
+
+# rsample
+
+&lt;iframe src="https://tidymodels.github.io/rsample/" width="100%" height="400px"&gt;&lt;/iframe&gt;
+
+
+---
+class: your-turn
+
+# Your Turn 1
+
+Run the first code chunk. Then fill in the blanks to 
+
+1. Create a split object that apportions 75% of ames to a training set and the remainder to a testing set.
+
+1. Fit the all_wf to the split object.
+
+1. Extract the rmse of the fit.
+
+<div class="countdown" id="timer_5e46e677" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+
+
+```r
+all_wf &lt;- 
+  workflow() %&gt;% 
+  add_formula(Sale_Price ~ .) %&gt;% 
+  add_model(lm_spec)
+
+new_split &lt;- initial_split(ames)
+all_wf %&gt;% 
+  fit_split(split = new_split,
+            metrics = metric_set(rmse)) %&gt;% 
+  collect_metrics()
+# A tibble: 1 x 3
+  .metric .estimator .estimate
+  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+1 rmse    standard      24111.
+```
+
+---
+class: your-turn
+
+# Your Turn 2
+
+What would happen if you repeated this process? Would you get the same answers? Discuss in your team. 
+
+Then rerun the last code chunk from Your Turn 1. Do you get the same answer?
+
+<div class="countdown" id="timer_5e46e8bf" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">02</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+
+.pull-left[
+
+```
+# A tibble: 1 x 3
+  .metric .estimator .estimate
+  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+1 rmse    standard      38727.
+```
+
+
+```
+# A tibble: 1 x 3
+  .metric .estimator .estimate
+  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+1 rmse    standard      41088.
+```
+
+
+```
+# A tibble: 1 x 3
+  .metric .estimator .estimate
+  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+1 rmse    standard      44389.
+```
+
+]
+
+--
+
+.pull-right[
+
+```
+# A tibble: 1 x 3
+  .metric .estimator .estimate
+  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+1 rmse    standard      36100.
+```
+
+
+```
+# A tibble: 1 x 3
+  .metric .estimator .estimate
+  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+1 rmse    standard      38463.
+```
+
+
+```
+# A tibble: 1 x 3
+  .metric .estimator .estimate
+  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+1 rmse    standard      44457.
+```
+
+]
+
+---
+class: middle, center
+
+# Quiz
+
+Why is the new estimate different?
+
+---
+
+
+
+---
+class: middle, center
+
+# Data Splitting
+
+&lt;img src="figs/03-cv/unnamed-chunk-11-1.png" width="720" style="display: block; margin: auto;" /&gt;
+
+--
+
+&lt;img src="figs/03-cv/unnamed-chunk-12-1.png" width="720" style="display: block; margin: auto;" /&gt;
+
+--
+
+&lt;img src="figs/03-cv/unnamed-chunk-13-1.png" width="720" style="display: block; margin: auto;" /&gt;
+
+--
+
+&lt;img src="figs/03-cv/unnamed-chunk-14-1.png" width="720" style="display: block; margin: auto;" /&gt;
+
+--
+
+&lt;img src="figs/03-cv/unnamed-chunk-15-1.png" width="720" style="display: block; margin: auto;" /&gt;
+
+--
+
+&lt;img src="figs/03-cv/unnamed-chunk-16-1.png" width="720" style="display: block; margin: auto;" /&gt;
+
+--
+
+&lt;img src="figs/03-cv/unnamed-chunk-17-1.png" width="720" style="display: block; margin: auto;" /&gt;
+
+--
+
+&lt;img src="figs/03-cv/unnamed-chunk-18-1.png" width="720" style="display: block; margin: auto;" /&gt;
+
+--
+
+&lt;img src="figs/03-cv/unnamed-chunk-19-1.png" width="720" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+&lt;img src="figs/03-cv/unnamed-chunk-20-1.png" width="1080" style="display: block; margin: auto;" /&gt;
+
+--
+
+&lt;img src="figs/03-cv/unnamed-chunk-21-1.png" width="1080" style="display: block; margin: auto;" /&gt;
+
+--
+
+&lt;img src="figs/03-cv/unnamed-chunk-22-1.png" width="1080" style="display: block; margin: auto;" /&gt;
+
+--
+
+&lt;img src="figs/03-cv/unnamed-chunk-23-1.png" width="1080" style="display: block; margin: auto;" /&gt;
+
+--
+
+&lt;img src="figs/03-cv/unnamed-chunk-24-1.png" width="1080" style="display: block; margin: auto;" /&gt;
+
+--
+
+&lt;img src="figs/03-cv/unnamed-chunk-25-1.png" width="1080" style="display: block; margin: auto;" /&gt;
+
+--
+
+&lt;img src="figs/03-cv/unnamed-chunk-26-1.png" width="1080" style="display: block; margin: auto;" /&gt;
+
+--
+
+&lt;img src="figs/03-cv/unnamed-chunk-27-1.png" width="1080" style="display: block; margin: auto;" /&gt;
+
+--
+
+.right[Mean RMSE]
+
+---
+class: your-turn
+
+# Your Turn 3
+
+Rerun the code below 10 times and then compute the mean of the results (you will need to jot them down as you go).
+
+<div class="countdown" id="timer_5e46e5f9" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+
+
+
+
+
+
+
+```r
+rmses %&gt;% tibble::enframe(name = "rmse")
+# A tibble: 10 x 2
+    rmse  value
+   &lt;int&gt;  &lt;dbl&gt;
+ 1     1 32886.
+ 2     2 43209.
+ 3     3 44021.
+ 4     4 34077.
+ 5     5 38473.
+ 6     6 30188.
+ 7     7 30311.
+ 8     8 28644.
+ 9     9 35107.
+10    10 42656.
+mean(rmses)
+[1] 35957.18
+```
+
+---
+class: middle, center
+
+# Discuss
+
+Which do you think is more accurate, the best result or the mean of the results? Why? Discuss with your team.
+
+---
+class: middle, center, inverse
+
+# Cross-validation
+
+---
+
+# There has to be a better way...
+
+
+```r
+rmses &lt;- vector(length = 10, mode = "double")
+for (i in 1:10) {
+  new_split &lt;- initial_split(ames)
+  rmses[i] &lt;-
+    all_wf %&gt;% 
+      fit_split(split = new_split,
+                metrics = metric_set(rmse)) %&gt;% 
+      collect_metrics() %&gt;% 
+      pull(.estimate)
+}
+```
+
+
+---
+class: middle, center
+
+# V-fold cross-validation
+
+
+```r
+vfold_cv(data, v = 10, ...)
+```
+
+
+---
+
+
+
+
+
+
+&lt;img src="images/cv.gif" style="display: block; margin: auto;" /&gt;
+
+
+---
+class: middle, center
+
+# Guess
+
+How many times does in observation/row appear in the assessment set?
+
+&lt;img src="figs/03-cv/vfold-tiles-1.png" width="864" style="display: block; margin: auto;" /&gt;
+
+---
+
+&lt;img src="figs/03-cv/unnamed-chunk-34-1.png" width="864" style="display: block; margin: auto;" /&gt;
+
+---
+class: middle, center
+
+# Quiz
+
+If we use 10 folds, which percent of our data will end up in the training set and which percent in the testing set for each fold?
+
+--
+
+90% - training
+
+10% - test
+
+---
+class: your-turn
+
+# Your Turn 4
+
+Run the code below. What does it return?
+
+
+```r
+set.seed(100)
+cv_folds &lt;- 
+    vfold_cv(ames_train, v = 10, strata = Sale_Price, breaks = 4)
+cv_folds
+```
+
+<div class="countdown" id="timer_5e46e728" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">01</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+
+```r
+set.seed(100)
+cv_folds &lt;- 
+    vfold_cv(ames_train, v = 10, strata = Sale_Price, breaks = 4)
+cv_folds
+#  10-fold cross-validation using stratification 
+# A tibble: 10 x 2
+   splits           id    
+   &lt;named list&gt;     &lt;chr&gt; 
+ 1 &lt;split [2K/221]&gt; Fold01
+ 2 &lt;split [2K/221]&gt; Fold02
+ 3 &lt;split [2K/220]&gt; Fold03
+ 4 &lt;split [2K/220]&gt; Fold04
+ 5 &lt;split [2K/220]&gt; Fold05
+ 6 &lt;split [2K/220]&gt; Fold06
+ 7 &lt;split [2K/220]&gt; Fold07
+ 8 &lt;split [2K/219]&gt; Fold08
+ 9 &lt;split [2K/219]&gt; Fold09
+10 &lt;split [2K/218]&gt; Fold10
+```
+
+---
+class: middle
+
+.center[
+# We need a new way to fit
+]
+
+
+```r
+split1 &lt;- cv_folds %&gt;% 
+  pluck("splits", 1)
+all_wf %&gt;% 
+  fit_split(split = split1,
+            metrics = metric_set(rmse)) %&gt;% 
+  collect_metrics()
+
+# rinse and repeat
+split2 &lt;- ...
+```
+
+
+---
+class: inverse, middle, center
+
+# `fit_resamples()`
+
+---
+class: middle
+
+.center[
+# `fit_resamples()`
+
+Trains and tests a model with cross-validation.
+]
+
+
+```r
+fit_resamples(
+  Sale_Price ~ Gr_Liv_Area, 
+  model = lm_spec,          
+  resamples = cv_folds
+)
+```
+
+---
+
+
+```r
+fit_resamples(
+  Sale_Price ~ Gr_Liv_Area, 
+  model = lm_spec,          
+  resamples = cv_folds
+)
+#  10-fold cross-validation using stratification 
+# A tibble: 10 x 4
+   splits           id     .metrics         .notes          
+ * &lt;list&gt;           &lt;chr&gt;  &lt;list&gt;           &lt;list&gt;          
+ 1 &lt;split [2K/221]&gt; Fold01 &lt;tibble [2 × 3]&gt; &lt;tibble [0 × 1]&gt;
+ 2 &lt;split [2K/221]&gt; Fold02 &lt;tibble [2 × 3]&gt; &lt;tibble [0 × 1]&gt;
+ 3 &lt;split [2K/220]&gt; Fold03 &lt;tibble [2 × 3]&gt; &lt;tibble [0 × 1]&gt;
+ 4 &lt;split [2K/220]&gt; Fold04 &lt;tibble [2 × 3]&gt; &lt;tibble [0 × 1]&gt;
+ 5 &lt;split [2K/220]&gt; Fold05 &lt;tibble [2 × 3]&gt; &lt;tibble [0 × 1]&gt;
+ 6 &lt;split [2K/220]&gt; Fold06 &lt;tibble [2 × 3]&gt; &lt;tibble [0 × 1]&gt;
+ 7 &lt;split [2K/220]&gt; Fold07 &lt;tibble [2 × 3]&gt; &lt;tibble [0 × 1]&gt;
+ 8 &lt;split [2K/219]&gt; Fold08 &lt;tibble [2 × 3]&gt; &lt;tibble [0 × 1]&gt;
+ 9 &lt;split [2K/219]&gt; Fold09 &lt;tibble [2 × 3]&gt; &lt;tibble [0 × 1]&gt;
+10 &lt;split [2K/218]&gt; Fold10 &lt;tibble [2 × 3]&gt; &lt;tibble [0 × 1]&gt;
+```
+
+
+---
+
+# `fit_resamples()`
+
+.pull-left[
+Fit with formula and model
+
+```r
+fit_resamples(
+* Sale_Price ~ Gr_Liv_Area,
+* model = lm_spec,
+  resamples = cv_folds
+)
+```
+]
+
+.pull-right[
+Fit with workflow
+
+```r
+fit_resamples(
+* all_wf,
+  resamples = cv_folds
+)
+```
+]
+
+
+---
+class: middle, center
+
+# `collect_metrics()`
+
+Unnest the metrics column from a tidymodels `fit_resamples()`
+
+
+```r
+_results %&gt;% collect_metrics(summarize = TRUE)
+```
+
+--
+
+.footnote[`TRUE` is actually the default; averages across folds]
+
+---
+class: your-turn
+
+# Your Turn 5
+
+Modify the code below to use `fit_resamples()` and `cv_folds` to cross-validate the `all_wf` workflow. 
+
+Which RMSE do you collect at the end?
+
+
+```r
+all_wf %&gt;% 
+  fit_split(split = new_split,
+            metrics = metric_set(rmse)) %&gt;% 
+  collect_metrics()
+```
+
+<div class="countdown" id="timer_5e46e526" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+
+---
+
+```r
+all_wf %&gt;% 
+  fit_resamples(resamples = cv_folds,
+                metrics = metric_set(rmse)) %&gt;% 
+  collect_metrics()
+# A tibble: 1 x 5
+  .metric .estimator   mean     n std_err
+  &lt;chr&gt;   &lt;chr&gt;       &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt;
+1 rmse    standard   41797.    10   5122.
+```
+
+---
+class: inverse, middle, center
+
+# Comparing Models
+
+---
+class: your-turn
+
+# Your Turn 6
+
+Create two new workflows, one that fits the bedbath model, 
+`Sale_Price ~ Bedroom_AbvGr + Full_Bath + Half_Bath` 
+and one that fits the square foot model, 
+`Sale_Price ~ Gr_Liv_Area`
+
+Then use `fit_resamples` and `cv_folds` to compare the performance of each.
+
+<div class="countdown" id="timer_5e46e8a1" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">06</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+
+```r
+bb_wf &lt;- 
+  workflow() %&gt;% 
+    add_formula(Sale_Price ~ Bedroom_AbvGr + Full_Bath + Half_Bath) %&gt;% 
+    add_model(lm_spec)
+
+sqft_wf &lt;- 
+  workflow() %&gt;% 
+    add_formula(Sale_Price ~ Gr_Liv_Area) %&gt;% 
+    add_model(lm_spec)
+
+bb_wf %&gt;% 
+  fit_resamples(resamples = cv_folds) %&gt;% 
+  collect_metrics()
+
+sqft_wf %&gt;% 
+  fit_resamples(resamples = cv_folds) %&gt;% 
+  collect_metrics()
+```
+
+---
+class: middle
+
+.pull-left[
+
+```r
+bb_wf %&gt;% 
+  fit_resamples(resamples = cv_folds) %&gt;% 
+  collect_metrics()
+# A tibble: 2 x 5
+  .metric .estimator      mean     n   std_err
+  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt;
+1 rmse    standard   64514.       10 1588.    
+2 rsq     standard       0.339    10    0.0160
+```
+
+]
+
+.pull-right[
+
+```r
+sqft_wf %&gt;% 
+  fit_resamples(resamples = cv_folds) %&gt;% 
+  collect_metrics()
+# A tibble: 2 x 5
+  .metric .estimator      mean     n   std_err
+  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt;
+1 rmse    standard   57177.       10 1919.    
+2 rsq     standard       0.482    10    0.0321
+```
+
+
+]
+
+---
+class: middle, center
+
+# Quiz
+
+Why should you use the same data splits to compare each model?
+
+--
+
+🍎 to 🍎
+
+---
+class: middle, center
+
+# Quiz
+
+Does Cross-Validation measure the accuracy of just your model, or your entire workflow?
+
+--
+
+Your entire workflow
+
+---
+class: your-turn
+
+# Your Turn 7
+
+Work together with your teammates to complete the Cross-Validation handout.
+
+<div class="countdown" id="timer_5e46e8ab" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">05</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+background-image: url(images/cv-match.jpeg)
+background-size: contain
+
+---
+background-image: url(images/vfoldcv/vfoldcv.001.jpeg)
+background-size: contain
+
+---
+background-image: url(images/vfoldcv/vfoldcv.002.jpeg)
+background-size: contain
+
+---
+background-image: url(images/vfoldcv/vfoldcv.003.jpeg)
+background-size: contain
+
+---
+background-image: url(images/vfoldcv/vfoldcv.004.jpeg)
+background-size: contain
+
+---
+background-image: url(images/vfoldcv/vfoldcv.005.jpeg)
+background-size: contain
+
+---
+class: middle, center, inverse
+
+# Other types of cross-validation
+
+---
+class: middle, center
+
+# `vfold_cv()` - V Fold cross-validation
+
+&lt;img src="figs/03-cv/unnamed-chunk-50-1.png" width="864" style="display: block; margin: auto;" /&gt;
+
+---
+class: middle, center
+
+# `loo_cv()` - Leave one out CV
+
+&lt;img src="figs/03-cv/loocv-1.png" width="504" style="display: block; margin: auto;" /&gt;
+
+---
+class: middle, center
+
+# `mc_cv()` - Monte Carlo (random) CV
+
+(Test sets sampled without replacement)
+
+&lt;img src="figs/03-cv/mccv-1.png" width="864" style="display: block; margin: auto;" /&gt;
+
+
+---
+class: middle, center
+
+# `bootstraps()`
+
+(Test sets sampled with replacement)
+
+&lt;img src="figs/03-cv/bootstrap-1.png" width="864" style="display: block; margin: auto;" /&gt;
+
+---
+class: middle, center, frame
+
+
+# yardstick
+
+Functions that compute common model metrics
+
+&lt;tidymodels.github.io/yardstick/&gt;
+
+&lt;iframe src="https://tidymodels.github.io/yardstick/" width="100%" height="400px"&gt;&lt;/iframe&gt;
+
+
+---
+class: middle
+
+.center[
+# `fit_resamples()`
+
+Trains and tests a model with cross-validation.
+]
+
+.pull-left[
+
+
+```r
+fit_resamples(
+  object, 
+  resamples, 
+  ..., 
+* metrics = NULL,
+  control = control_resamples()
+)
+```
+
+]
+
+.pull-right[
+
+If `NULL`...
+
+regression = `rmse` + `rsq`
+
+classification = `accuracy` + `roc_auc`
+]
+
+---
+class: middle, center
+
+# `metric_set()`
+
+A helper function for selecting yardstick metric functions.
+
+
+```r
+metric_set(rmse, rsq)
+```
+
+---
+class: middle
+
+.center[
+# `fit_resamples()`
+
+.fade[Trains and tests a model with cross-validation.]
+]
+
+.pull-left[
+
+
+```r
+fit_resamples(
+  object, 
+  resamples, 
+  ..., 
+* metrics = metric_set(rmse, rsq),
+  control = control_resamples()
+)
+```
+
+]
+
+---
+class: middle, center, frame
+
+
+# Metric Functions
+
+
+&lt;https://tidymodels.github.io/yardstick/reference/index.html&gt;
+
+&lt;iframe src="https://tidymodels.github.io/yardstick/reference/index.html" width="100%" height="400px"&gt;&lt;/iframe&gt;
+
+---
+class: your-turn
+
+# Your Turn 8
+
+
+Modify the code below to return the **Mean Absolute Error.** Visit 
+&lt;https://tidymodels.github.io/yardstick/reference/index.html&gt; to find the right function to use.
+
+<div class="countdown" id="timer_5e46e5cb" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+
+```r
+bb_wf %&gt;% 
+  fit_resamples(resamples = cv_folds, 
+  metrics = metric_set(mae)) %&gt;% 
+  collect_metrics()
+# A tibble: 1 x 5
+  .metric .estimator   mean     n std_err
+  &lt;chr&gt;   &lt;chr&gt;       &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt;
+1 mae     standard   44970.    10   1079.
+
+sqft_wf %&gt;% 
+  fit_resamples(resamples = cv_folds, 
+  metrics = metric_set(mae)) %&gt;% 
+  collect_metrics()
+# A tibble: 1 x 5
+  .metric .estimator   mean     n std_err
+  &lt;chr&gt;   &lt;chr&gt;       &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt;
+1 mae     standard   38831.    10   1031.
+```
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="https://platform.twitter.com/widgets.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "solarized-light",
+"highlightLanguage": ["r", "css", "yaml"],
+"slideNumberFormat": "",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

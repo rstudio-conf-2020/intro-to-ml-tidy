@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Workflows</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Alison Hill" />
+    <meta name="date" content="2020-02-14" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/countdown/countdown.css" rel="stylesheet" />
+    <script src="libs/countdown/countdown.js"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+    <link rel="stylesheet" href="assets/css/my-theme.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/my-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+
+
+
+
+class: title-slide, center
+
+&lt;span class="fa-stack fa-4x"&gt;
+  &lt;i class="fa fa-circle fa-stack-2x" style="color: #ffffff;"&gt;&lt;/i&gt;
+  &lt;strong class="fa-stack-1x" style="color:#E7553C;"&gt;5&lt;/strong&gt;
+&lt;/span&gt; 
+
+# Workflows
+
+## Machine Learning in the Tidyverse
+
+### Alison Hill &amp;#183; Garrett Grolemund
+
+#### [https://conf20-intro-ml.netlify.com/](https://conf20-intro-ml.netlify.com/) &amp;#183; [https://rstd.io/conf20-intro-ml](https://rstd.io/conf20-intro-ml)                                   
+---
+background-image: url(images/daan-mooij-91LGCVN5SAI-unsplash.jpg)
+background-size: cover
+
+---
+class: middle, center, inverse
+
+# ⚠️ Data Leakage ⚠️
+
+---
+
+### What will this code do?
+
+
+```r
+ames_zsplit &lt;- ames %&gt;% 
+  mutate(z_price = (Sale_Price - mean(Sale_Price)) / sd(Sale_Price)) %&gt;% 
+  initial_split()
+```
+
+--
+
+
+```
+## # A tibble: 2,198 x 2
+##    Sale_Price  z_price
+##         &lt;int&gt;    &lt;dbl&gt;
+##  1     105000 -0.949  
+##  2     172000 -0.110  
+##  3     244000  0.791  
+##  4     213500  0.409  
+##  5     191500  0.134  
+##  6     236500  0.697  
+##  7     189000  0.103  
+##  8     175900 -0.0613 
+##  9     185000  0.0526 
+## 10     180400 -0.00496
+## # … with 2,188 more rows
+```
+
+---
+
+# Quiz
+
+What could go wrong?
+
+1. Take the `mean` and `sd` of `Sale_Price`
+
+1. Transform all sale prices in `ames`
+
+1. Train with training set
+
+1. Predict sale prices with testing set
+
+---
+
+# What (else) could go wrong?
+
+
+
+```r
+ames_train &lt;- training(ames_split) %&gt;% 
+  mutate(z_price = (Sale_Price - mean(Sale_Price)) / sd(Sale_Price))
+
+ames_test &lt;- testing(ames_split) %&gt;% 
+  mutate(z_price = (Sale_Price - mean(Sale_Price)) / sd(Sale_Price))
+
+lm_fit &lt;- fit_data(Sale_Price ~ Gr_Liv_Area, 
+                   model = lm_spec, 
+                   data = ames_train)
+
+price_pred  &lt;- lm_fit %&gt;% 
+  predict(new_data = ames_test) %&gt;% 
+  mutate(price_truth = ames_test$Sale_Price)
+
+rmse(price_pred, truth = price_truth, estimate = .pred)
+```
+
+
+
+---
+
+# Better
+
+1. Split the data
+
+1. Transform training set sale prices based on `mean` and `sd` of `Sale_Price` of the training set
+
+1. Train with training set
+
+1. Transform testing set sale prices based on `mean` and `sd` of `Sale_Price` of the **training set**
+
+1. Predict sale prices with testing set
+
+---
+class: middle, center, frame
+
+# Data Leakage
+
+"When the data you are using to train a machine learning algorithm happens to have the information you are trying to predict."
+
+.footnote[Daniel Gutierrez, [Ask a Data Scientist: Data Leakage](http://insidebigdata.com/2014/11/26/ask-data-scientist-data-leakage/)]
+
+---
+class: middle, center, frame
+
+# Axiom
+
+Your learner is more than a model.
+
+---
+class: middle, center, frame
+
+# Lemma #1
+
+Your learner is more than a model.
+
+--
+
+Your learner is only as good as your data.
+
+---
+class: middle, center, frame
+
+# Lemma #2
+
+Your learner is more than a model.
+
+Your learner is only as good as your data.
+
+--
+
+Your data is only as good as your workflow.
+
+---
+class: middle, center
+
+&lt;img src="images/pink-thunder.png" width="618" /&gt;
+
+
+---
+class: middle, center, frame
+
+# **Revised** Goal of Machine Learning
+
+--
+
+Build reliable workflows 
+
+--
+
+that generate accurate predictions 
+
+--
+
+for future, yet-to-be-seen data.
+
+
+
+---
+class: middle, center, frame
+
+# Quiz
+
+What does GIGO stand for?
+
+--
+
+Garbage in, garbage out
+
+---
+class: center, middle, frame
+
+# Axiom
+
+Feature engineering and modeling are two halves of a single predictive workflow.
+
+---
+background-image: url(images/workflows/workflows.001.jpeg)
+background-size: contain
+
+---
+background-image: url(images/workflows/workflows.002.jpeg)
+background-size: contain
+
+---
+background-image: url(images/workflows/workflows.003.jpeg)
+background-size: contain
+
+---
+background-image: url(images/workflows/workflows.004.jpeg)
+background-size: contain
+
+---
+background-image: url(images/workflows/workflows.005.jpeg)
+background-size: contain
+
+---
+background-image: url(images/workflows/workflows.006.jpeg)
+background-size: contain
+
+---
+background-image: url(images/workflows/workflows.007.jpeg)
+background-size: contain
+
+---
+background-image: url(images/workflows/workflows.008.jpeg)
+background-size: contain
+
+---
+background-image: url(images/workflows/workflows.009.jpeg)
+background-size: contain
+
+---
+background-image: url(images/workflows/workflows.010.jpeg)
+background-size: contain
+
+---
+background-image: url(images/workflows/workflows.011.jpeg)
+background-size: contain
+
+---
+background-image: url(images/workflows/workflows.012.jpeg)
+background-size: contain
+
+---
+background-image: url(images/workflows/workflows.013.jpeg)
+background-size: contain
+
+---
+class: center, middle, inverse
+
+# Workflows
+
+---
+class: middle, center
+
+# `workflow()`
+
+Creates a workflow to add a model and more to
+
+
+```r
+workflow()
+```
+
+---
+class: middle, center
+
+# `add_formula()`
+
+Adds a formula to a workflow `*`
+
+
+```r
+workflow() %&gt;% add_formula(Sale_Price ~ Year)
+```
+
+.footnote[`*` If you do not plan to do your own preprocessing]
+
+---
+class: middle, center
+
+# `add_model()`
+
+Adds a parsnip model spec to a workflow
+
+
+```r
+workflow() %&gt;% add_model(lm_spec)
+```
+
+---
+background-image: url(images/zestimate.png)
+background-position: center
+background-size: contain
+
+---
+class: your-turn
+
+# Your Turn 1
+
+Build a workflow that uses a linear model to predict `Sale_Price` with `Bedrooms_AbvGr`, `Full_Bath` and `Half_Bath` in ames. Save it as `bb_wf`.
+
+<div class="countdown" id="timer_5e46e729" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+
+
+```r
+lm_spec &lt;- 
+  linear_reg() %&gt;% 
+  set_engine("lm")
+
+bb_wf &lt;- 
+  workflow() %&gt;% 
+  add_formula(Sale_Price ~ Bedroom_AbvGr + 
+              Full_Bath + Half_Bath) %&gt;% 
+  add_model(lm_spec)
+```
+
+---
+
+
+```r
+bb_wf
+## ══ Workflow ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+## Preprocessor: Formula
+## Model: linear_reg()
+## 
+## ── Preprocessor ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## Sale_Price ~ Bedroom_AbvGr + Full_Bath + Half_Bath
+## 
+## ── Model ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## Linear Regression Model Specification (regression)
+## 
+## Computational engine: lm
+```
+
+---
+
+
+`fit_data()` and `fit_split()` also use workflows. Pass a workflow in place of a formula and model.
+
+.pull-left[
+
+```r
+fit_split(
+* Sale_Price ~ Bedroom_AbvGr +
+*   Full_Bath + Half_Bath,
+* model = lm_spec,
+  split = ames_split
+)
+```
+
+]
+
+.pull-right[
+
+
+```r
+fit_split(
+* bb_wf,
+  split = ames_split
+  )
+```
+]
+
+---
+class: middle, center
+
+# `update_formula()`
+
+Removes the formula, then replaces with the new one.
+
+
+```r
+workflow() %&gt;% update_formula(Sale_Price ~ Bedroom_AbvGr)
+```
+
+---
+class: your-turn
+
+# Your Turn 2
+
+Test the linear model that predicts `Sale_Price` with everything else in ames on `ames_split`. What RMSE do you get?
+
+Hint: Create a new workflow by updating `bb_wf`.
+
+<div class="countdown" id="timer_5e46e7fc" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">04</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+
+
+```r
+all_wf &lt;- 
+  bb_wf %&gt;% 
+  update_formula(Sale_Price ~ .)
+
+fit_split(all_wf, split = ames_split) %&gt;% 
+  collect_metrics()
+## ! Resample1: model (predictions): prediction from a rank-deficient fit may be misleading
+## # A tibble: 2 x 3
+##   .metric .estimator .estimate
+##   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+## 1 rmse    standard   22701.   
+## 2 rsq     standard       0.923
+```
+
+---
+class: middle, center
+
+# `update_model()`
+
+Removes the model spec, then replaces with the new one.
+
+
+```r
+workflow() %&gt;% update_model(knn_spec)
+```
+
+---
+class: your-turn
+
+# Your Turn 3
+
+Fill in the blanks to test the regression tree model that predicts `Sale_Price` with _everything else in `ames`_ on `ames_split`. What RMSE do you get?
+
+Hint: Create a new workflow by updating `all_wf`.
+
+<div class="countdown" id="timer_5e46e68e" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">04</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+
+
+```r
+rt_spec &lt;- 
+  decision_tree() %&gt;%          
+  set_engine(engine = "rpart") %&gt;% 
+  set_mode("regression")
+
+rt_wf &lt;- 
+  all_wf %&gt;% 
+  update_model(rt_spec)
+
+fit_split(rt_wf, split = ames_split) %&gt;% 
+  collect_metrics()
+## # A tibble: 2 x 3
+##   .metric .estimator .estimate
+##   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+## 1 rmse    standard   42678.   
+## 2 rsq     standard       0.727
+```
+
+---
+class: your-turn
+
+# Your Turn 4
+
+But what about the predictions of our model? 
+
+Save the fitted object from your regression tree, and use `collect_predictions()` to see the predictions generated from the test data.
+
+<div class="countdown" id="timer_5e46e4b9" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+
+
+```r
+all_fitwf &lt;- fit_split(rt_wf, split = ames_split)
+all_fitwf %&gt;% 
+  collect_predictions()
+## # A tibble: 732 x 4
+##    id                 .pred  .row Sale_Price
+##    &lt;chr&gt;              &lt;dbl&gt; &lt;int&gt;      &lt;int&gt;
+##  1 train/test split 190775.     1     215000
+##  2 train/test split 108409.     2     105000
+##  3 train/test split 252556.     4     244000
+##  4 train/test split 155275.    11     175900
+##  5 train/test split 339239.    16     538000
+##  6 train/test split 351391.    18     394432
+##  7 train/test split 138151.    26     142000
+##  8 train/test split 108409.    30      96000
+##  9 train/test split 192131.    56     216500
+## 10 train/test split 252556.    65     221000
+## # … with 722 more rows
+```
+
+---
+
+# Quiz
+
+Another tibble with list columns!
+
+
+```r
+all_fitwf
+## # # Monte Carlo cross-validation (0.75/0.25) with 1 resamples  
+## # A tibble: 1 x 6
+##   splits        id           .metrics      .notes      .predictions    .workflow
+## * &lt;list&gt;        &lt;chr&gt;        &lt;list&gt;        &lt;list&gt;      &lt;list&gt;          &lt;list&gt;   
+## 1 &lt;split [2.2K… train/test … &lt;tibble [2 ×… &lt;tibble [0… &lt;tibble [732 ×… &lt;workflo…
+```
+
+--
+
+How we can expand a single row in a list column to see what is in it?
+
+
+---
+
+
+```r
+all_fitwf %&gt;% 
+  pluck(".workflow", 1)
+## ══ Workflow ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+## Preprocessor: Formula
+## Model: decision_tree()
+## 
+## ── Preprocessor ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## Sale_Price ~ .
+## 
+## ── Model ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## n= 2198 
+## 
+## node), split, n, deviance, yval
+##       * denotes terminal node
+## 
+##  1) root 2198 13813560000000 180960.9  
+##    2) Garage_Cars&lt; 2.5 1905  5695476000000 161849.2  
+##      4) Gr_Liv_Area&lt; 1416.5 1024  1262826000000 133918.8  
+##        8) Year_Built&lt; 1976.5 741   629702500000 121734.8  
+##         16) Total_Bsmt_SF&lt; 908.5 409   287201900000 108409.2 *
+##         17) Total_Bsmt_SF&gt;=908.5 332   180402800000 138151.0 *
+##        9) Year_Built&gt;=1976.5 283   235093500000 165821.3 *
+##      5) Gr_Liv_Area&gt;=1416.5 881  2705332000000 194313.1  
+##       10) Exter_QualTypical&gt;=0.5 479   840585200000 169653.2  
+##         20) BsmtFin_SF_1&gt;=3.5 285   398958500000 155275.4 *
+##         21) BsmtFin_SF_1&lt; 3.5 194   296159600000 190775.3 *
+##       11) Exter_QualTypical&lt; 0.5 402  1226384000000 223696.4  
+##         22) Total_Bsmt_SF&lt; 1015 192   327074400000 192131.0 *
+##         23) Total_Bsmt_SF&gt;=1015 210   533098200000 252556.3 *
+##    3) Garage_Cars&gt;=2.5 293  2898272000000 305219.8  
+##      6) Total_Bsmt_SF&lt; 1716.5 204  1018322000000 268711.9  
+##       12) Year_Remod_Add&lt; 1977.5 26    31649720000 154457.7 *
+##       13) Year_Remod_Add&gt;=1977.5 178   597691700000 285400.7  
+##         26) Gr_Liv_Area&lt; 2322 121   208583900000 260039.1 *
+##         27) Gr_Liv_Area&gt;=2322 57   146064400000 339238.5 *
+##      7) Total_Bsmt_SF&gt;=1716.5 89   984832300000 388900.7  
+##       14) Gr_Liv_Area&lt; 2187 60   237424700000 351391.3 *
+##       15) Gr_Liv_Area&gt;=2187 29   488334000000 466506.3  
+##         30) Latitude&lt; 42.05321 7   117163300000 329621.3 *
+##         31) Latitude&gt;=42.05321 22   198274700000 510060.6 *
+```
+
+
+---
+class: middle
+
+# .center[`pull_workflow_fit()`]
+
+.center[Returns the parsnip model fit.]
+
+
+```r
+all_fitwf %&gt;% 
+  pluck(".workflow", 1) %&gt;% 
+  pull_workflow_fit()
+```
+
+--
+
+.footnote[Pipe to `pluck("fit")` to get the non-parsnip fit back. Useful for plotting.]
+
+---
+
+
+```r
+all_fitwf %&gt;% 
+  pluck(".workflow", 1) %&gt;% 
+  pull_workflow_fit()
+## parsnip model object
+## 
+## Fit time:  544ms 
+## n= 2198 
+## 
+## node), split, n, deviance, yval
+##       * denotes terminal node
+## 
+##  1) root 2198 13813560000000 180960.9  
+##    2) Garage_Cars&lt; 2.5 1905  5695476000000 161849.2  
+##      4) Gr_Liv_Area&lt; 1416.5 1024  1262826000000 133918.8  
+##        8) Year_Built&lt; 1976.5 741   629702500000 121734.8  
+##         16) Total_Bsmt_SF&lt; 908.5 409   287201900000 108409.2 *
+##         17) Total_Bsmt_SF&gt;=908.5 332   180402800000 138151.0 *
+##        9) Year_Built&gt;=1976.5 283   235093500000 165821.3 *
+##      5) Gr_Liv_Area&gt;=1416.5 881  2705332000000 194313.1  
+##       10) Exter_QualTypical&gt;=0.5 479   840585200000 169653.2  
+##         20) BsmtFin_SF_1&gt;=3.5 285   398958500000 155275.4 *
+##         21) BsmtFin_SF_1&lt; 3.5 194   296159600000 190775.3 *
+##       11) Exter_QualTypical&lt; 0.5 402  1226384000000 223696.4  
+##         22) Total_Bsmt_SF&lt; 1015 192   327074400000 192131.0 *
+##         23) Total_Bsmt_SF&gt;=1015 210   533098200000 252556.3 *
+##    3) Garage_Cars&gt;=2.5 293  2898272000000 305219.8  
+##      6) Total_Bsmt_SF&lt; 1716.5 204  1018322000000 268711.9  
+##       12) Year_Remod_Add&lt; 1977.5 26    31649720000 154457.7 *
+##       13) Year_Remod_Add&gt;=1977.5 178   597691700000 285400.7  
+##         26) Gr_Liv_Area&lt; 2322 121   208583900000 260039.1 *
+##         27) Gr_Liv_Area&gt;=2322 57   146064400000 339238.5 *
+##      7) Total_Bsmt_SF&gt;=1716.5 89   984832300000 388900.7  
+##       14) Gr_Liv_Area&lt; 2187 60   237424700000 351391.3 *
+##       15) Gr_Liv_Area&gt;=2187 29   488334000000 466506.3  
+##         30) Latitude&lt; 42.05321 7   117163300000 329621.3 *
+##         31) Latitude&gt;=42.05321 22   198274700000 510060.6 *
+```
+
+
+---
+class: middle
+
+# .center[`pull_workflow_spec()`]
+
+.center[Returns the parsnip model specification.]
+
+
+```r
+all_fitwf %&gt;% 
+  pluck(".workflow", 1) %&gt;% 
+  pull_workflow_spec()
+```
+
+---
+
+
+```r
+all_fitwf %&gt;% 
+  pluck(".workflow", 1) %&gt;% 
+  pull_workflow_spec()
+## Decision Tree Model Specification (regression)
+## 
+## Computational engine: rpart
+```
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="https://platform.twitter.com/widgets.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "solarized-light",
+"highlightLanguage": ["r", "css", "yaml"],
+"slideNumberFormat": "",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

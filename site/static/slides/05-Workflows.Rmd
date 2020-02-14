@@ -1,0 +1,584 @@
+---
+title: "Workflows"
+subtitle: "Machine Learning in the Tidyverse"
+session: 05
+author: Alison Hill
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    css: ["default", "assets/css/my-theme.css", "assets/css/my-fonts.css"]
+    seal: false 
+    lib_dir: libs
+    nature:
+      # autoplay: 5000
+      highlightStyle: solarized-light
+      highlightLanguage: ["r", "css", "yaml"]
+      slideNumberFormat: "" 
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: "16:9"
+      beforeInit: "https://platform.twitter.com/widgets.js"
+    includes:
+      in_header: [assets/header.html]
+params:
+  wifi_network: ""
+  wifi_password: ""
+  site_link: "https://rstd.io/conf20-intro-ml"
+  class_link: "https://conf20-intro-ml.netlify.com/"
+  github_link: "TBD"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+options("scipen" = 16)
+knitr::opts_chunk$set(collapse = TRUE,
+                      fig.retina = 3,
+                      fig.path = "figs/01-Workflows/")
+yt_counter <- 0
+```
+
+```{r packages, include=FALSE}
+library(countdown)
+library(tidyverse)
+library(tidymodels)
+library(workflows)
+library(scico)
+library(gganimate)
+library(AmesHousing)
+ames <- make_ames()
+theme_set(theme_minimal())
+
+# for figures
+train_color <- scico(1, palette = 'buda', begin = .9)
+test_color  <- scico(1, palette = 'hawaii', begin = .8)
+data_color  <- scico(1, palette = 'roma', begin = .9)
+assess_color <- scico(1, palette = 'berlin', begin = .1)
+splits_pal <- c(data_color, train_color, test_color)
+
+lm_spec <- 
+  linear_reg() %>% 
+  set_engine("lm") %>% 
+  set_mode("regression")
+
+set.seed(100) # Important!
+ames_split  <- initial_split(ames)
+ames_train  <- training(ames_split)
+ames_test   <- testing(ames_split)
+```
+
+```{r helpers, include =FALSE}
+fit_data <- function(object, model, data, ...) {
+  if (inherits(object, "formula")) {
+    object <- add_model(add_formula(workflow(), object, blueprint = hardhat::default_formula_blueprint(indicators = FALSE)), model)
+  }
+  fit(object, data, ...)
+}
+
+fit_split <- function(object, model, split, ...) {
+  if (inherits(object, "formula")) {
+    object <- add_model(add_formula(workflow(), object, blueprint = hardhat::default_formula_blueprint(indicators = FALSE)), model)
+  }
+  tune::last_fit(object, split, ...)
+}
+```
+
+
+
+class: title-slide, center
+
+<span class="fa-stack fa-4x">
+  <i class="fa fa-circle fa-stack-2x" style="color: #ffffff;"></i>
+  <strong class="fa-stack-1x" style="color:#E7553C;">`r rmarkdown::metadata$session`</strong>
+</span> 
+
+# `r rmarkdown::metadata$title`
+
+## `r rmarkdown::metadata$subtitle`
+
+### `r rmarkdown::metadata$author` &#183; Garrett Grolemund
+
+#### [`r params$class_link`](`r params$class_link`) &#183; [`r params$site_link`](`r params$site_link`)                                   
+---
+background-image: url(images/daan-mooij-91LGCVN5SAI-unsplash.jpg)
+background-size: cover
+
+---
+class: middle, center, inverse
+
+# `r emo::ji("warning")` Data Leakage `r emo::ji("warning")`
+
+---
+
+### What will this code do?
+
+```{r}
+ames_zsplit <- ames %>% 
+  mutate(z_price = (Sale_Price - mean(Sale_Price)) / sd(Sale_Price)) %>% 
+  initial_split()
+```
+
+--
+
+```{r echo=FALSE}
+ames_zsplit %>% 
+  training() %>% 
+  select(ends_with("price"))
+```
+
+---
+
+# Quiz
+
+What could go wrong?
+
+1. Take the `mean` and `sd` of `Sale_Price`
+
+1. Transform all sale prices in `ames`
+
+1. Train with training set
+
+1. Predict sale prices with testing set
+
+---
+
+# What (else) could go wrong?
+
+
+```{r eval = FALSE}
+ames_train <- training(ames_split) %>% 
+  mutate(z_price = (Sale_Price - mean(Sale_Price)) / sd(Sale_Price))
+
+ames_test <- testing(ames_split) %>% 
+  mutate(z_price = (Sale_Price - mean(Sale_Price)) / sd(Sale_Price))
+
+lm_fit <- fit_data(Sale_Price ~ Gr_Liv_Area, 
+                   model = lm_spec, 
+                   data = ames_train)
+
+price_pred  <- lm_fit %>% 
+  predict(new_data = ames_test) %>% 
+  mutate(price_truth = ames_test$Sale_Price)
+
+rmse(price_pred, truth = price_truth, estimate = .pred)
+```
+
+
+
+---
+
+# Better
+
+1. Split the data
+
+1. Transform training set sale prices based on `mean` and `sd` of `Sale_Price` of the training set
+
+1. Train with training set
+
+1. Transform testing set sale prices based on `mean` and `sd` of `Sale_Price` of the **training set**
+
+1. Predict sale prices with testing set
+
+---
+class: middle, center, frame
+
+# Data Leakage
+
+"When the data you are using to train a machine learning algorithm happens to have the information you are trying to predict."
+
+.footnote[Daniel Gutierrez, [Ask a Data Scientist: Data Leakage](http://insidebigdata.com/2014/11/26/ask-data-scientist-data-leakage/)]
+
+---
+class: middle, center, frame
+
+# Axiom
+
+Your learner is more than a model.
+
+---
+class: middle, center, frame
+
+# Lemma #1
+
+Your learner is more than a model.
+
+--
+
+Your learner is only as good as your data.
+
+---
+class: middle, center, frame
+
+# Lemma #2
+
+Your learner is more than a model.
+
+Your learner is only as good as your data.
+
+--
+
+Your data is only as good as your workflow.
+
+---
+class: middle, center
+
+```{r echo=FALSE}
+knitr::include_graphics("images/pink-thunder.png")
+```
+
+
+---
+class: middle, center, frame
+
+# **Revised** Goal of Machine Learning
+
+--
+
+Build reliable workflows 
+
+--
+
+that generate accurate predictions 
+
+--
+
+for future, yet-to-be-seen data.
+
+
+
+---
+class: middle, center, frame
+
+# Quiz
+
+What does GIGO stand for?
+
+--
+
+Garbage in, garbage out
+
+---
+class: center, middle, frame
+
+# Axiom
+
+Feature engineering and modeling are two halves of a single predictive workflow.
+
+---
+background-image: url(images/workflows/workflows.001.jpeg)
+background-size: contain
+
+---
+background-image: url(images/workflows/workflows.002.jpeg)
+background-size: contain
+
+---
+background-image: url(images/workflows/workflows.003.jpeg)
+background-size: contain
+
+---
+background-image: url(images/workflows/workflows.004.jpeg)
+background-size: contain
+
+---
+background-image: url(images/workflows/workflows.005.jpeg)
+background-size: contain
+
+---
+background-image: url(images/workflows/workflows.006.jpeg)
+background-size: contain
+
+---
+background-image: url(images/workflows/workflows.007.jpeg)
+background-size: contain
+
+---
+background-image: url(images/workflows/workflows.008.jpeg)
+background-size: contain
+
+---
+background-image: url(images/workflows/workflows.009.jpeg)
+background-size: contain
+
+---
+background-image: url(images/workflows/workflows.010.jpeg)
+background-size: contain
+
+---
+background-image: url(images/workflows/workflows.011.jpeg)
+background-size: contain
+
+---
+background-image: url(images/workflows/workflows.012.jpeg)
+background-size: contain
+
+---
+background-image: url(images/workflows/workflows.013.jpeg)
+background-size: contain
+
+---
+class: center, middle, inverse
+
+# Workflows
+
+---
+class: middle, center
+
+# `workflow()`
+
+Creates a workflow to add a model and more to
+
+```{r results='hide'}
+workflow()
+```
+
+---
+class: middle, center
+
+# `add_formula()`
+
+Adds a formula to a workflow `*`
+
+```{r results='hide'}
+workflow() %>% add_formula(Sale_Price ~ Year)
+```
+
+.footnote[`*` If you do not plan to do your own preprocessing]
+
+---
+class: middle, center
+
+# `add_model()`
+
+Adds a parsnip model spec to a workflow
+
+```{r results='hide'}
+workflow() %>% add_model(lm_spec)
+```
+
+---
+background-image: url(images/zestimate.png)
+background-position: center
+background-size: contain
+
+---
+class: your-turn
+
+# Your Turn `r (yt_counter <- yt_counter + 1)`
+
+Build a workflow that uses a linear model to predict `Sale_Price` with `Bedrooms_AbvGr`, `Full_Bath` and `Half_Bath` in ames. Save it as `bb_wf`.
+
+```{r echo=FALSE}
+countdown(minutes = 3)
+```
+
+---
+
+```{r}
+lm_spec <- 
+  linear_reg() %>% 
+  set_engine("lm")
+
+bb_wf <- 
+  workflow() %>% 
+  add_formula(Sale_Price ~ Bedroom_AbvGr + 
+              Full_Bath + Half_Bath) %>% 
+  add_model(lm_spec)
+```
+
+---
+
+```{r}
+bb_wf
+```
+
+---
+
+
+`fit_data()` and `fit_split()` also use workflows. Pass a workflow in place of a formula and model.
+
+.pull-left[
+```{r results='hide'}
+fit_split(
+  Sale_Price ~ Bedroom_AbvGr + #<<
+    Full_Bath + Half_Bath,  #<<
+  model = lm_spec, #<<
+  split = ames_split
+)
+```
+
+]
+
+.pull-right[
+
+```{r results='hide'}
+fit_split(
+  bb_wf, #<<
+  split = ames_split
+  )
+```
+]
+
+---
+class: middle, center
+
+# `update_formula()`
+
+Removes the formula, then replaces with the new one.
+
+```{r eval = FALSE}
+workflow() %>% update_formula(Sale_Price ~ Bedroom_AbvGr)
+```
+
+---
+class: your-turn
+
+# Your Turn `r (yt_counter <- yt_counter + 1)`
+
+Test the linear model that predicts `Sale_Price` with everything else in ames on `ames_split`. What RMSE do you get?
+
+Hint: Create a new workflow by updating `bb_wf`.
+
+```{r echo=FALSE}
+countdown(minutes = 4)
+```
+
+---
+
+```{r}
+all_wf <- 
+  bb_wf %>% 
+  update_formula(Sale_Price ~ .)
+
+fit_split(all_wf, split = ames_split) %>% 
+  collect_metrics()
+```
+
+---
+class: middle, center
+
+# `update_model()`
+
+Removes the model spec, then replaces with the new one.
+
+```{r eval = FALSE}
+workflow() %>% update_model(knn_spec)
+```
+
+---
+class: your-turn
+
+# Your Turn `r (yt_counter <- yt_counter + 1)`
+
+Fill in the blanks to test the regression tree model that predicts `Sale_Price` with _everything else in `ames`_ on `ames_split`. What RMSE do you get?
+
+Hint: Create a new workflow by updating `all_wf`.
+
+```{r echo=FALSE}
+countdown(minutes = 4)
+```
+
+---
+
+```{r}
+rt_spec <- 
+  decision_tree() %>%          
+  set_engine(engine = "rpart") %>% 
+  set_mode("regression")
+
+rt_wf <- 
+  all_wf %>% 
+  update_model(rt_spec)
+
+fit_split(rt_wf, split = ames_split) %>% 
+  collect_metrics()
+```
+
+---
+class: your-turn
+
+# Your Turn `r (yt_counter <- yt_counter + 1)`
+
+But what about the predictions of our model? 
+
+Save the fitted object from your regression tree, and use `collect_predictions()` to see the predictions generated from the test data.
+
+```{r echo=FALSE}
+countdown(minutes = 3)
+```
+
+---
+
+```{r}
+all_fitwf <- fit_split(rt_wf, split = ames_split)
+all_fitwf %>% 
+  collect_predictions()
+```
+
+---
+
+# Quiz
+
+Another tibble with list columns!
+
+```{r}
+all_fitwf
+```
+
+--
+
+How we can expand a single row in a list column to see what is in it?
+
+
+---
+
+```{r}
+all_fitwf %>% 
+  pluck(".workflow", 1)
+```
+
+
+---
+class: middle
+
+# .center[`pull_workflow_fit()`]
+
+.center[Returns the parsnip model fit.]
+
+```{r pull-fit, eval = FALSE}
+all_fitwf %>% 
+  pluck(".workflow", 1) %>% 
+  pull_workflow_fit()
+```
+
+--
+
+.footnote[Pipe to `pluck("fit")` to get the non-parsnip fit back. Useful for plotting.]
+
+---
+
+```{r ref.label='pull-fit'}
+
+```
+
+
+---
+class: middle
+
+# .center[`pull_workflow_spec()`]
+
+.center[Returns the parsnip model specification.]
+
+```{r pull-spec, eval = FALSE}
+all_fitwf %>% 
+  pluck(".workflow", 1) %>% 
+  pull_workflow_spec()
+```
+
+---
+
+```{r ref.label='pull-spec'}
+
+```
+

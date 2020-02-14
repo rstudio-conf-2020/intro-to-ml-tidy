@@ -1,0 +1,764 @@
+---
+title: "Welcome"
+subtitle: "Introduction to Machine Learning in the Tidyverse"
+session: Hi!
+author: Alison Hill
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    css: ["default", "assets/css/my-theme.css", "assets/css/my-fonts.css"]
+    seal: false 
+    lib_dir: libs
+    nature:
+      # autoplay: 5000
+      highlightStyle: solarized-light
+      highlightLanguage: ["r", "css", "yaml"]
+      slideNumberFormat: "" 
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: "16:9"
+      beforeInit: "https://platform.twitter.com/widgets.js"
+    includes:
+      in_header: [assets/header.html]
+params:
+  wifi_network: ""
+  wifi_password: ""
+  site_link: "https://rstd.io/conf20-intro-ml"
+  class_link: "https://conf20-intro-ml.netlify.com/"
+  github_link: "TBD"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(collapse = TRUE,
+                      fig.retina = 3)
+yt_counter <- 0
+library(countdown)
+library(tidyverse)
+library(AmesHousing)
+ames <- make_ames() %>% 
+  dplyr::select(-matches("Qu"))
+```
+
+class: title-slide, center
+
+<span class="fa-stack fa-4x">
+  <i class="fa fa-circle fa-stack-2x" style="color: #ffffff;"></i>
+  <strong class="fa-stack-1x" style="color:#E7553C;">`r rmarkdown::metadata$session`</strong>
+</span> 
+
+# `r rmarkdown::metadata$title`
+
+## `r rmarkdown::metadata$subtitle`
+
+### `r rmarkdown::metadata$author` &#183; Garrett Grolemund
+
+#### [`r params$class_link`](`r params$class_link`) &#183; [`r params$site_link`](`r params$site_link`)
+
+
+
+
+
+---
+class: middle, inverse
+
+# Workshop policies
+
+.left-column[
+
+.center[
+
+`r emo::ji("door")` `r emo::ji("dash")` 
+
+<br>
+
+`r emo::ji("no_entry_sign")` `r emo::ji("camera")` 
+
+<br>
+<br>
+
+`r emo::ji("yoga")` `r emo::ji("tent")`
+
+]
+
+]
+
+
+.right-column[
+
+Identify the exits closest to you in case of emergency
+
+<br>
+
+Please do not photograph people wearing .display[red lanyards]
+
+<br>
+
+A chill-out room is available for neurologically diverse attendees on the 4th floor of tower 1
+]
+
+---
+
+# Code of conduct
+
+- Please review the [rstudio::conf code of conduct](https://rstd.io/code-of-conduct) that applies to all workshops <https://rstd.io/code-of-conduct>
+
+--
+
+- CoC issues can be addressed three ways:
+
+  - In person: contact any rstudio::conf staff member or the conference registration desk
+  - By email: send a message to `conf@rstudio.com`
+  - By phone: call 844-448-1212
+  
+---
+class: middle, center
+
+.pull-left[
+# <i class="fas fa-wifi"></i>
+
+Wifi network name  
+
+`r params$wifi_network`
+
+]
+
+.pull-left[
+# <i class="fas fa-key"></i>
+
+Wifi password
+
+`r params$wifi_password`
+
+]
+
+
+---
+class: top, center
+background-image: url(images/intro/intro.001.jpeg)
+background-size: contain
+
+# Goals
+
+Explain key concepts that guide Machine Learning
+
+Use a handful of common ML algorithms
+
+???
+
+Welcome to _Introduction to Machine Learning with the Tidyverse_. This is a new workshop that we're developing in response to feedback on our _Advanced Machine Learning_ workshop taught by Max Kuhn. For some people, that workshop moves too fast and skips over too much. This workshop will provide a true introduction to machine learning that focuses heavily on the basics.
+
+In two days we won't be able to absorb all of the material in a typical machine learning course. But we will be able to develop a strong, intuitive understanding of how Machine Learning works. At the end of this workshop, I want you to be able to:
+
+1. explain the ideas that guide Machine Learning
+1. use a handful of common Machine Learning algorithms
+
+In short, I'd like you to be able to talk your way into an intro-level ML job ;) 
+
+---
+class: middle, center
+
+# Goals
+
+```{r echo=FALSE}
+knitr::include_graphics("https://imgs.xkcd.com/comics/machine_learning.png ")
+```
+
+---
+class: top, center
+background-image: url(images/intro/intro.002.jpeg)
+background-size: cover
+
+---
+class: top, center
+background-image: url(images/intro/intro.003.jpeg)
+background-size: cover
+
+---
+background-image: url(images/artificial-intelligence-4417279_1920.jpg)
+background-size: cover
+
+
+---
+background-image: url(images/adi-goldstein-mDinBvq1Sfg-unsplash.jpg)
+background-size: cover
+
+
+---
+class: middle, center
+
+.pull-left[
+```{r echo=FALSE}
+knitr::include_graphics("https://media.giphy.com/media/OZvMMeKdYmPpS/giphy.gif")
+```
+
+]
+
+--
+
+.pull-right[
+```{r echo=FALSE}
+knitr::include_graphics("https://media.giphy.com/media/uGjzzKY4BhtKw/giphy.gif")
+```
+
+]
+
+---
+class: your-turn
+
+# Your turn `r (yt_counter <- yt_counter + 1)`
+
+Form teams of three. 
+
+Share your backgrounds with R, data, and Machine Learning. 
+
+Then choose a team name.
+
+```{r echo=FALSE}
+countdown(minutes = 5)
+```
+
+???
+
+Introduce yourself to the people near you and form teams of three. Share your backgrounds with R, data, and Machine Learning. Then choose a team name.
+
+
+---
+background-image: url(images/hello-red.jpg)
+background-position: top center
+background-size: 100%
+class: bottom, center
+
+.pull-left[
+## Alison Hill 
+
+<img style="border-radius: 50%;" src="https://conf20-intro-ml.netlify.com/authors/alison/avatar.jpg" width="150px"/>
+
+[<i class="fab fa-github"></i> @apreshill](https://github.com/apreshill)  
+[<i class="fab fa-twitter"></i> @apreshill](https://twitter.com/apreshill)
+
+]
+
+.pull-right[
+## Garrett Grolemund  
+
+<img style="border-radius: 50%;" src="https://github.com/garrettgman.png" width="150px"/>
+
+[<i class="fab fa-github"></i> @garrettgman](https://github.com/garrettgman)  
+[<i class="fab fa-twitter"></i> @StatGarrett](https://twitter.com/StatGarrett)
+
+]
+
+
+---
+background-image: url(images/hello.jpg)
+background-position: top center
+background-size: contain
+class: bottom, center
+
+.columns[
+
+.column-5[
+
+<img style="border-radius: 50%;" src="https://conf20-intro-ml.netlify.com/authors/daniel/avatar.jpg" width="150px"/>
+
+[Daniel Chen](https://conf20-intro-ml.netlify.com/authors/daniel/)
+
+
+]
+
+.column-5[
+
+
+<img style="border-radius: 50%;" src="https://conf20-intro-ml.netlify.com/authors/desiree/avatar.jpg" width="150px"/>
+
+[Desirée De Leon](https://conf20-intro-ml.netlify.com/authors/desiree/)
+
+]
+
+.column-5[
+
+
+<img style="border-radius: 50%;" src="https://conf20-intro-ml.netlify.com/authors/gwynn/avatar.jpg" width="150px"/>
+
+[gwynn sturdevant](https://conf20-intro-ml.netlify.com/authors/gwynn/)
+
+]
+
+.column-5[
+
+
+<img style="border-radius: 50%;" src="https://conf20-intro-ml.netlify.com/authors/hasse/avatar.jpg" width="150px"/>
+
+[Hasse Walum](https://conf20-intro-ml.netlify.com/authors/hasse/)
+
+]
+
+.column-5[
+
+
+<img style="border-radius: 50%;" src="https://conf20-intro-ml.netlify.com/authors/josiah/avatar.jpg" width="150px"/>
+
+[Josiah Parry](https://conf20-intro-ml.netlify.com/authors/josiah/)
+
+]
+
+]
+
+---
+class: middle, center
+
+.pull-left[
+
+# Day One:
+
+### How to get good predictions from models 
+]
+
+--
+
+.pull-right[
+
+# Day Two:
+
+### How to build a good prediction pipeline  
+
+]
+
+---
+class: middle, center
+
+.pull-left[
+
+# Day One:
+
+### How to get good predictions from models 
+
+Predicting
+
+Classifying
+
+Sampling and Resampling
+
+Ensembling
+]
+
+--
+
+.pull-right[
+
+# Day Two:
+
+### How to build a good prediction pipeline  
+
+Workflows
+
+Feature Engineering
+
+More Resampling
+
+Tuning
+]
+
+---
+class: middle, center
+
+# Schedule
+
+| Time          | Activity                                                      |
+|:--------------|:--------------------------------------------------------------|
+| 09:00 - 10:30 | Session 1                              |
+| 10:30 - 11:00 | *Break* `r emo::ji("coffee")`                                 |
+| 11:00 - 12:30 | Session 2                                    |
+| 12:30 - 01:30 | *Lunch* `r emo::ji("bento")` <br>*Grand Ballroom A (Grand Ballroom Level)*                                  |
+| 01:30 - 03:00 | Session 3                                       |
+| 03:00 - 03:30 | *Break* `r emo::ji("tea")`                                    |
+| 03:30 - 05:00 | Session 4  
+
+---
+class: center, middle, inverse
+
+# What is Machine Learning?
+
+???
+
+Machine Learning is usually thought of as a subfield of artificial intelligence that itself contains other hot sub-fields.
+
+Let's start somewhere familiar. I have a data set and I want to analyze it. 
+
+The actual data set is named `ames` and it comes in the `AmesHousing` R package. No need to open your computers. Let's just discuss for a few minutes.
+
+
+
+---
+class: middle
+
+# .center[AmesHousing]
+
+Descriptions of 2,930 houses sold in Ames, IA from 2006 to 2010, collected by the Ames Assessor’s Office.
+
+```{r}
+# install.packages("AmesHousing")
+library(AmesHousing)
+ames <- make_ames() %>% 
+  dplyr::select(-matches("Qu"))
+```
+
+???
+
+`ames` contains descriptions of 2,930 houses sold in Ames, IA from 2006 to 2010. The data comes from the Ames Assessor’s Office and contains things like the square footage of a house, its lot size, and its sale price.
+
+---
+class: middle
+
+```{r}
+glimpse(ames)
+```
+
+---
+background-image: url(images/zillow.jpeg)
+background-size: contain
+
+---
+class: middle, center
+
+# Show of hands
+
+How many people have taken a course in statistics?
+
+---
+class: middle, center
+
+# Show of hands
+
+How many people have *a degree* in statistics?
+
+
+---
+
+```{r}
+lm_ames <- lm(Sale_Price ~ Gr_Liv_Area, data = ames)
+lm_ames
+```
+
+???
+
+Since I'm a data scientist, I might do something like this with the data.
+
+Who recognizes what this code does? What does it do?
+
+Excellent.
+
+---
+class: center, middle
+
+# Show of hands
+
+How many people have .display[fit] a model with `lm()`?
+
+---
+class: middle, center
+
+# `lm()`
+
+Fits linear models with Ordinary Least Squares regression
+
+```{r}
+lm_ames <- lm(Sale_Price ~ Gr_Liv_Area, data = ames)
+```
+
+???
+
+`lm()` is the archetype R modeling function. It fits a linear model to a data set. In this case, the linear model predicts the `Sale_Price` variable in the `ames` data set with another variable in the `ames` data set:
+
+1. `Gr_Liv_Area` - which is the total above ground square feet of the house and 
+
+You can tell this from the arguments we pass to `lm()`.
+
+---
+class: middle, center
+
+# Formulas
+
+Bare variable names separated by a `~` 
+
+
+```{r eval = FALSE}
+Sale_Price ~ Gr_Liv_Area + Full_Bath
+```
+
+$$ y = \alpha + \beta{x} + \epsilon$$
+
+$y$ `~` $x$
+
+
+.footnote[See `?formula` for help.]
+
+???
+
+That's great. `lm()` is one of the simplest places to start with Machine Learning. We'll use it to establish some important points. And if you've never used `lm()` before, don't worry. I'll review what you need to know as we go. 
+
+Like many modeling functions in R, `lm()` takes a _formula_ that describes the relationship we wish to model. Formulas are always divided by a `~` and contain bare variable names, that is variable names that are _not_ surrounded by quotation marks. The variable to the left of the `~` becomes the response variable in the model. The variables to the right of the tilde become the predictors. Where do these variables live? In the data set passed to the data argument. 
+
+A formula can have a single variable on the right hand side, or many as we see here. Alternatively, the right hand side can contain a `.`, which is shorthand for "every other variable in the data set." Formulas in R come with their own extensive syntax which you can read more about at `?formula`. For example, you can add a zero to the right-hand side to remove the intercept term, which is included by default. And you can specify the interaction between two terms with `:`. We're going to use formulas throughout the day; but they will only be simple formulas like this.
+
+Notice that I saved the model results to `lm_ames`. This is common practice in R. Model results contain _a lot_ of information, a lot more information than you see when you call `lm_ames`. This poses a question:
+
+
+---
+class: middle, center
+
+# Volunteer
+
+How can we see more of the results?
+
+---
+class: middle
+
+# .center[`summary()`]
+
+Display a "summary" of the results. Not `summarise()`!
+
+
+```{r summary-lm, results='hide'}
+summary(lm_ames)
+```
+
+
+.footnote[See `?summary` for help.]
+
+???
+
+One popular way is to run `summary()` on the model object—not to be confused with `summarise()` from the dplyr package.
+
+---
+```{r summary-lm}
+```
+
+---
+background-image: url(images/modeling.jpeg)
+background-size: contain
+
+???
+
+Statistical modeling is an extension of hypothesis testing. Statisticians want to test hypotheses about nature. They do this by formulating those hypotheses as models and then testing the models against data.
+
+At one level, models embed hypotheses like _`Sale_Price` depends on `Gr_Liv_Area`."_ We use the model to test whether these hypotheses agree with the data. At another level, the model _is_ a hypothesis and we test how well _it_ comports with the data. 
+
+If the model passes the tests, we check to see how much it explains about the data. The best models explain the most. The hope is that we will find a hypothesis that accurately explains the data, and hence reality. In this context, the data is sacred and every model is evaluated by how closely it fits the data at hand.
+
+So statisticians ask questions like, "Is this model a reasonable representation of the world given the data?"
+
+---
+class: middle, center, frame
+
+# The hypothesis determines
+
+1\. Which .display[data] to use
+
+2\. Which .display[model] to use
+
+3\. How to .display[assess] the model
+
+???
+
+In other words, statisticians use a model to test the hypotheses in the model. The hypotheses dictate:
+
+1. Which data to use
+2. Which model to use
+3. How to assess the model, e.g. Does it better than the null model according to a well-established, non-generalizable statistical test custom made for the assessment?
+
+This is an important starting place for Machine Learning, because the first thing you need to know about Machine Learning is that Machine Learning is nothing like Hypothesis Testing.
+
+---
+class: your-turn
+
+# Your turn `r (yt_counter <- yt_counter + 1)`
+
+Work together in your team to fill out as much of the handout as you can. Feel free to leave some blank.
+
+```{r echo=FALSE}
+countdown(minutes = 3)
+```
+
+---
+background-image: url(images/ml-01/ml-01.001.jpeg)
+background-size: contain
+
+---
+background-image: url(images/ml-01/ml-01.002.jpeg)
+background-size: contain
+
+---
+background-image: url(images/ml-01/ml-01.003.jpeg)
+background-size: contain
+
+---
+background-image: url(images/ml-01/ml-01.004.jpeg)
+background-size: contain
+
+---
+background-image: url(images/ml-01/ml-01.005.jpeg)
+background-size: contain
+
+---
+background-image: url(images/ml-01/ml-01.006.jpeg)
+background-size: contain
+
+---
+name: ml-goal
+class: middle, center, frame
+
+# Goal of Machine Learning
+
+--
+
+## generate accurate predictions
+
+---
+class: middle, center
+
+.pull-left[
+```{r echo=FALSE}
+knitr::include_graphics("http://www.gstatic.com/tv/thumb/tvbanners/14671198/p14671198_b_v8_ab.jpg")
+```
+
+]
+
+--
+
+.pull-right[
+```{r echo=FALSE}
+knitr::include_graphics("http://www.gstatic.com/tv/thumb/tvbanners/15822356/p15822356_b_v8_ab.jpg")
+```
+
+]
+
+
+
+---
+class: middle, center
+
+.pull-left[
+```{r echo=FALSE}
+knitr::include_graphics("images/marriage.jpg")
+```
+
+]
+
+--
+
+.pull-right[
+```{r echo=FALSE}
+knitr::include_graphics("http://www.gstatic.com/tv/thumb/tvbanners/8415427/p8415427_b_v8_ab.jpg")
+```
+
+]
+
+
+---
+background-image: url(images/538-1.png)
+background-size: contain
+
+---
+background-image: url(images/538-2.png)
+background-size: contain
+
+---
+class: middle, center
+
+.pull-left[
+```{r echo=FALSE}
+knitr::include_graphics("https://media3.s-nbcnews.com/j/newscms/2019_18/2841296/mika_joe_blue_63fd550ccc7b77b875d5f87470c77576.fit-760w.jpg")
+```
+
+]
+
+.pull-right[
+```{r echo=FALSE}
+knitr::include_graphics("https://fivethirtyeight.com/wp-content/uploads/2015/07/natesilver2_light.jpg?w=1200")
+```
+
+]
+
+---
+class: middle, center
+background-image: url(images/rsp-step1.png)
+background-position: right
+background-size: contain
+
+.pull-left[
+
+# Step 1
+
+# Go here:
+
+[`r params$class_link`](`r params$class_link`)
+
+<br>
+
+## Workshop identifier:
+
+`intro_ml`
+
+]
+
+---
+class: middle, center
+background-image: url(https://raw.githubusercontent.com/sol-eng/classroom-getting-started/master/inst/images/credentials.png)
+background-position: right
+background-size: 49%
+
+.pull-left[
+# Step 2
+
+# Register
+
+Enter name + email
+
+
+**Keep this tab open!** You will need these additional credentials later.
+
+]
+
+---
+class: middle, center
+background-image: url(https://raw.githubusercontent.com/sol-eng/classroom-getting-started/master/inst/images/getting-started-screen.png)
+background-position: right
+background-size: 40%
+
+.pull-left[
+# Step 3
+
+# Click .display[RStudio Server Pro]
+
+You will be prompted for a `username` and `password`. 
+
+Use the information you collected from previous step.
+
+
+]
+
+---
+class: middle, center
+
+# Step 4
+
+Click on “New Session” - use default settings:
+
+`Session Name:` RStudio Session  
+`Editor:` RStudio  
+`Cluster:` Local
+
+---
+# Step 5
+
+Click on the class-repo folder
+
+Click on the class-repo.Rproj to load the project. It will ask you if you want to open the project ~/class-repo…choose “Yes”
+
+---
+background-image: url(images/intro/intro.004.jpeg)
+background-size: contain

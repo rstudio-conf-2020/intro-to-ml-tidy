@@ -1,0 +1,735 @@
+---
+title: "Resampling"
+subtitle: "Introduction to Machine Learning in the Tidyverse"
+session: 03
+author: Alison Hill
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    css: ["default", "assets/css/my-theme.css", "assets/css/my-fonts.css"]
+    seal: false 
+    lib_dir: libs
+    nature:
+      # autoplay: 5000
+      highlightStyle: solarized-light
+      highlightLanguage: ["r", "css", "yaml"]
+      slideNumberFormat: "" 
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: "16:9"
+      beforeInit: "https://platform.twitter.com/widgets.js"
+    includes:
+      in_header: [assets/header.html]
+params:
+  wifi_network: ""
+  wifi_password: ""
+  site_link: "https://rstd.io/conf20-intro-ml"
+  class_link: "https://conf20-intro-ml.netlify.com/"
+  github_link: "TBD"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+options("scipen" = 16)
+knitr::opts_chunk$set(collapse = TRUE,
+                      fig.retina = 3,
+                      fig.path = "03-Resampling/",
+                      echo = FALSE, 
+                      fig.width = 20, 
+                      fig.height = 11,
+                      fig.align = "center",
+                      warning = FALSE,
+                      message = FALSE)
+yt_counter <- 0
+library(showtext)
+font_add_google("Amatic SC", "Amatic SC")
+showtext_auto()
+```
+
+```{r packages, include=FALSE}
+library(countdown)
+library(tidyverse)
+library(tidymodels)
+library(scico)
+library(gganimate)
+library(AmesHousing)
+ames <- make_ames()
+theme_set(theme_minimal())
+
+# for figures
+train_color <- scico(1, palette = 'buda', begin = .9)
+test_color  <- scico(1, palette = 'hawaii', begin = .8)
+data_color  <- scico(1, palette = 'roma', begin = .9)
+assess_color <- scico(1, palette = 'berlin', begin = .1)
+splits_pal <- c(data_color, train_color, test_color)
+```
+
+
+class: title-slide, center
+
+<span class="fa-stack fa-4x">
+  <i class="fa fa-circle fa-stack-2x" style="color: #ffffff;"></i>
+  <strong class="fa-stack-1x" style="color:#E7553C;">`r rmarkdown::metadata$session`</strong>
+</span> 
+
+# `r rmarkdown::metadata$title`
+
+## `r rmarkdown::metadata$subtitle`
+
+### `r rmarkdown::metadata$author` &#183; Garrett Grolemund
+
+#### [`r params$class_link`](`r params$class_link`) &#183; [`r params$site_link`](`r params$site_link`)
+
+---
+exclude: true
+
+```{r include=FALSE}
+# make zero correlation variables
+set.seed(100)
+x <- rnorm(500)
+
+# shuffle x to get y
+set.seed(100)
+y <- sample(x, size = 500)
+
+# linear combos of x + y
+unicorns <- x + y
+rainbows <- x - y
+cor(unicorns, rainbows)
+uni <- tibble(unicorns = unicorns, rainbows = rainbows)
+
+# plotting helper functions
+plot_sample <- function(sample, title = "Sample") {
+  ggplot(uni, aes(x = unicorns, y = rainbows)) +
+    geom_point(size = 8, color = "gray80", alpha = .5) +
+    geom_point(data = sample, 
+               size = 8, color = "#46b9d1") +
+    coord_cartesian(y = c(-5, 5), x = c(-4, 4)) +
+    theme(text = element_text(family = "Amatic SC", size = 50),
+          axis.text = element_blank(),
+          plot.title = element_text(hjust = 0.5)) + 
+    ggtitle(title)
+}
+
+plot_sample_lm <- function(sample, title = "Sample") {
+  plot_sample(sample, title) +
+      geom_smooth(data = sample, method = "lm", se = FALSE, 
+                  color = "#bb4b9f", fullrange = TRUE, lwd = 3)
+}
+
+plot_sample_poly <- function(sample, title = "Flexible Models") {
+  plot_sample_lm(sample, title) +
+  #geom_smooth(data = sample, method = "loess", se = FALSE, lwd = 3) +
+  stat_smooth(data = sample, 
+              method="loess", se = FALSE, span = .5,
+              fullrange = TRUE, lwd = 3)
+}
+
+plot_resamples <- function(rset, title = "Sample Variation") {
+  lm_train <- function(rset) {
+      lm(rainbows ~ unicorns, analysis(rset))
+  }
+  
+  rset %>% 
+      mutate(model = map(splits, lm_train)) %>% 
+      mutate(augmented = map(model, augment)) %>% 
+      unnest(augmented) %>% 
+    ggplot(aes(unicorns, rainbows)) +
+      geom_point(size = 8, color = "gray80") +
+      geom_line(aes(y = .fitted, group = id), 
+                colour = "#bb4b9f", alpha=.5, size = 3) +
+      coord_cartesian(y = c(-5, 5), x = c(-4, 4)) +
+      theme(text = element_text(family = "Amatic SC", size = 50),
+            axis.text = element_blank(),
+            plot.title = element_text(hjust = 0.5)) + 
+      ggtitle(title)
+}
+
+get_training <- function(rset, resample = 1) {
+  rset %>% 
+    pluck("splits", resample) %>% 
+    analysis()
+}
+
+plot_resample <- function(rset, id = "Bootstrap01", title = "Sample Variation") {
+  max_point_size <- if_else(str_detect(id, "Bootstrap"), 20, 8)
+  
+  lm_train <- function(rset) {
+      lm(rainbows ~ unicorns, analysis(rset))
+  }
+  
+  preds <- rset %>% 
+      mutate(model = map(splits, lm_train)) %>% 
+      mutate(augmented = map(model, augment)) %>% 
+      unnest(augmented)
+  
+  ggplot(preds, aes(x = unicorns, y = rainbows)) +
+      geom_point(size = 8, color = "gray80", alpha = .2) +
+      geom_count(data = filter(preds, id == {{ id }}), 
+                 color = "#46b9d1") +
+      geom_line(data = filter(preds, id == {{ id }}),
+                 aes(x = unicorns, y = .fitted), 
+                 colour = "#bb4b9f", size = 3) +
+      coord_cartesian(y = c(-5, 5), x = c(-4, 4)) +
+      theme(text = element_text(family = "Amatic SC", size = 50),
+            axis.text = element_blank(),
+            plot.title = element_text(hjust = 0.5)) + 
+      ggtitle(title) +
+      scale_size_area(max_size = max_point_size, guide = FALSE)
+}
+
+plot_tree_resample <- function(rset, id = "Bootstrap01", title = "Sample Variation") {
+  lm_train <- function(rset) {
+      lm(rainbows ~ unicorns, analysis(rset))
+  }
+  
+  rt_train <- function(rset) {
+      rpart::rpart(rainbows ~ unicorns, 
+                   data = analysis(rset))
+  }
+  
+  preds <- rset %>% 
+      mutate(model = map(splits, lm_train)) %>% 
+      mutate(tree = map(splits, rt_train)) %>% 
+      mutate(augmented = map(model, augment)) %>% 
+      mutate(.fitted_tree = map(tree, predict)) %>% 
+      unnest(c(augmented, .fitted_tree))
+  
+  ggplot(preds, aes(x = unicorns, y = rainbows)) +
+      geom_point(size = 8, color = "gray80", alpha = .2) +
+      geom_count(data = filter(preds, id == {{ id }}), 
+                 color = "#46b9d1") +
+      geom_line(data = filter(preds, id == {{ id }}),
+                 aes(x = unicorns, y = .fitted_tree), 
+                 colour = "#bb4b9f", size = 3) +
+      coord_cartesian(y = c(-5, 5), x = c(-4, 4)) +
+      theme(text = element_text(family = "Amatic SC", size = 50),
+            axis.text = element_blank(),
+            plot.title = element_text(hjust = 0.5)) + 
+      ggtitle(title) +
+      scale_size_area(max_size = 20, guide = FALSE)
+}
+
+plot_tree_resamples <- function(rset, title = "Sample Variation") {
+  lm_train <- function(rset) {
+      lm(rainbows ~ unicorns, analysis(rset))
+  }
+  
+  rt_train <- function(rset) {
+      rpart::rpart(rainbows ~ unicorns, 
+                   data = analysis(rset))
+  }
+  
+  rset %>% 
+      mutate(model = map(splits, lm_train)) %>% 
+      mutate(tree = map(splits, rt_train)) %>% 
+      mutate(augmented = map(model, augment)) %>% 
+      mutate(.fitted_tree = map(tree, predict)) %>% 
+      unnest(c(augmented, .fitted_tree)) %>% 
+    ggplot(aes(unicorns, rainbows)) +
+      geom_point(size = 8, color = "gray80") +
+      geom_line(aes(y = .fitted_tree, group = id), 
+                colour = "#bb4b9f", alpha=.5, size = 3) +
+      coord_cartesian(y = c(-5, 5), x = c(-4, 4)) +
+      theme(text = element_text(family = "Amatic SC", size = 50),
+            axis.text = element_blank(),
+            plot.title = element_text(hjust = 0.5)) + 
+      ggtitle(title)
+}
+```
+
+
+---
+background-image: url(images/unicorns-rainbows/joshua-hoehne-wnHeb_pRJBo-unsplash.jpg)
+background-size: cover
+
+
+---
+background-image: url(images/unicorns-rainbows/unicorns.001.jpeg)
+background-size: cover
+
+---
+background-image: url(images/unicorns-rainbows/unicorns.002.jpeg)
+background-size: cover
+
+---
+background-image: url(images/unicorns-rainbows/unicorns.003.jpeg)
+background-size: cover
+
+---
+background-image: url(images/unicorns-rainbows/unicorns.004.jpeg)
+background-size: cover
+
+---
+background-image: url(images/unicorns-rainbows/unicorns.005.jpeg)
+background-size: cover
+
+---
+class: frame, middle, center
+
+# Hypothesis
+
+As the number of `r emo::ji("unicorn")` increases, so does the number of `r emo::ji("rainbow")`.
+
+---
+
+```{r pop-plot, fig.showtext=TRUE}
+pop_plot <-
+  ggplot(uni, aes(x = unicorns, y = rainbows)) +
+  geom_point(size = 8, color = "#46b9d1") +
+  coord_cartesian(y = c(-5, 5), x = c(-4, 4)) +
+  theme(text = element_text(family = "Amatic SC", size = 50),
+        axis.text = element_blank(),
+        plot.title = element_text(hjust = 0.5)) + 
+  ggtitle("Population")
+
+pop_plot
+```
+
+---
+
+```{r}
+pop_plot +
+  geom_smooth(method = "lm", se = FALSE, 
+              color = "#bb4b9f", fullrange = TRUE, lwd = 3) 
+```
+
+---
+
+```{r}
+set.seed(1)
+sample_1 <- sample_n(uni, 30)
+plot_sample(sample_1, title = "Sample")
+```
+
+---
+
+```{r}
+plot_sample_lm(sample_1, title = "Sample")
+```
+
+---
+class: inverse, middle, center
+
+# The Challenge
+
+---
+
+```{r}
+set.seed(1)
+sample_bias <- uni %>% 
+  mutate(weight = case_when(
+    unicorns < -1 & rainbows > 1 ~ 1,
+    unicorns > 1 & rainbows < -1 ~ 1,
+    TRUE ~ 0)) %>% 
+  sample_n(size = 30, weight = weight)
+
+plot_sample(sample_bias, title = "Sample Bias")
+```
+
+---
+
+```{r}
+plot_sample_lm(sample_bias, title = "Sample Bias")
+```
+
+
+---
+
+```{r}
+set.seed(100)
+sample_line <- uni %>% 
+  mutate(weight = case_when(
+    rainbows < -1 & unicorns < -1 ~ 1,
+    between(rainbows, -1, 0) & between(unicorns, -1, 0) ~ 2,
+    rainbows > 1 & unicorns > 1 ~ 1,
+    between(rainbows, 0, 1) & between(unicorns, 0, 1) ~ 2,
+    TRUE ~ 0)) %>% 
+  sample_n(size = 30, weight = weight)
+
+plot_sample(sample_line, title = "Sample Bias")
+```
+
+---
+
+```{r}
+plot_sample_lm(sample_line, title = "Sample Bias")
+```
+
+
+---
+class: middle, center, frame
+
+# The Solution
+
+Random Sampling
+
+---
+
+```{r}
+set.seed(1)
+small_samples <- mc_cv(uni, prop = 0.06, times = 25)
+```
+
+
+```{r}
+plot_resample(small_samples, id = "Resample02", title = "Random Sample")
+```
+
+---
+
+```{r}
+plot_resample(small_samples, id = "Resample03", title = "Random Sample")
+```
+
+---
+
+```{r}
+plot_resample(small_samples, id = "Resample04", title = "Random Sample")
+```
+
+---
+
+```{r}
+plot_resample(small_samples, id = "Resample05", title = "Random Sample")
+```
+
+
+---
+
+```{r}
+sample_variation <- ggplot(uni, aes(x = unicorns, y = rainbows)) +
+  geom_point(size = 8, color = "gray80", alpha = .5) +
+  geom_smooth(data = get_training(small_samples, 1), method = "lm", se = FALSE, 
+              color = "#bb4b9f", fullrange = TRUE, lwd = 3) +
+  geom_smooth(data = get_training(small_samples, 2), method = "lm", se = FALSE, 
+              color = "#bb4b9f", fullrange = TRUE, lwd = 3) +
+  geom_smooth(data = get_training(small_samples, 3), method = "lm", se = FALSE, 
+              color = "#bb4b9f", fullrange = TRUE, lwd = 3) +
+  geom_smooth(data = get_training(small_samples, 4), method = "lm", se = FALSE, 
+              color = "#bb4b9f", fullrange = TRUE, lwd = 3) +
+  geom_smooth(data = get_training(small_samples, 5), method = "lm", se = FALSE, 
+              color = "#bb4b9f", fullrange = TRUE, lwd = 3) +
+  coord_cartesian(y = c(-5, 5), x = c(-4, 4)) +
+  theme(text = element_text(family = "Amatic SC", size = 50),
+        axis.text = element_blank(),
+        plot.title = element_text(hjust = 0.5)) 
+
+sample_variation + 
+  ggtitle("Sample Variation")
+```
+
+---
+
+```{r}
+plot_resamples(rset = small_samples, title = "Sample Variation")
+```
+
+---
+class: middle, center, frame
+
+# The New Challenge
+
+Sample Variation
+
+---
+
+```{r}
+set.seed(1)
+big_samples <- mc_cv(uni, prop = 0.6, times = 25)
+plot_resample(big_samples, id = "Resample01", title = "Larger N")
+```
+
+---
+
+```{r}
+plot_resample(big_samples, id = "Resample02", title = "Larger N")
+```
+
+---
+
+```{r}
+plot_resample(big_samples, id = "Resample03", title = "Larger N")
+```
+
+---
+
+```{r}
+plot_resample(big_samples, id = "Resample04", title = "Larger N")
+```
+
+---
+
+```{r}
+plot_resample(big_samples, id = "Resample05", title = "Larger N")
+```
+
+---
+```{r}
+# get_training(small_samples, 1)
+# get_training(big_samples, 1)
+
+ggplot(uni, aes(x = unicorns, y = rainbows)) +
+  geom_point(size = 8, color = "gray80", alpha = .5) +
+  geom_smooth(data = get_training(big_samples, 1), method = "lm", se = FALSE, 
+              color = "#bb4b9f", fullrange = TRUE, lwd = 2, alpha = .2) +
+  geom_smooth(data = get_training(big_samples, 2), method = "lm", se = FALSE, 
+              color = "#c15da8", fullrange = TRUE, lwd = 2, alpha = .2) +
+  geom_smooth(data = get_training(big_samples, 3), method = "lm", se = FALSE, 
+              color = "#c86eb2", fullrange = TRUE, lwd = 2, alpha = .2) +
+  geom_smooth(data = get_training(big_samples, 4), method = "lm", se = FALSE, 
+              color = "#cf81bb", fullrange = TRUE, lwd = 2, alpha = .2) +
+  geom_smooth(data = get_training(big_samples, 5), method = "lm", se = FALSE, 
+              color = "#d693c5", fullrange = TRUE, lwd = 2, alpha = .2) +
+  coord_cartesian(y = c(-5, 5), x = c(-4, 4)) +
+  theme(text = element_text(family = "Amatic SC", size = 50),
+        axis.text = element_blank(),
+        plot.title = element_text(hjust = 0.5)) + 
+  ggtitle("Larger N")
+```
+
+---
+
+```{r}
+plot_resamples(rset = big_samples, title = "Larger N")
+```
+
+---
+
+```{r}
+plot_sample_poly(get_training(small_samples, 1))
+```
+
+---
+
+```{r}
+plot_sample_poly(get_training(small_samples, 2))
+```
+
+---
+
+```{r}
+plot_sample_poly(get_training(small_samples, 3))
+```
+
+---
+
+```{r}
+plot_sample_poly(get_training(small_samples, 4))
+```
+
+---
+
+```{r}
+plot_sample_poly(get_training(small_samples, 5))
+```
+
+---
+```{r}
+sample_variation + 
+  stat_smooth(data = get_training(small_samples, 1), 
+              method="loess", se = FALSE, span = .5,
+              fullrange = TRUE, lwd = 3) +
+  stat_smooth(data = get_training(small_samples, 2), 
+              method="loess", se = FALSE, span = .5,
+              fullrange = TRUE, lwd = 3) +
+  stat_smooth(data = get_training(small_samples, 3), 
+              method="loess", se = FALSE, span = .5,
+              fullrange = TRUE, lwd = 3) +
+  stat_smooth(data = get_training(small_samples, 4), 
+              method="loess", se = FALSE, span = .5,
+              fullrange = TRUE, lwd = 3) +
+  stat_smooth(data = get_training(small_samples, 5), 
+              method="loess", se = FALSE, span = .5,
+              fullrange = TRUE, lwd = 3) +
+  ggtitle("Flexible Models")
+```
+
+
+---
+class: middle, center, frame
+
+# The good news
+
+You don't have to collect more data.
+
+You don't have to sacrifice fit for flexibility.
+
+---
+
+```{r}
+set.seed(1)
+boots <- bootstraps(sample_1, times = 25)
+plot_resample(boots, id = "Bootstrap01", title = "Bootstrapped Sample")
+```
+
+---
+
+```{r}
+plot_resample(boots, id = "Bootstrap05", title = "Bootstrapped Sample")
+```
+
+---
+
+```{r}
+plot_resample(boots, id = "Bootstrap10", title = "Bootstrapped Sample")
+```
+
+---
+
+```{r}
+plot_resample(boots, id = "Bootstrap12", title = "Bootstrapped Sample")
+```
+
+---
+
+```{r}
+plot_resample(boots, id = "Bootstrap18", title = "Bootstrapped Sample")
+```
+
+---
+
+```{r}
+plot_resample(boots, id = "Bootstrap21", title = "Bootstrapped Sample")
+```
+
+---
+
+```{r}
+plot_resample(boots, id = "Bootstrap25", title = "Bootstrapped Sample")
+```
+
+---
+
+```{r}
+plot_resamples(rset = boots, title = "Bootstraps") 
+```
+
+
+
+
+---
+class: middle
+
+```{r out.width = '48%', fig.show='hold', fig.align = "default", fig.asp=1}
+plot_resamples(rset = small_samples, title = "Many samples") +
+  geom_smooth(method = "lm", data = uni, size = 3)
+plot_resamples(rset = boots, title = "One Sample, Many bootstraps") +
+  geom_smooth(method = "lm", data = uni, size = 3)
+```
+
+---
+class: middle
+
+```{r out.width = '48%', fig.show='hold', fig.align = "default", fig.asp=1}
+set.seed(1)
+big_boots <- bootstraps(get_training(big_samples, 1), times = 25) 
+plot_resamples(rset = big_samples, title = "Many bigger samples") +
+  geom_smooth(method = "lm", data = uni, size = 3)
+plot_resamples(rset = big_boots, title = "One bigger sample, Many bootstraps")  +
+  geom_smooth(method = "lm", data = uni, size = 3)
+```
+
+---
+
+```{r}
+set.seed(1)
+library(infer)
+boot_train <- uni %>%
+   specify(rainbows ~ unicorns) %>% 
+   generate(reps = 1000, type = "bootstrap") %>%
+   calculate(stat = "correlation")
+percentile_ci <- get_ci(boot_train)
+visualize(boot_train) +
+  shade_confidence_interval(endpoints = percentile_ci, fill = "#bb4b9f", color = "#bb4b9f") +
+  theme(text = element_text(family = "Amatic SC", size = 50),
+        plot.title = element_text(hjust = 0.5)) +
+  coord_cartesian(x = c(-.5, .5))
+```
+
+---
+
+```{r}
+plot_resamples(rset = boots, title = "Averaging Reduces Variance") +
+  stat_summary(aes(y = .fitted), fun.y = "mean", 
+               colour = "navy", size = 3, geom = "line")
+```
+
+---
+
+```{r}
+biased_boots1 <- bootstraps(sample_bias, times = 25)
+plot_resamples(rset = biased_boots1, title = "Still biased!") +
+  stat_summary(aes(y = .fitted), fun.y = "mean", 
+               colour = "navy", size = 3, geom = "line") 
+```
+
+---
+
+```{r}
+biased_boots2 <- bootstraps(sample_line, times = 25)
+plot_resamples(rset = biased_boots2, title = "Still biased!") +
+  stat_summary(aes(y = .fitted), fun.y = "mean", 
+               colour = "navy", size = 3, geom = "line")
+```
+
+---
+
+```{r}
+plot_tree_resample(boots, id = "Bootstrap25", title = "Tree")
+```
+
+---
+
+```{r}
+plot_tree_resample(boots, id = "Bootstrap24", title = "Tree")
+```
+
+---
+
+```{r}
+plot_tree_resample(boots, id = "Bootstrap23", title = "Tree")
+```
+
+---
+
+```{r}
+plot_tree_resample(boots, id = "Bootstrap22", title = "Tree")
+```
+
+---
+
+```{r}
+plot_tree_resample(boots, id = "Bootstrap21", title = "Tree")
+```
+
+---
+
+```{r}
+plot_tree_resamples(rset = boots, title = "Bootstrapped Trees") 
+```
+
+---
+
+```{r}
+plot_tree_resamples(rset = boots, title = "Bagged Trees") +
+  stat_summary(aes(y = .fitted_tree), fun.y = "mean", 
+               colour = "navy", size = 3, geom = "line")
+```
+
+---
+
+```{r}
+plot_tree_resamples(rset = big_boots, title = "Bootstrapped Trees")
+```
+
+---
+
+```{r}
+plot_tree_resamples(rset = big_boots, title = "Bagged Trees") +
+  stat_summary(aes(y = .fitted_tree), fun.y = "mean", 
+               colour = "navy", size = 3, geom = "line")
+```
+

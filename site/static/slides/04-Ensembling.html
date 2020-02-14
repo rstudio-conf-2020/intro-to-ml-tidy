@@ -1,0 +1,1757 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Ensembling</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Alison Hill" />
+    <meta name="date" content="2020-02-14" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/countdown/countdown.css" rel="stylesheet" />
+    <script src="libs/countdown/countdown.js"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+    <link rel="stylesheet" href="assets/css/my-theme.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/my-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class: title-slide, center
+
+&lt;span class="fa-stack fa-4x"&gt;
+  &lt;i class="fa fa-circle fa-stack-2x" style="color: #ffffff;"&gt;&lt;/i&gt;
+  &lt;strong class="fa-stack-1x" style="color:#E7553C;"&gt;4&lt;/strong&gt;
+&lt;/span&gt; 
+
+# Ensembling
+
+## Introduction to Machine Learning in the Tidyverse
+
+### Alison Hill &amp;#183; Garrett Grolemund
+
+#### [https://conf20-intro-ml.netlify.com/](https://conf20-intro-ml.netlify.com/) &amp;#183; [https://rstd.io/conf20-intro-ml](https://rstd.io/conf20-intro-ml)
+
+---
+background-image: url(images/tidymodels-hex/tidymodels-hex.001.jpeg)
+background-size: contain
+
+---
+background-image: url(images/tidymodels-hex/tidymodels-hex.002.jpeg)
+background-size: contain
+
+---
+background-image: url(images/tidymodels-hex/tidymodels-hex.003.jpeg)
+background-size: contain
+
+---
+background-image: url(images/tidymodels-hex/tidymodels-hex.004.jpeg)
+background-size: contain
+
+---
+background-image: url(images/tidymodels-hex/tidymodels-hex.005.jpeg)
+background-size: contain
+
+---
+background-image: url(images/tidymodels-hex/tidymodels-hex.006.jpeg)
+background-size: contain
+
+---
+class: middle, frame
+
+
+# .center[To specify a model with parsnip]
+
+.right-column[
+
+1\. Pick a .display[model]
+
+2\. Set the .display[engine]
+
+3\. Set the .display[mode] (if needed)
+
+]
+
+---
+class: middle, frame
+
+
+# .center[To specify a classification tree with parsnip]
+
+
+```r
+decision_tree() %&gt;% 
+  set_engine("rpart") %&gt;% 
+  set_mode("classification")
+```
+
+
+---
+class: your-turn
+
+# Your turn 1
+
+Here is our very-vanilla parsnip model specification for a decision tree (also in your Rmd)...
+
+
+```r
+vanilla_tree_spec &lt;-
+  decision_tree() %&gt;% 
+  set_engine("rpart") %&gt;% 
+  set_mode("classification")
+```
+
+---
+class: your-turn
+
+# Your turn 1
+
+Fill in the blanks to return the accuracy and ROC AUC for this model.
+
+<div class="countdown" id="timer_5e46e41a" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">02</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+
+
+```r
+set.seed(100)
+fit_split(remote ~ ., 
+          model = vanilla_tree_spec, 
+          split = so_split) %&gt;% 
+  collect_metrics()
+# A tibble: 2 x 3
+  .metric  .estimator .estimate
+  &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
+1 accuracy binary         0.682
+2 roc_auc  binary         0.710
+```
+
+
+
+---
+class: middle, center
+
+# `args()`
+
+Print the arguments for a **parsnip** model specification.
+
+
+```r
+args(decision_tree)
+```
+
+---
+class: middle, center
+
+# `decision_tree()`
+
+Specifies a decision tree model
+
+
+```r
+decision_tree(tree_depth = 30, min_n = 20, cost_complexity = .01)
+```
+
+--
+
+*either* mode works!
+
+---
+class: middle
+
+.center[
+
+# `decision_tree()`
+
+Specifies a decision tree model
+
+]
+
+
+
+```r
+decision_tree(
+  tree_depth = 30,       # max tree depth
+  min_n = 20,            # smallest node allowed
+  cost_complexity = .01  # 0 &gt; cp &gt; 0.1
+  )
+```
+
+
+---
+class: middle, center
+
+# `set_args()`
+
+Change the arguments for a **parsnip** model specification.
+
+
+```r
+_spec %&gt;% set_args(tree_depth = 3)
+```
+
+---
+class: middle
+
+
+```r
+decision_tree() %&gt;% 
+  set_engine("rpart") %&gt;% 
+  set_mode("classification") %&gt;% 
+* set_args(tree_depth = 3)
+Decision Tree Model Specification (classification)
+
+Main Arguments:
+  tree_depth = 3
+
+Computational engine: rpart 
+```
+
+---
+class: middle
+
+
+```r
+*decision_tree(tree_depth = 3) %&gt;%
+  set_engine("rpart") %&gt;% 
+  set_mode("classification")
+Decision Tree Model Specification (classification)
+
+Main Arguments:
+  tree_depth = 3
+
+Computational engine: rpart 
+```
+
+---
+class: middle, center
+
+# `tree_depth`
+
+Cap the maximum tree depth.
+
+A method to stop the tree early. Used to prevent overfitting.
+
+
+```r
+vanilla_tree_spec %&gt;% set_args(tree_depth = 30)
+```
+
+---
+class: middle, center
+exclude: true
+
+
+
+---
+class: middle, center
+
+&lt;img src="04-Ensembling_files/figure-html/unnamed-chunk-13-1.png" width="864" /&gt;
+
+---
+class: middle, center
+
+&lt;img src="04-Ensembling_files/figure-html/unnamed-chunk-14-1.png" width="864" /&gt;
+
+---
+class: middle, center
+
+&lt;img src="04-Ensembling_files/figure-html/unnamed-chunk-15-1.png" width="864" /&gt;
+
+---
+class: middle, center
+
+# `min_n`
+
+Set minimum `n` to split at any node.
+
+Another early stopping method. Used to prevent overfitting.
+
+
+```r
+vanilla_tree_spec %&gt;% set_args(min_n = 20)
+```
+
+---
+class: middle, center
+
+# Quiz
+
+What value of `min_n` would lead to the *most overfit* tree?
+
+--
+
+`min_n` = 1
+
+---
+class: middle, center, frame
+
+# Recap: early stopping
+
+| `parsnip` arg | `rpart` arg | default | overfit? |
+|---------------|-------------|:-------:|:--------:|
+| `tree_depth`  | `maxdepth`  |    30   |⬆️|
+| `min_n`       | `minsplit`  |    20   |⬇️|
+
+
+---
+class: middle, center
+
+# `cost_complexity`
+
+Adds a cost or penalty to error rates of more complex trees.
+
+A way to prune a tree. Used to prevent overfitting.
+
+
+```r
+vanilla_tree_spec %&gt;% set_args(cost_complexity = .01)
+```
+
+--
+
+Closer to zero ➡️ larger trees. 
+
+Higher penalty ➡️ smaller trees. 
+
+---
+class: middle, center
+
+&lt;img src="04-Ensembling_files/figure-html/unnamed-chunk-18-1.png" width="720" /&gt;
+
+---
+name: bonsai
+background-image: url(images/kari-shea-AVqh83jStMA-unsplash.jpg)
+background-position: left
+background-size: contain
+class: middle
+
+---
+template: bonsai
+
+.pull-right[
+
+# Consider the bonsai
+
+1. Small pot
+
+1. Strong shears
+
+]
+
+---
+template: bonsai
+
+.pull-right[
+
+# Consider the bonsai
+
+1. ~~Small pot~~ .display[Early stopping]
+
+1. ~~Strong shears~~ .display[Pruning]
+
+]
+
+---
+class: middle, center, frame
+
+# Recap: early stopping &amp; pruning
+
+| `parsnip` arg | `rpart` arg | default | overfit? |
+|---------------|-------------|:-------:|:--------:|
+| `tree_depth`  | `maxdepth`  |    30   |⬆️|
+| `min_n`       | `minsplit`  |    20   |⬇️|
+| `cost_complexity`  | `cp`  |    .01  |⬇️|
+
+---
+class: middle, center
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; engine &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; parsnip &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; original &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; rpart &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; tree_depth &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; maxdepth &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; rpart &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; min_n &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; minsplit &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; rpart &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; cost_complexity &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; cp &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+
+&lt;https://rdrr.io/cran/rpart/man/rpart.control.html&gt;
+
+---
+class: your-turn
+
+# Your turn 2
+
+Create a new classification tree model spec; call it `big_tree_spec`. 
+Set the cost complexity to `0`, and the minimum number of data points in a node to split to be `1`. 
+
+Compare the metrics of the big tree to the vanilla tree- which one predicts the test set better?
+
+*Hint: you'll need https://tidymodels.github.io/parsnip/reference/decision_tree.html*
+
+<div class="countdown" id="timer_5e46e4fa" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+
+```r
+big_tree_spec &lt;- 
+* decision_tree(min_n = 1, cost_complexity = 0) %&gt;%
+  set_engine("rpart") %&gt;% 
+  set_mode("classification")
+
+set.seed(100) # Important!
+fit_split(remote ~ ., 
+*         model = big_tree_spec,
+          split = so_split) %&gt;% 
+  collect_metrics()
+# A tibble: 2 x 3
+  .metric  .estimator .estimate
+  &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
+1 accuracy binary         0.629
+2 roc_auc  binary         0.629
+```
+
+--
+
+Compare to `vanilla`: accuracy = 0.68; ROC AUC = 0.71
+
+
+---
+exclude: true
+class: middle
+
+.center[ 
+# Where is the fit?
+]
+
+```r
+big_tree
+## # # Monte Carlo cross-validation (0.75/0.25) with 1 resamples  
+## # A tibble: 1 x 6
+##   splits        id           .metrics      .notes      .predictions    .workflow
+## * &lt;list&gt;        &lt;chr&gt;        &lt;list&gt;        &lt;list&gt;      &lt;list&gt;          &lt;list&gt;   
+## 1 &lt;split [864/… train/test … &lt;tibble [2 ×… &lt;tibble [0… &lt;tibble [286 ×… &lt;workflo…
+```
+
+
+---
+exclude: true
+class: middle
+
+.center[ 
+# Where is the fit?
+]
+
+
+
+
+```r
+get_tree_fit(big_tree)
+parsnip model object
+
+Fit time:  55ms 
+n= 864 
+
+node), split, n, loss, yval, (yprob)
+      * denotes terminal node
+
+      1) root 864 432 Remote (0.50000000 0.50000000)  
+        2) salary&gt;=89196.97 329 103 Remote (0.68693009 0.31306991)  
+          4) company_size_number&lt; 15 54   5 Remote (0.90740741 0.09259259)  
+            8) company_size_number&lt; 5.5 27   0 Remote (1.00000000 0.00000000) *
+            9) company_size_number&gt;=5.5 27   5 Remote (0.81481481 0.18518519)  
+             18) web_developer&gt;=0.5 24   3 Remote (0.87500000 0.12500000)  
+               36) desktop_applications_developer&lt; 0.5 22   2 Remote (0.90909091 0.09090909)  
+                 72) career_satisfaction&lt; 8.5 10   0 Remote (1.00000000 0.00000000) *
+                 73) career_satisfaction&gt;=8.5 12   2 Remote (0.83333333 0.16666667)  
+                  146) career_satisfaction&gt;=9.5 8   0 Remote (1.00000000 0.00000000) *
+                  147) career_satisfaction&lt; 9.5 4   2 Remote (0.50000000 0.50000000)  
+                    294) salary&lt; 97500 1   0 Remote (1.00000000 0.00000000) *
+                    295) salary&gt;=97500 3   1 Not remote (0.33333333 0.66666667)  
+                      590) mobile_developer&gt;=0.5 1   0 Remote (1.00000000 0.00000000) *
+                      591) mobile_developer&lt; 0.5 2   0 Not remote (0.00000000 1.00000000) *
+               37) desktop_applications_developer&gt;=0.5 2   1 Remote (0.50000000 0.50000000)  
+                 74) salary&lt; 121000 1   0 Remote (1.00000000 0.00000000) *
+                 75) salary&gt;=121000 1   0 Not remote (0.00000000 1.00000000) *
+             19) web_developer&lt; 0.5 3   1 Not remote (0.33333333 0.66666667)  
+               38) open_source&gt;=0.5 1   0 Remote (1.00000000 0.00000000) *
+               39) open_source&lt; 0.5 2   0 Not remote (0.00000000 1.00000000) *
+          5) company_size_number&gt;=15 275  98 Remote (0.64363636 0.35636364)  
+           10) years_coded_job&gt;=7.5 196  58 Remote (0.70408163 0.29591837)  
+             20) country=Germany,United States 182  49 Remote (0.73076923 0.26923077)  
+               40) open_source&gt;=0.5 79  14 Remote (0.82278481 0.17721519)  
+                 80) salary&gt;=98250 75  11 Remote (0.85333333 0.14666667)  
+                  160) graphics_programming&lt; 0.5 72   9 Remote (0.87500000 0.12500000)  
+                    320) machine_learning_specialist&lt; 0.5 70   8 Remote (0.88571429 0.11428571)  
+                      640) company_size_number&gt;=300 27   1 Remote (0.96296296 0.03703704)  
+                       1280) salary&gt;=113500 22   0 Remote (1.00000000 0.00000000) *
+                       1281) salary&lt; 113500 5   1 Remote (0.80000000 0.20000000)  
+                         2562) years_coded_job&gt;=11.5 4   0 Remote (1.00000000 0.00000000) *
+                         2563) years_coded_job&lt; 11.5 1   0 Not remote (0.00000000 1.00000000) *
+                      641) company_size_number&lt; 300 43   7 Remote (0.83720930 0.16279070)  
+                       1282) years_coded_job&lt; 14.5 24   2 Remote (0.91666667 0.08333333)  
+                         2564) career_satisfaction&lt; 9.5 17   0 Remote (1.00000000 0.00000000) *
+                         2565) career_satisfaction&gt;=9.5 7   2 Remote (0.71428571 0.28571429)  
+                           5130) salary&gt;=130500 4   0 Remote (1.00000000 0.00000000) *
+                           5131) salary&lt; 130500 3   1 Not remote (0.33333333 0.66666667)  
+                            10262) salary&lt; 115000 1   0 Remote (1.00000000 0.00000000) *
+                            10263) salary&gt;=115000 2   0 Not remote (0.00000000 1.00000000) *
+                       1283) years_coded_job&gt;=14.5 19   5 Remote (0.73684211 0.26315789)  
+                         2566) career_satisfaction&gt;=7.5 15   2 Remote (0.86666667 0.13333333)  
+                           5132) hobby&gt;=0.5 12   0 Remote (1.00000000 0.00000000) *
+                           5133) hobby&lt; 0.5 3   1 Not remote (0.33333333 0.66666667)  
+                            10266) years_coded_job&lt; 17.5 1   0 Remote (1.00000000 0.00000000) *
+                            10267) years_coded_job&gt;=17.5 2   0 Not remote (0.00000000 1.00000000) *
+                         2567) career_satisfaction&lt; 7.5 4   1 Not remote (0.25000000 0.75000000)  
+                           5134) hobby&lt; 0.5 1   0 Remote (1.00000000 0.00000000) *
+                           5135) hobby&gt;=0.5 3   0 Not remote (0.00000000 1.00000000) *
+                    321) machine_learning_specialist&gt;=0.5 2   1 Remote (0.50000000 0.50000000)  
+                      642) salary&gt;=125000 1   0 Remote (1.00000000 0.00000000) *
+                      643) salary&lt; 125000 1   0 Not remote (0.00000000 1.00000000) *
+                  161) graphics_programming&gt;=0.5 3   1 Not remote (0.33333333 0.66666667)  
+                    322) salary&lt; 131500 1   0 Remote (1.00000000 0.00000000) *
+                    323) salary&gt;=131500 2   0 Not remote (0.00000000 1.00000000) *
+                 81) salary&lt; 98250 4   1 Not remote (0.25000000 0.75000000)  
+                  162) salary&lt; 90698.92 1   0 Remote (1.00000000 0.00000000) *
+                  163) salary&gt;=90698.92 3   0 Not remote (0.00000000 1.00000000) *
+               41) open_source&lt; 0.5 103  35 Remote (0.66019417 0.33980583)  
+                 82) salary&lt; 115870.5 44   9 Remote (0.79545455 0.20454545)  
+                  164) salary&gt;=109360 18   1 Remote (0.94444444 0.05555556)  
+                    328) company_size_number&gt;=60 14   0 Remote (1.00000000 0.00000000) *
+                    329) company_size_number&lt; 60 4   1 Remote (0.75000000 0.25000000)  
+                      658) career_satisfaction&lt; 8.5 3   0 Remote (1.00000000 0.00000000) *
+                      659) career_satisfaction&gt;=8.5 1   0 Not remote (0.00000000 1.00000000) *
+                  165) salary&lt; 109360 26   8 Remote (0.69230769 0.30769231)  
+                    330) hobby&lt; 0.5 11   1 Remote (0.90909091 0.09090909)  
+                      660) embedded_developer&lt; 0.5 10   0 Remote (1.00000000 0.00000000) *
+                      661) embedded_developer&gt;=0.5 1   0 Not remote (0.00000000 1.00000000) *
+                    331) hobby&gt;=0.5 15   7 Remote (0.53333333 0.46666667)  
+                      662) salary&gt;=93500 13   5 Remote (0.61538462 0.38461538)  
+                       1324) years_coded_job&gt;=11 6   1 Remote (0.83333333 0.16666667)  
+                         2648) salary&lt; 104500 3   0 Remote (1.00000000 0.00000000) *
+                         2649) salary&gt;=104500 3   1 Remote (0.66666667 0.33333333)  
+                           5298) years_coded_job&lt; 17 2   0 Remote (1.00000000 0.00000000) *
+                           5299) years_coded_job&gt;=17 1   0 Not remote (0.00000000 1.00000000) *
+                       1325) years_coded_job&lt; 11 7   3 Not remote (0.42857143 0.57142857)  
+                         2650) career_satisfaction&lt; 6.5 2   0 Remote (1.00000000 0.00000000) *
+                         2651) career_satisfaction&gt;=6.5 5   1 Not remote (0.20000000 0.80000000)  
+                           5302) mobile_developer&gt;=0.5 1   0 Remote (1.00000000 0.00000000) *
+                           5303) mobile_developer&lt; 0.5 4   0 Not remote (0.00000000 1.00000000) *
+                      663) salary&lt; 93500 2   0 Not remote (0.00000000 1.00000000) *
+                 83) salary&gt;=115870.5 59  26 Remote (0.55932203 0.44067797)  
+                  166) developer_with_stats_math_background&lt; 0.5 54  21 Remote (0.61111111 0.38888889)  
+                    332) systems_administrator&gt;=0.5 5   0 Remote (1.00000000 0.00000000) *
+                    333) systems_administrator&lt; 0.5 49  21 Remote (0.57142857 0.42857143)  
+                      666) web_developer&lt; 0.5 18   4 Remote (0.77777778 0.22222222)  
+                       1332) company_size_number&lt; 5250 10   0 Remote (1.00000000 0.00000000) *
+                       1333) company_size_number&gt;=5250 8   4 Remote (0.50000000 0.50000000)  
+                         2666) salary&gt;=129002 6   2 Remote (0.66666667 0.33333333)  
+                           5332) salary&lt; 165000 3   0 Remote (1.00000000 0.00000000) *
+                           5333) salary&gt;=165000 3   1 Not remote (0.33333333 0.66666667)  
+                            10666) salary&gt;=175000 1   0 Remote (1.00000000 0.00000000) *
+                            10667) salary&lt; 175000 2   0 Not remote (0.00000000 1.00000000) *
+                         2667) salary&lt; 129002 2   0 Not remote (0.00000000 1.00000000) *
+                      667) web_developer&gt;=0.5 31  14 Not remote (0.45161290 0.54838710)  
+                       1334) salary&gt;=122500 28  14 Remote (0.50000000 0.50000000)  
+                         2668) salary&lt; 125840 2   0 Remote (1.00000000 0.00000000) *
+                         2669) salary&gt;=125840 26  12 Not remote (0.46153846 0.53846154)  
+                           5338) career_satisfaction&gt;=9.5 2   0 Remote (1.00000000 0.00000000) *
+                           5339) career_satisfaction&lt; 9.5 24  10 Not remote (0.41666667 0.58333333)  
+                            10678) career_satisfaction&lt; 8.5 18   9 Remote (0.50000000 0.50000000)  
+                              21356) salary&gt;=165000 2   0 Remote (1.00000000 0.00000000) *
+                              21357) salary&lt; 165000 16   7 Not remote (0.43750000 0.56250000)  
+                                42714) salary&lt; 157500 14   7 Remote (0.50000000 0.50000000)  
+                                  85428) salary&gt;=147500 2   0 Remote (1.00000000 0.00000000) *
+                                  85429) salary&lt; 147500 12   5 Not remote (0.41666667 0.58333333)  
+                                   170858) salary&lt; 142000 10   5 Remote (0.50000000 0.50000000)  
+                                     341716) career_satisfaction&gt;=5 8   3 Remote (0.62500000 0.37500000)  
+                                       683432) career_satisfaction&lt; 7.5 4   0 Remote (1.00000000 0.00000000) *
+                                       683433) career_satisfaction&gt;=7.5 4   1 Not remote (0.25000000 0.75000000)  
+                                        1366866) company_size_number&lt; 60 1   0 Remote (1.00000000 0.00000000) *
+                                        1366867) company_size_number&gt;=60 3   0 Not remote (0.00000000 1.00000000) *
+                                     341717) career_satisfaction&lt; 5 2   0 Not remote (0.00000000 1.00000000) *
+                                   170859) salary&gt;=142000 2   0 Not remote (0.00000000 1.00000000) *
+                                42715) salary&gt;=157500 2   0 Not remote (0.00000000 1.00000000) *
+                            10679) career_satisfaction&gt;=8.5 6   1 Not remote (0.16666667 0.83333333)  
+                              21358) years_coded_job&gt;=19 2   1 Remote (0.50000000 0.50000000)  
+                                42716) salary&gt;=156500 1   0 Remote (1.00000000 0.00000000) *
+                                42717) salary&lt; 156500 1   0 Not remote (0.00000000 1.00000000) *
+                              21359) years_coded_job&lt; 19 4   0 Not remote (0.00000000 1.00000000) *
+                       1335) salary&lt; 122500 3   0 Not remote (0.00000000 1.00000000) *
+                  167) developer_with_stats_math_background&gt;=0.5 5   0 Not remote (0.00000000 1.00000000) *
+             21) country=Canada,United Kingdom 14   5 Not remote (0.35714286 0.64285714)  
+               42) mobile_developer&gt;=0.5 2   0 Remote (1.00000000 0.00000000) *
+               43) mobile_developer&lt; 0.5 12   3 Not remote (0.25000000 0.75000000)  
+                 86) years_coded_job&gt;=19 6   3 Remote (0.50000000 0.50000000)  
+                  172) company_size_number&gt;=3000 2   0 Remote (1.00000000 0.00000000) *
+                  173) company_size_number&lt; 3000 4   1 Not remote (0.25000000 0.75000000)  
+                    346) company_size_number&lt; 300 1   0 Remote (1.00000000 0.00000000) *
+                    347) company_size_number&gt;=300 3   0 Not remote (0.00000000 1.00000000) *
+                 87) years_coded_job&lt; 19 6   0 Not remote (0.00000000 1.00000000) *
+           11) years_coded_job&lt; 7.5 79  39 Not remote (0.49367089 0.50632911)  
+             22) salary&lt; 114250 51  22 Remote (0.56862745 0.43137255)  
+               44) embedded_developer&lt; 0.5 47  19 Remote (0.59574468 0.40425532)  
+                 88) salary&lt; 90954.55 7   1 Remote (0.85714286 0.14285714)  
+                  176) years_coded_job&gt;=1 6   0 Remote (1.00000000 0.00000000) *
+                  177) years_coded_job&lt; 1 1   0 Not remote (0.00000000 1.00000000) *
+                 89) salary&gt;=90954.55 40  18 Remote (0.55000000 0.45000000)  
+                  178) hobby&gt;=0.5 33  13 Remote (0.60606061 0.39393939)  
+                    356) salary&gt;=91250 32  12 Remote (0.62500000 0.37500000)  
+                      712) salary&lt; 99150 7   1 Remote (0.85714286 0.14285714)  
+                       1424) data_scientist&lt; 0.5 6   0 Remote (1.00000000 0.00000000) *
+                       1425) data_scientist&gt;=0.5 1   0 Not remote (0.00000000 1.00000000) *
+                      713) salary&gt;=99150 25  11 Remote (0.56000000 0.44000000)  
+                       1426) salary&gt;=101000 22   8 Remote (0.63636364 0.36363636)  
+                         2852) salary&lt; 102750 3   0 Remote (1.00000000 0.00000000) *
+                         2853) salary&gt;=102750 19   8 Remote (0.57894737 0.42105263)  
+                           5706) salary&gt;=112250 2   0 Remote (1.00000000 0.00000000) *
+                           5707) salary&lt; 112250 17   8 Remote (0.52941176 0.47058824)  
+                            11414) salary&lt; 110500 15   6 Remote (0.60000000 0.40000000)  
+                              22828) company_size_number&gt;=5500 3   0 Remote (1.00000000 0.00000000) *
+                              22829) company_size_number&lt; 5500 12   6 Remote (0.50000000 0.50000000)  
+                                45658) career_satisfaction&lt; 6.5 2   0 Remote (1.00000000 0.00000000) *
+                                45659) career_satisfaction&gt;=6.5 10   4 Not remote (0.40000000 0.60000000)  
+                                  91318) web_developer&gt;=0.5 7   3 Remote (0.57142857 0.42857143)  
+                                   182636) salary&gt;=103500 6   2 Remote (0.66666667 0.33333333)  
+                                     365272) salary&lt; 107500 3   0 Remote (1.00000000 0.00000000) *
+                                     365273) salary&gt;=107500 3   1 Not remote (0.33333333 0.66666667)  
+                                       730546) career_satisfaction&gt;=8.5 1   0 Remote (1.00000000 0.00000000) *
+                                       730547) career_satisfaction&lt; 8.5 2   0 Not remote (0.00000000 1.00000000) *
+                                   182637) salary&lt; 103500 1   0 Not remote (0.00000000 1.00000000) *
+                                  91319) web_developer&lt; 0.5 3   0 Not remote (0.00000000 1.00000000) *
+                            11415) salary&gt;=110500 2   0 Not remote (0.00000000 1.00000000) *
+                       1427) salary&lt; 101000 3   0 Not remote (0.00000000 1.00000000) *
+                    357) salary&lt; 91250 1   0 Not remote (0.00000000 1.00000000) *
+                  179) hobby&lt; 0.5 7   2 Not remote (0.28571429 0.71428571)  
+                    358) salary&gt;=98500 3   1 Remote (0.66666667 0.33333333)  
+                      716) company_size_number&gt;=300 2   0 Remote (1.00000000 0.00000000) *
+                      717) company_size_number&lt; 300 1   0 Not remote (0.00000000 1.00000000) *
+                    359) salary&lt; 98500 4   0 Not remote (0.00000000 1.00000000) *
+               45) embedded_developer&gt;=0.5 4   1 Not remote (0.25000000 0.75000000)  
+                 90) years_coded_job&gt;=6 1   0 Remote (1.00000000 0.00000000) *
+                 91) years_coded_job&lt; 6 3   0 Not remote (0.00000000 1.00000000) *
+             23) salary&gt;=114250 28  10 Not remote (0.35714286 0.64285714)  
+               46) salary&gt;=151500 2   0 Remote (1.00000000 0.00000000) *
+               47) salary&lt; 151500 26   8 Not remote (0.30769231 0.69230769)  
+                 94) web_developer&gt;=0.5 20   8 Not remote (0.40000000 0.60000000)  
+                  188) company_size_number&lt; 550 6   2 Remote (0.66666667 0.33333333)  
+                    376) years_coded_job&gt;=4.5 5   1 Remote (0.80000000 0.20000000)  
+                      752) years_coded_job&lt; 6.5 3   0 Remote (1.00000000 0.00000000) *
+                      753) years_coded_job&gt;=6.5 2   1 Remote (0.50000000 0.50000000)  
+                       1506) salary&lt; 122500 1   0 Remote (1.00000000 0.00000000) *
+                       1507) salary&gt;=122500 1   0 Not remote (0.00000000 1.00000000) *
+                    377) years_coded_job&lt; 4.5 1   0 Not remote (0.00000000 1.00000000) *
+                  189) company_size_number&gt;=550 14   4 Not remote (0.28571429 0.71428571)  
+                    378) database_administrator&gt;=0.5 1   0 Remote (1.00000000 0.00000000) *
+                    379) database_administrator&lt; 0.5 13   3 Not remote (0.23076923 0.76923077)  
+                      758) graphic_designer&gt;=0.5 1   0 Remote (1.00000000 0.00000000) *
+                      759) graphic_designer&lt; 0.5 12   2 Not remote (0.16666667 0.83333333)  
+                       1518) career_satisfaction&lt; 6.5 4   2 Remote (0.50000000 0.50000000)  
+                         3036) salary&gt;=125000 1   0 Remote (1.00000000 0.00000000) *
+                         3037) salary&lt; 125000 3   1 Not remote (0.33333333 0.66666667)  
+                           6074) hobby&gt;=0.5 1   0 Remote (1.00000000 0.00000000) *
+                           6075) hobby&lt; 0.5 2   0 Not remote (0.00000000 1.00000000) *
+                       1519) career_satisfaction&gt;=6.5 8   0 Not remote (0.00000000 1.00000000) *
+                 95) web_developer&lt; 0.5 6   0 Not remote (0.00000000 1.00000000) *
+        3) salary&lt; 89196.97 535 206 Not remote (0.38504673 0.61495327)  
+          6) company_size_number&lt; 15 135  59 Remote (0.56296296 0.43703704)  
+           12) years_coded_job&gt;=16.5 15   1 Remote (0.93333333 0.06666667)  
+             24) quality_assurance_engineer&lt; 0.5 14   0 Remote (1.00000000 0.00000000) *
+             25) quality_assurance_engineer&gt;=0.5 1   0 Not remote (0.00000000 1.00000000) *
+           13) years_coded_job&lt; 16.5 120  58 Remote (0.51666667 0.48333333)  
+             26) graphic_designer&gt;=0.5 6   0 Remote (1.00000000 0.00000000) *
+             27) graphic_designer&lt; 0.5 114  56 Not remote (0.49122807 0.50877193)  
+               54) country=Germany,India,United Kingdom 66  27 Remote (0.59090909 0.40909091)  
+                108) company_size_number&lt; 5.5 35  10 Remote (0.71428571 0.28571429)  
+                  216) salary&gt;=4228.454 30   6 Remote (0.80000000 0.20000000)  
+                    432) salary&lt; 49193.55 19   2 Remote (0.89473684 0.10526316)  
+                      864) career_satisfaction&gt;=4.5 18   1 Remote (0.94444444 0.05555556)  
+                       1728) dev_ops&lt; 0.5 17   0 Remote (1.00000000 0.00000000) *
+                       1729) dev_ops&gt;=0.5 1   0 Not remote (0.00000000 1.00000000) *
+                      865) career_satisfaction&lt; 4.5 1   0 Not remote (0.00000000 1.00000000) *
+                    433) salary&gt;=49193.55 11   4 Remote (0.63636364 0.36363636)  
+                      866) salary&gt;=52500 9   2 Remote (0.77777778 0.22222222)  
+                       1732) web_developer&gt;=0.5 8   1 Remote (0.87500000 0.12500000)  
+                         3464) years_coded_job&lt; 9.5 5   0 Remote (1.00000000 0.00000000) *
+                         3465) years_coded_job&gt;=9.5 3   1 Remote (0.66666667 0.33333333)  
+                           6930) salary&gt;=61357.53 2   0 Remote (1.00000000 0.00000000) *
+                           6931) salary&lt; 61357.53 1   0 Not remote (0.00000000 1.00000000) *
+                       1733) web_developer&lt; 0.5 1   0 Not remote (0.00000000 1.00000000) *
+                      867) salary&lt; 52500 2   0 Not remote (0.00000000 1.00000000) *
+                  217) salary&lt; 4228.454 5   1 Not remote (0.20000000 0.80000000)  
+                    434) salary&lt; 1564.957 1   0 Remote (1.00000000 0.00000000) *
+                    435) salary&gt;=1564.957 4   0 Not remote (0.00000000 1.00000000) *
+                109) company_size_number&gt;=5.5 31  14 Not remote (0.45161290 0.54838710)  
+                  218) salary&lt; 6211.884 4   0 Remote (1.00000000 0.00000000) *
+                  219) salary&gt;=6211.884 27  10 Not remote (0.37037037 0.62962963)  
+                    438) mobile_developer&lt; 0.5 23  10 Not remote (0.43478261 0.56521739)  
+                      876) salary&lt; 74059.14 21  10 Not remote (0.47619048 0.52380952)  
+                       1752) salary&gt;=69892.47 1   0 Remote (1.00000000 0.00000000) *
+                       1753) salary&lt; 69892.47 20   9 Not remote (0.45000000 0.55000000)  
+                         3506) dev_ops&lt; 0.5 17   8 Remote (0.52941176 0.47058824)  
+                           7012) salary&lt; 62681.25 15   6 Remote (0.60000000 0.40000000)  
+                            14024) open_source&gt;=0.5 4   0 Remote (1.00000000 0.00000000) *
+                            14025) open_source&lt; 0.5 11   5 Not remote (0.45454545 0.54545455)  
+                              28050) desktop_applications_developer&gt;=0.5 3   0 Remote (1.00000000 0.00000000) *
+                              28051) desktop_applications_developer&lt; 0.5 8   2 Not remote (0.25000000 0.75000000)  
+                                56102) career_satisfaction&gt;=8.5 1   0 Remote (1.00000000 0.00000000) *
+                                56103) career_satisfaction&lt; 8.5 7   1 Not remote (0.14285714 0.85714286)  
+                                 112206) salary&lt; 22500 2   1 Remote (0.50000000 0.50000000)  
+                                   224412) salary&gt;=14404.64 1   0 Remote (1.00000000 0.00000000) *
+                                   224413) salary&lt; 14404.64 1   0 Not remote (0.00000000 1.00000000) *
+                                 112207) salary&gt;=22500 5   0 Not remote (0.00000000 1.00000000) *
+                           7013) salary&gt;=62681.25 2   0 Not remote (0.00000000 1.00000000) *
+                         3507) dev_ops&gt;=0.5 3   0 Not remote (0.00000000 1.00000000) *
+                      877) salary&gt;=74059.14 2   0 Not remote (0.00000000 1.00000000) *
+                    439) mobile_developer&gt;=0.5 4   0 Not remote (0.00000000 1.00000000) *
+               55) country=Canada,United States 48  17 Not remote (0.35416667 0.64583333)  
+                110) salary&gt;=65500 10   3 Remote (0.70000000 0.30000000)  
+                  220) salary&lt; 79560 8   1 Remote (0.87500000 0.12500000)  
+                    440) desktop_applications_developer&lt; 0.5 7   0 Remote (1.00000000 0.00000000) *
+                    441) desktop_applications_developer&gt;=0.5 1   0 Not remote (0.00000000 1.00000000) *
+                  221) salary&gt;=79560 2   0 Not remote (0.00000000 1.00000000) *
+                111) salary&lt; 65500 38  10 Not remote (0.26315789 0.73684211)  
+                  222) salary&lt; 36181.82 9   4 Remote (0.55555556 0.44444444)  
+                    444) open_source&lt; 0.5 7   2 Remote (0.71428571 0.28571429)  
+                      888) country=United States 5   0 Remote (1.00000000 0.00000000) *
+                      889) country=Canada 2   0 Not remote (0.00000000 1.00000000) *
+                    445) open_source&gt;=0.5 2   0 Not remote (0.00000000 1.00000000) *
+                  223) salary&gt;=36181.82 29   5 Not remote (0.17241379 0.82758621)  
+                    446) years_coded_job&gt;=3.5 12   5 Not remote (0.41666667 0.58333333)  
+                      892) mobile_developer&lt; 0.5 9   4 Remote (0.55555556 0.44444444)  
+                       1784) career_satisfaction&gt;=8.5 3   0 Remote (1.00000000 0.00000000) *
+                       1785) career_satisfaction&lt; 8.5 6   2 Not remote (0.33333333 0.66666667)  
+                         3570) developer_with_stats_math_background&gt;=0.5 1   0 Remote (1.00000000 0.00000000) *
+                         3571) developer_with_stats_math_background&lt; 0.5 5   1 Not remote (0.20000000 0.80000000)  
+                           7142) salary&lt; 50863.64 2   1 Remote (0.50000000 0.50000000)  
+                            14284) salary&gt;=46363.64 1   0 Remote (1.00000000 0.00000000) *
+                            14285) salary&lt; 46363.64 1   0 Not remote (0.00000000 1.00000000) *
+                           7143) salary&gt;=50863.64 3   0 Not remote (0.00000000 1.00000000) *
+                      893) mobile_developer&gt;=0.5 3   0 Not remote (0.00000000 1.00000000) *
+                    447) years_coded_job&lt; 3.5 17   0 Not remote (0.00000000 1.00000000) *
+          7) company_size_number&gt;=15 400 130 Not remote (0.32500000 0.67500000)  
+           14) country=India,United States 209  83 Not remote (0.39712919 0.60287081)  
+             28) open_source&gt;=0.5 68  33 Remote (0.51470588 0.48529412)  
+               56) developer_with_stats_math_background&lt; 0.5 64  29 Remote (0.54687500 0.45312500)  
+                112) years_coded_job&gt;=8.5 6   0 Remote (1.00000000 0.00000000) *
+                113) years_coded_job&lt; 8.5 58  29 Remote (0.50000000 0.50000000)  
+                  226) salary&lt; 81200 55  26 Remote (0.52727273 0.47272727)  
+                    452) career_satisfaction&gt;=4.5 50  22 Remote (0.56000000 0.44000000)  
+                      904) years_coded_job&lt; 2.5 16   4 Remote (0.75000000 0.25000000)  
+                       1808) dev_ops&lt; 0.5 15   3 Remote (0.80000000 0.20000000)  
+                         3616) company_size_number&gt;=60 8   0 Remote (1.00000000 0.00000000) *
+                         3617) company_size_number&lt; 60 7   3 Remote (0.57142857 0.42857143)  
+                           7234) years_coded_job&lt; 1.5 2   0 Remote (1.00000000 0.00000000) *
+                           7235) years_coded_job&gt;=1.5 5   2 Not remote (0.40000000 0.60000000)  
+                            14470) salary&gt;=5802.954 3   1 Remote (0.66666667 0.33333333)  
+                              28940) salary&lt; 27936.43 1   0 Remote (1.00000000 0.00000000) *
+                              28941) salary&gt;=27936.43 2   1 Remote (0.50000000 0.50000000)  
+                                57882) salary&gt;=57500 1   0 Remote (1.00000000 0.00000000) *
+                                57883) salary&lt; 57500 1   0 Not remote (0.00000000 1.00000000) *
+                            14471) salary&lt; 5802.954 2   0 Not remote (0.00000000 1.00000000) *
+                       1809) dev_ops&gt;=0.5 1   0 Not remote (0.00000000 1.00000000) *
+                      905) years_coded_job&gt;=2.5 34  16 Not remote (0.47058824 0.52941176)  
+                       1810) salary&gt;=7055.212 30  14 Remote (0.53333333 0.46666667)  
+                         3620) desktop_applications_developer&lt; 0.5 17   5 Remote (0.70588235 0.29411765)  
+                           7240) data_scientist&lt; 0.5 15   3 Remote (0.80000000 0.20000000)  
+                            14480) salary&gt;=8075.173 14   2 Remote (0.85714286 0.14285714)  
+                              28960) career_satisfaction&gt;=5.5 13   1 Remote (0.92307692 0.07692308)  
+                                57920) salary&lt; 77500 11   0 Remote (1.00000000 0.00000000) *
+                                57921) salary&gt;=77500 2   1 Remote (0.50000000 0.50000000)  
+                                 115842) years_coded_job&gt;=3.5 1   0 Remote (1.00000000 0.00000000) *
+                                 115843) years_coded_job&lt; 3.5 1   0 Not remote (0.00000000 1.00000000) *
+                              28961) career_satisfaction&lt; 5.5 1   0 Not remote (0.00000000 1.00000000) *
+                            14481) salary&lt; 8075.173 1   0 Not remote (0.00000000 1.00000000) *
+                           7241) data_scientist&gt;=0.5 2   0 Not remote (0.00000000 1.00000000) *
+                         3621) desktop_applications_developer&gt;=0.5 13   4 Not remote (0.30769231 0.69230769)  
+                           7242) years_coded_job&lt; 5.5 8   4 Remote (0.50000000 0.50000000)  
+                            14484) career_satisfaction&lt; 6.5 2   0 Remote (1.00000000 0.00000000) *
+                            14485) career_satisfaction&gt;=6.5 6   2 Not remote (0.33333333 0.66666667)  
+                              28970) salary&lt; 9404.353 1   0 Remote (1.00000000 0.00000000) *
+                              28971) salary&gt;=9404.353 5   1 Not remote (0.20000000 0.80000000)  
+                                57942) hobby&lt; 0.5 1   0 Remote (1.00000000 0.00000000) *
+                                57943) hobby&gt;=0.5 4   0 Not remote (0.00000000 1.00000000) *
+                           7243) years_coded_job&gt;=5.5 5   0 Not remote (0.00000000 1.00000000) *
+                       1811) salary&lt; 7055.212 4   0 Not remote (0.00000000 1.00000000) *
+                    453) career_satisfaction&lt; 4.5 5   1 Not remote (0.20000000 0.80000000)  
+                      906) career_satisfaction&lt; 1 1   0 Remote (1.00000000 0.00000000) *
+                      907) career_satisfaction&gt;=1 4   0 Not remote (0.00000000 1.00000000) *
+                  227) salary&gt;=81200 3   0 Not remote (0.00000000 1.00000000) *
+               57) developer_with_stats_math_background&gt;=0.5 4   0 Not remote (0.00000000 1.00000000) *
+             29) open_source&lt; 0.5 141  48 Not remote (0.34042553 0.65957447)  
+               58) company_size_number&lt; 60 38  18 Remote (0.52631579 0.47368421)  
+                116) salary&lt; 9543.386 6   0 Remote (1.00000000 0.00000000) *
+                117) salary&gt;=9543.386 32  14 Not remote (0.43750000 0.56250000)  
+                  234) salary&lt; 75250 28  14 Remote (0.50000000 0.50000000)  
+                    468) salary&gt;=49500 21   8 Remote (0.61904762 0.38095238)  
+                      936) salary&lt; 64375 10   2 Remote (0.80000000 0.20000000)  
+                       1872) salary&gt;=58500 5   0 Remote (1.00000000 0.00000000) *
+                       1873) salary&lt; 58500 5   2 Remote (0.60000000 0.40000000)  
+                         3746) salary&lt; 57250 3   0 Remote (1.00000000 0.00000000) *
+                         3747) salary&gt;=57250 2   0 Not remote (0.00000000 1.00000000) *
+                      937) salary&gt;=64375 11   5 Not remote (0.45454545 0.54545455)  
+                       1874) mobile_developer&gt;=0.5 2   0 Remote (1.00000000 0.00000000) *
+                       1875) mobile_developer&lt; 0.5 9   3 Not remote (0.33333333 0.66666667)  
+                         3750) salary&gt;=71500 6   3 Remote (0.50000000 0.50000000)  
+                           7500) years_coded_job&lt; 8 2   0 Remote (1.00000000 0.00000000) *
+                           7501) years_coded_job&gt;=8 4   1 Not remote (0.25000000 0.75000000)  
+                            15002) years_coded_job&lt; 14 2   1 Remote (0.50000000 0.50000000)  
+                              30004) salary&gt;=73500 1   0 Remote (1.00000000 0.00000000) *
+                              30005) salary&lt; 73500 1   0 Not remote (0.00000000 1.00000000) *
+                            15003) years_coded_job&gt;=14 2   0 Not remote (0.00000000 1.00000000) *
+                         3751) salary&lt; 71500 3   0 Not remote (0.00000000 1.00000000) *
+                    469) salary&lt; 49500 7   1 Not remote (0.14285714 0.85714286)  
+                      938) salary&lt; 21289.09 2   1 Remote (0.50000000 0.50000000)  
+                       1876) years_coded_job&gt;=2.5 1   0 Remote (1.00000000 0.00000000) *
+                       1877) years_coded_job&lt; 2.5 1   0 Not remote (0.00000000 1.00000000) *
+                      939) salary&gt;=21289.09 5   0 Not remote (0.00000000 1.00000000) *
+                  235) salary&gt;=75250 4   0 Not remote (0.00000000 1.00000000) *
+               59) company_size_number&gt;=60 103  28 Not remote (0.27184466 0.72815534)  
+                118) salary&gt;=74500 27  12 Not remote (0.44444444 0.55555556)  
+                  236) web_developer&gt;=0.5 24  12 Remote (0.50000000 0.50000000)  
+                    472) salary&lt; 79500 6   1 Remote (0.83333333 0.16666667)  
+                      944) years_coded_job&gt;=1.5 5   0 Remote (1.00000000 0.00000000) *
+                      945) years_coded_job&lt; 1.5 1   0 Not remote (0.00000000 1.00000000) *
+                    473) salary&gt;=79500 18   7 Not remote (0.38888889 0.61111111)  
+                      946) mobile_developer&lt; 0.5 14   7 Remote (0.50000000 0.50000000)  
+                       1892) company_size_number&lt; 7500 9   3 Remote (0.66666667 0.33333333)  
+                         3784) company_size_number&gt;=550 3   0 Remote (1.00000000 0.00000000) *
+                         3785) company_size_number&lt; 550 6   3 Remote (0.50000000 0.50000000)  
+                           7570) salary&gt;=83500 1   0 Remote (1.00000000 0.00000000) *
+                           7571) salary&lt; 83500 5   2 Not remote (0.40000000 0.60000000)  
+                            15142) salary&lt; 81250 3   1 Remote (0.66666667 0.33333333)  
+                              30284) years_coded_job&gt;=2.5 2   0 Remote (1.00000000 0.00000000) *
+                              30285) years_coded_job&lt; 2.5 1   0 Not remote (0.00000000 1.00000000) *
+                            15143) salary&gt;=81250 2   0 Not remote (0.00000000 1.00000000) *
+                       1893) company_size_number&gt;=7500 5   1 Not remote (0.20000000 0.80000000)  
+                         3786) salary&gt;=86000 1   0 Remote (1.00000000 0.00000000) *
+                         3787) salary&lt; 86000 4   0 Not remote (0.00000000 1.00000000) *
+                      947) mobile_developer&gt;=0.5 4   0 Not remote (0.00000000 1.00000000) *
+                  237) web_developer&lt; 0.5 3   0 Not remote (0.00000000 1.00000000) *
+                119) salary&lt; 74500 76  16 Not remote (0.21052632 0.78947368)  
+                  238) salary&lt; 58000 46  13 Not remote (0.28260870 0.71739130)  
+                    476) salary&gt;=53500 3   0 Remote (1.00000000 0.00000000) *
+                    477) salary&lt; 53500 43  10 Not remote (0.23255814 0.76744186)  
+                      954) career_satisfaction&gt;=9.5 3   1 Remote (0.66666667 0.33333333)  
+                       1908) years_coded_job&lt; 3.5 2   0 Remote (1.00000000 0.00000000) *
+                       1909) years_coded_job&gt;=3.5 1   0 Not remote (0.00000000 1.00000000) *
+                      955) career_satisfaction&lt; 9.5 40   8 Not remote (0.20000000 0.80000000)  
+                       1910) quality_assurance_engineer&gt;=0.5 1   0 Remote (1.00000000 0.00000000) *
+                       1911) quality_assurance_engineer&lt; 0.5 39   7 Not remote (0.17948718 0.82051282)  
+                         3822) career_satisfaction&gt;=6.5 22   6 Not remote (0.27272727 0.72727273)  
+                           7644) data_scientist&gt;=0.5 3   1 Remote (0.66666667 0.33333333)  
+                            15288) database_administrator&lt; 0.5 2   0 Remote (1.00000000 0.00000000) *
+                            15289) database_administrator&gt;=0.5 1   0 Not remote (0.00000000 1.00000000) *
+                           7645) data_scientist&lt; 0.5 19   4 Not remote (0.21052632 0.78947368)  
+                            15290) salary&gt;=9837.028 14   4 Not remote (0.28571429 0.71428571)  
+                              30580) years_coded_job&lt; 4.5 5   2 Remote (0.60000000 0.40000000)  
+                                61160) years_coded_job&gt;=2.5 2   0 Remote (1.00000000 0.00000000) *
+                                61161) years_coded_job&lt; 2.5 3   1 Not remote (0.33333333 0.66666667)  
+                                 122322) hobby&lt; 0.5 1   0 Remote (1.00000000 0.00000000) *
+                                 122323) hobby&gt;=0.5 2   0 Not remote (0.00000000 1.00000000) *
+                              30581) years_coded_job&gt;=4.5 9   1 Not remote (0.11111111 0.88888889)  
+                                61162) company_size_number&lt; 300 3   1 Not remote (0.33333333 0.66666667)  
+                                 122324) desktop_applications_developer&gt;=0.5 1   0 Remote (1.00000000 0.00000000) *
+                                 122325) desktop_applications_developer&lt; 0.5 2   0 Not remote (0.00000000 1.00000000) *
+                                61163) company_size_number&gt;=300 6   0 Not remote (0.00000000 1.00000000) *
+                            15291) salary&lt; 9837.028 5   0 Not remote (0.00000000 1.00000000) *
+                         3823) career_satisfaction&lt; 6.5 17   1 Not remote (0.05882353 0.94117647)  
+                           7646) developer_with_stats_math_background&gt;=0.5 2   1 Remote (0.50000000 0.50000000)  
+                            15292) years_coded_job&lt; 7.5 1   0 Remote (1.00000000 0.00000000) *
+                            15293) years_coded_job&gt;=7.5 1   0 Not remote (0.00000000 1.00000000) *
+                           7647) developer_with_stats_math_background&lt; 0.5 15   0 Not remote (0.00000000 1.00000000) *
+                  239) salary&gt;=58000 30   3 Not remote (0.10000000 0.90000000)  
+                    478) years_coded_job&gt;=2.5 17   3 Not remote (0.17647059 0.82352941)  
+                      956) company_size_number&gt;=7500 5   2 Not remote (0.40000000 0.60000000)  
+                       1912) dev_ops&lt; 0.5 3   1 Remote (0.66666667 0.33333333)  
+                         3824) salary&gt;=65200 2   0 Remote (1.00000000 0.00000000) *
+                         3825) salary&lt; 65200 1   0 Not remote (0.00000000 1.00000000) *
+                       1913) dev_ops&gt;=0.5 2   0 Not remote (0.00000000 1.00000000) *
+                      957) company_size_number&lt; 7500 12   1 Not remote (0.08333333 0.91666667)  
+                       1914) salary&lt; 63000 2   1 Remote (0.50000000 0.50000000)  
+                         3828) salary&gt;=61250 1   0 Remote (1.00000000 0.00000000) *
+                         3829) salary&lt; 61250 1   0 Not remote (0.00000000 1.00000000) *
+                       1915) salary&gt;=63000 10   0 Not remote (0.00000000 1.00000000) *
+                    479) years_coded_job&lt; 2.5 13   0 Not remote (0.00000000 1.00000000) *
+           15) country=Canada,Germany,United Kingdom 191  47 Not remote (0.24607330 0.75392670)  
+             30) salary&gt;=87310.61 4   1 Remote (0.75000000 0.25000000)  
+               60) years_coded_job&gt;=13.5 2   0 Remote (1.00000000 0.00000000) *
+               61) years_coded_job&lt; 13.5 2   1 Remote (0.50000000 0.50000000)  
+                122) years_coded_job&lt; 9.5 1   0 Remote (1.00000000 0.00000000) *
+                123) years_coded_job&gt;=9.5 1   0 Not remote (0.00000000 1.00000000) *
+             31) salary&lt; 87310.61 187  44 Not remote (0.23529412 0.76470588)  
+               62) graphics_programming&gt;=0.5 4   1 Remote (0.75000000 0.25000000)  
+                124) career_satisfaction&gt;=7 3   0 Remote (1.00000000 0.00000000) *
+                125) career_satisfaction&lt; 7 1   0 Not remote (0.00000000 1.00000000) *
+               63) graphics_programming&lt; 0.5 183  41 Not remote (0.22404372 0.77595628)  
+                126) years_coded_job&gt;=19.5 17   8 Not remote (0.47058824 0.52941176)  
+                  252) career_satisfaction&gt;=9.5 6   1 Remote (0.83333333 0.16666667)  
+                    504) machine_learning_specialist&lt; 0.5 5   0 Remote (1.00000000 0.00000000) *
+                    505) machine_learning_specialist&gt;=0.5 1   0 Not remote (0.00000000 1.00000000) *
+                  253) career_satisfaction&lt; 9.5 11   3 Not remote (0.27272727 0.72727273)  
+                    506) country=United Kingdom 6   3 Remote (0.50000000 0.50000000)  
+                     1012) company_size_number&gt;=60 4   1 Remote (0.75000000 0.25000000)  
+                       2024) career_satisfaction&gt;=4.5 3   0 Remote (1.00000000 0.00000000) *
+                       2025) career_satisfaction&lt; 4.5 1   0 Not remote (0.00000000 1.00000000) *
+                     1013) company_size_number&lt; 60 2   0 Not remote (0.00000000 1.00000000) *
+                    507) country=Canada,Germany 5   0 Not remote (0.00000000 1.00000000) *
+                127) years_coded_job&lt; 19.5 166  33 Not remote (0.19879518 0.80120482)  
+                  254) data_scientist&gt;=0.5 13   6 Not remote (0.46153846 0.53846154)  
+                    508) years_coded_job&gt;=5.5 4   0 Remote (1.00000000 0.00000000) *
+                    509) years_coded_job&lt; 5.5 9   2 Not remote (0.22222222 0.77777778)  
+                     1018) career_satisfaction&lt; 6.5 3   1 Remote (0.66666667 0.33333333)  
+                       2036) developer_with_stats_math_background&lt; 0.5 2   0 Remote (1.00000000 0.00000000) *
+                       2037) developer_with_stats_math_background&gt;=0.5 1   0 Not remote (0.00000000 1.00000000) *
+                     1019) career_satisfaction&gt;=6.5 6   0 Not remote (0.00000000 1.00000000) *
+                  255) data_scientist&lt; 0.5 153  27 Not remote (0.17647059 0.82352941)  
+                    510) salary&lt; 3602.151 1   0 Remote (1.00000000 0.00000000) *
+                    511) salary&gt;=3602.151 152  26 Not remote (0.17105263 0.82894737)  
+                     1022) web_developer&lt; 0.5 42  11 Not remote (0.26190476 0.73809524)  
+                       2044) years_coded_job&gt;=9.5 7   3 Remote (0.57142857 0.42857143)  
+                         4088) company_size_number&lt; 300 2   0 Remote (1.00000000 0.00000000) *
+                         4089) company_size_number&gt;=300 5   2 Not remote (0.40000000 0.60000000)  
+                           8178) salary&gt;=54062.5 3   1 Remote (0.66666667 0.33333333)  
+                            16356) salary&lt; 67634.41 2   0 Remote (1.00000000 0.00000000) *
+                            16357) salary&gt;=67634.41 1   0 Not remote (0.00000000 1.00000000) *
+                           8179) salary&lt; 54062.5 2   0 Not remote (0.00000000 1.00000000) *
+                       2045) years_coded_job&lt; 9.5 35   7 Not remote (0.20000000 0.80000000)  
+                         4090) salary&lt; 41645.16 8   4 Remote (0.50000000 0.50000000)  
+                           8180) career_satisfaction&gt;=6.5 5   1 Remote (0.80000000 0.20000000)  
+                            16360) company_size_number&lt; 300 4   0 Remote (1.00000000 0.00000000) *
+                            16361) company_size_number&gt;=300 1   0 Not remote (0.00000000 1.00000000) *
+                           8181) career_satisfaction&lt; 6.5 3   0 Not remote (0.00000000 1.00000000) *
+                         4091) salary&gt;=41645.16 27   3 Not remote (0.11111111 0.88888889)  
+                           8182) open_source&gt;=0.5 7   2 Not remote (0.28571429 0.71428571)  
+                            16364) salary&gt;=69257.09 1   0 Remote (1.00000000 0.00000000) *
+                            16365) salary&lt; 69257.09 6   1 Not remote (0.16666667 0.83333333)  
+                              32730) salary&lt; 49798.39 2   1 Remote (0.50000000 0.50000000)  
+                                65460) salary&gt;=44548.39 1   0 Remote (1.00000000 0.00000000) *
+                                65461) salary&lt; 44548.39 1   0 Not remote (0.00000000 1.00000000) *
+                              32731) salary&gt;=49798.39 4   0 Not remote (0.00000000 1.00000000) *
+                           8183) open_source&lt; 0.5 20   1 Not remote (0.05000000 0.95000000)  
+                            16366) company_size_number&lt; 60 5   1 Not remote (0.20000000 0.80000000)  
+                              32732) desktop_applications_developer&gt;=0.5 1   0 Remote (1.00000000 0.00000000) *
+                              32733) desktop_applications_developer&lt; 0.5 4   0 Not remote (0.00000000 1.00000000) *
+                            16367) company_size_number&gt;=60 15   0 Not remote (0.00000000 1.00000000) *
+                     1023) web_developer&gt;=0.5 110  15 Not remote (0.13636364 0.86363636)  
+                       2046) years_coded_job&gt;=3.5 77  13 Not remote (0.16883117 0.83116883)  
+                         4092) salary&lt; 26344.09 1   0 Remote (1.00000000 0.00000000) *
+                         4093) salary&gt;=26344.09 76  12 Not remote (0.15789474 0.84210526)  
+                           8186) country=Canada,United Kingdom 56  12 Not remote (0.21428571 0.78571429)  
+                            16372) years_coded_job&lt; 8.5 29   9 Not remote (0.31034483 0.68965517)  
+                              32744) career_satisfaction&lt; 6.5 6   2 Remote (0.66666667 0.33333333)  
+                                65488) salary&gt;=41250 5   1 Remote (0.80000000 0.20000000)  
+                                 130976) hobby&gt;=0.5 3   0 Remote (1.00000000 0.00000000) *
+                                 130977) hobby&lt; 0.5 2   1 Remote (0.50000000 0.50000000)  
+                                   261954) salary&gt;=68465.91 1   0 Remote (1.00000000 0.00000000) *
+                                   261955) salary&lt; 68465.91 1   0 Not remote (0.00000000 1.00000000) *
+                                65489) salary&lt; 41250 1   0 Not remote (0.00000000 1.00000000) *
+                              32745) career_satisfaction&gt;=6.5 23   5 Not remote (0.21739130 0.78260870)  
+                                65490) company_size_number&lt; 60 12   5 Not remote (0.41666667 0.58333333)  
+                                 130980) salary&gt;=38750 10   5 Remote (0.50000000 0.50000000)  
+                                   261960) salary&lt; 40075.76 2   0 Remote (1.00000000 0.00000000) *
+                                   261961) salary&gt;=40075.76 8   3 Not remote (0.37500000 0.62500000)  
+                                     523922) career_satisfaction&gt;=8.5 4   1 Remote (0.75000000 0.25000000)  
+                                      1047844) salary&lt; 60218.75 2   0 Remote (1.00000000 0.00000000) *
+                                      1047845) salary&gt;=60218.75 2   1 Remote (0.50000000 0.50000000)  
+                                        2095690) salary&gt;=70000 1   0 Remote (1.00000000 0.00000000) *
+                                        2095691) salary&lt; 70000 1   0 Not remote (0.00000000 1.00000000) *
+                                     523923) career_satisfaction&lt; 8.5 4   0 Not remote (0.00000000 1.00000000) *
+                                 130981) salary&lt; 38750 2   0 Not remote (0.00000000 1.00000000) *
+                                65491) company_size_number&gt;=60 11   0 Not remote (0.00000000 1.00000000) *
+                            16373) years_coded_job&gt;=8.5 27   3 Not remote (0.11111111 0.88888889)  
+                              32746) desktop_applications_developer&gt;=0.5 8   2 Not remote (0.25000000 0.75000000)  
+                                65492) open_source&gt;=0.5 4   2 Remote (0.50000000 0.50000000)  
+                                 130984) dev_ops&lt; 0.5 2   0 Remote (1.00000000 0.00000000) *
+                                 130985) dev_ops&gt;=0.5 2   0 Not remote (0.00000000 1.00000000) *
+                                65493) open_source&lt; 0.5 4   0 Not remote (0.00000000 1.00000000) *
+                              32747) desktop_applications_developer&lt; 0.5 19   1 Not remote (0.05263158 0.94736842)  
+                                65494) career_satisfaction&gt;=8.5 4   1 Not remote (0.25000000 0.75000000)  
+                                 130988) salary&gt;=54734.85 2   1 Remote (0.50000000 0.50000000)  
+                                   261976) years_coded_job&gt;=11 1   0 Remote (1.00000000 0.00000000) *
+                                   261977) years_coded_job&lt; 11 1   0 Not remote (0.00000000 1.00000000) *
+                                 130989) salary&lt; 54734.85 2   0 Not remote (0.00000000 1.00000000) *
+                                65495) career_satisfaction&lt; 8.5 15   0 Not remote (0.00000000 1.00000000) *
+                           8187) country=Germany 20   0 Not remote (0.00000000 1.00000000) *
+                       2047) years_coded_job&lt; 3.5 33   2 Not remote (0.06060606 0.93939394)  
+                         4094) salary&gt;=46920.82 10   2 Not remote (0.20000000 0.80000000)  
+                           8188) salary&lt; 48435.97 1   0 Remote (1.00000000 0.00000000) *
+                           8189) salary&gt;=48435.97 9   1 Not remote (0.11111111 0.88888889)  
+                            16378) company_size_number&gt;=300 2   1 Remote (0.50000000 0.50000000)  
+                              32756) salary&lt; 56250 1   0 Remote (1.00000000 0.00000000) *
+                              32757) salary&gt;=56250 1   0 Not remote (0.00000000 1.00000000) *
+                            16379) company_size_number&lt; 300 7   0 Not remote (0.00000000 1.00000000) *
+                         4095) salary&lt; 46920.82 23   0 Not remote (0.00000000 1.00000000) *
+```
+
+.footnote[* see your `04-helpers.R` script]
+
+---
+class: your-turn
+
+# Your turn 3
+
+Let's combine bootstrapping with decision trees.
+
+Do **Round 1** on your handouts.
+
+<div class="countdown" id="timer_5e46e3bf" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">05</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+exclude: true
+
+
+
+
+
+---
+class: middle
+
+# The trouble with trees?
+
+&lt;img src="04-Ensembling_files/figure-html/unnamed-chunk-25-1.png" width="33%" /&gt;&lt;img src="04-Ensembling_files/figure-html/unnamed-chunk-25-2.png" width="33%" /&gt;&lt;img src="04-Ensembling_files/figure-html/unnamed-chunk-25-3.png" width="33%" /&gt;
+
+---
+class: your-turn
+
+# Your turn 4
+
+Now, let's add the aggregating part.
+
+Do **Round 2** on your handouts.
+
+
+<div class="countdown" id="timer_5e46e285" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">05</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+
+---
+class: middle, center
+
+# Your first ensemble!
+
+&lt;img src="images/orchestra.jpg" width="25%" /&gt;
+
+
+---
+background-image: url(images/ensemble/ensemble.001.jpeg)
+background-size: cover
+
+---
+background-image: url(images/ensemble/ensemble.002.jpeg)
+background-size: contain
+
+---
+background-image: url(images/ensemble/ensemble.003.jpeg)
+background-size: contain
+
+---
+background-image: url(images/ensemble/ensemble.004.jpeg)
+background-size: contain
+
+---
+background-image: url(images/ensemble/ensemble.005.jpeg)
+background-size: contain
+
+---
+background-image: url(images/ensemble/ensemble.006.jpeg)
+background-size: contain
+
+---
+background-image: url(images/ensemble/ensemble.007.jpeg)
+background-size: contain
+
+---
+background-image: url(images/ensemble/ensemble.008.jpeg)
+background-size: contain
+
+---
+background-image: url(images/ensemble/ensemble.009.jpeg)
+background-size: contain
+
+---
+class: middle, frame, center
+
+# Axiom
+
+There is an inverse relationship between  
+model *accuracy* and model *interpretability*.
+
+
+---
+class: middle, center
+
+
+# `rand_forest()`
+
+Specifies a random forest model
+
+
+
+```r
+rand_forest(mtry = 4, trees = 500, min_n = 1)
+```
+
+--
+
+*either* mode works!
+
+---
+class: middle
+
+.center[
+
+# `rand_forest()`
+
+Specifies a random forest model
+
+]
+
+
+
+```r
+rand_forest(
+  mtry = 4,    # predictors seen at each node
+  trees = 500, # trees per forest
+  min_n = 1    # smallest node allowed
+  )
+```
+
+---
+class: your-turn
+
+# Your turn 5
+
+Create a new model spec called `rf_spec`, which will learn an ensemble of classification trees from our training data using the **ranger** package. 
+
+Compare the metrics of the random forest to your two single tree models (vanilla and big)- which predicts the test set better?
+
+*Hint: you'll need https://tidymodels.github.io/parsnip/articles/articles/Models.html*
+
+<div class="countdown" id="timer_5e46e4c5" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">05</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+
+```r
+rf_spec &lt;-
+  rand_forest() %&gt;% 
+  set_engine("ranger") %&gt;% 
+  set_mode("classification")
+
+set.seed(100)
+fit_split(remote ~ ., 
+          model = rf_spec, 
+          split = so_split) %&gt;% 
+  collect_metrics()
+# A tibble: 2 x 3
+  .metric  .estimator .estimate
+  &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
+1 accuracy binary         0.713
+2 roc_auc  binary         0.777
+```
+
+---
+
+.pull-left[
+### Vanilla Decision Tree
+
+```
+# A tibble: 2 x 3
+  .metric  .estimator .estimate
+  &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
+1 accuracy binary         0.682
+2 roc_auc  binary         0.710
+```
+
+
+### Big Decision Tree
+
+```
+# A tibble: 2 x 3
+  .metric  .estimator .estimate
+  &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
+1 accuracy binary         0.629
+2 roc_auc  binary         0.629
+```
+]
+
+.pull-right[
+### Random Forest
+
+```
+# A tibble: 2 x 3
+  .metric  .estimator .estimate
+  &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
+1 accuracy binary         0.706
+2 roc_auc  binary         0.777
+```
+]
+
+---
+class: middle, center
+
+`mtry` 
+
+The number of predictors that will be randomly sampled at each split when creating the tree models.
+
+
+```r
+rand_forest(mtry = 4)
+```
+
+**ranger** default = `floor(sqrt(num_predictors))`
+
+---
+class: your-turn
+
+# Your turn 6
+
+Challenge: Make 4 more random forest model specs, each using 4, 8, 12, and 20 variables at each split. Which value maximizes the area under the ROC curve?
+
+*Hint: you'll need https://tidymodels.github.io/parsnip/reference/rand_forest.html*
+
+<div class="countdown" id="timer_5e46e475" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">04</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+
+---
+
+```r
+rf4_spec &lt;- rf_spec %&gt;% 
+* set_args(mtry = 4)
+
+set.seed(100)
+fit_split(remote ~ ., 
+*         model = rf4_spec,
+          split = so_split) %&gt;% 
+  collect_metrics()
+# A tibble: 2 x 3
+  .metric  .estimator .estimate
+  &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
+1 accuracy binary         0.713
+2 roc_auc  binary         0.777
+```
+
+---
+
+```r
+rf8_spec &lt;- rf_spec %&gt;% 
+* set_args(mtry = 8)
+
+set.seed(100)
+fit_split(remote ~ ., 
+*         model = rf8_spec,
+          split = so_split) %&gt;% 
+  collect_metrics()
+# A tibble: 2 x 3
+  .metric  .estimator .estimate
+  &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
+1 accuracy binary         0.710
+2 roc_auc  binary         0.773
+```
+
+---
+
+```r
+rf12_spec &lt;- rf_spec %&gt;% 
+* set_args(mtry = 12)
+
+set.seed(100)
+fit_split(remote ~ ., 
+*         model = rf12_spec,
+          split = so_split) %&gt;% 
+  collect_metrics()
+# A tibble: 2 x 3
+  .metric  .estimator .estimate
+  &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
+1 accuracy binary         0.703
+2 roc_auc  binary         0.771
+```
+
+---
+
+```r
+rf20_spec &lt;- rf_spec %&gt;% 
+* set_args(mtry = 20)
+
+set.seed(100)
+fit_split(remote ~ ., 
+*         model = rf20_spec,
+          split = so_split) %&gt;% 
+  collect_metrics()
+# A tibble: 2 x 3
+  .metric  .estimator .estimate
+  &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
+1 accuracy binary         0.717
+2 roc_auc  binary         0.763
+```
+
+---
+class: middle, center
+
+
+
+&lt;img src="04-Ensembling_files/figure-html/unnamed-chunk-42-1.png" width="100%" /&gt;
+
+
+
+---
+
+```r
+treebag_spec &lt;-
+* rand_forest(mtry = .preds()) %&gt;%
+  set_engine("ranger") %&gt;% 
+  set_mode("classification")
+
+set.seed(100)
+fit_split(remote ~ ., 
+*         model = treebag_spec,
+          split = so_split) %&gt;% 
+  collect_metrics()
+# A tibble: 2 x 3
+  .metric  .estimator .estimate
+  &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
+1 accuracy binary         0.717
+2 roc_auc  binary         0.763
+```
+
+
+---
+class: center, middle
+
+# `.preds()`
+
+The number of columns in the data set that are associated with the predictors prior to dummy variable creation.
+
+
+```r
+rand_forest(mtry = .preds())
+```
+
+--
+
+&lt;https://tidymodels.github.io/parsnip/reference/descriptors.html&gt;
+
+---
+
+.pull-left[
+### Vanilla Decision Tree
+
+
+```
+# A tibble: 2 x 3
+  .metric  .estimator .estimate
+  &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
+1 accuracy binary         0.682
+2 roc_auc  binary         0.710
+```
+
+
+### Big Decision Tree
+
+```
+# A tibble: 2 x 3
+  .metric  .estimator .estimate
+  &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
+1 accuracy binary         0.629
+2 roc_auc  binary         0.629
+```
+]
+
+.pull-right[
+### Random Forest
+
+```
+# A tibble: 2 x 3
+  .metric  .estimator .estimate
+  &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
+1 accuracy binary         0.706
+2 roc_auc  binary         0.777
+```
+
+### Bagging
+
+```
+# A tibble: 2 x 3
+  .metric  .estimator .estimate
+  &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
+1 accuracy binary         0.720
+2 roc_auc  binary         0.764
+```
+]
+
+---
+class: middle, frame
+
+# .center[To specify a model with parsnip]
+
+.right-column[
+
+.fade[
+
+1\. Pick a .display[model]
+
+]
+
+2\. Set the .display[engine]
+
+.fade[
+
+3\. Set the .display[mode] (if needed)
+]
+]
+
+---
+class: middle, center
+
+
+# `set_engine()`
+
+Adds to a model an R package to train the model.
+
+
+```r
+spec %&gt;% set_engine(engine = "ranger", ...)
+```
+
+
+---
+class: middle
+
+.center[
+
+# `set_engine()`
+
+Adds to a model an R package to train the model.
+
+]
+
+
+
+```r
+spec %&gt;% 
+  set_engine(
+    engine = "ranger", # package name in quotes
+    ...                # optional arguments to pass to function
+    )
+```
+
+---
+class: middle
+
+.center[
+.fade[
+
+# `set_engine()`
+
+Adds to a model an R package to train the model.
+]
+]
+
+
+```r
+rf_imp_spec &lt;-
+  rand_forest(mtry = 4) %&gt;% 
+  set_engine("ranger", importance = 'impurity') %&gt;% 
+  set_mode("classification")
+```
+
+---
+
+
+
+```r
+rf_imp_spec &lt;-
+  rand_forest(mtry = 4) %&gt;% 
+  set_engine("ranger", importance = 'impurity') %&gt;% 
+  set_mode("classification")
+
+imp_fit &lt;- 
+  fit_split(remote ~ ., 
+            model = rf_imp_spec,
+            split = so_split) 
+
+imp_fit
+# # Monte Carlo cross-validation (0.75/0.25) with 1 resamples  
+# A tibble: 1 x 6
+  splits        id           .metrics      .notes      .predictions    .workflow
+* &lt;list&gt;        &lt;chr&gt;        &lt;list&gt;        &lt;list&gt;      &lt;list&gt;          &lt;list&gt;   
+1 &lt;split [864/… train/test … &lt;tibble [2 ×… &lt;tibble [0… &lt;tibble [286 ×… &lt;workflo…
+```
+
+---
+class: middle
+
+.center[
+
+# `get_tree_fit()`
+
+Gets the parsnip model object from the output of `fit_split()`
+
+]
+
+
+```r
+get_tree_fit(imp_fit)
+```
+
+
+.footnote[in your helpers.R script]
+
+---
+
+```r
+get_tree_fit(imp_fit)
+parsnip model object
+
+Fit time:  272ms 
+Ranger result
+
+Call:
+ ranger::ranger(formula = formula, data = data, mtry = ~4, importance = ~"impurity",      num.threads = 1, verbose = FALSE, seed = sample.int(10^5,          1), probability = TRUE) 
+
+Type:                             Probability estimation 
+Number of trees:                  500 
+Sample size:                      864 
+Number of independent variables:  20 
+Mtry:                             4 
+Target node size:                 10 
+Variable importance mode:         impurity 
+Splitrule:                        gini 
+OOB prediction error (Brier s.):  0.2215321 
+```
+
+---
+class: middle, center
+
+# `vip`
+
+Plot variable importance.
+
+&lt;iframe src="https://koalaverse.github.io/vip/index.html" width="504" height="400px"&gt;&lt;/iframe&gt;
+
+---
+class: middle, center
+
+# `vip()`
+
+Plot variable importance scores for the predictors in a model. 
+
+
+```r
+vip(object, geom = "point", ...)
+```
+
+---
+class: middle
+
+.center[
+
+# `vip()`
+
+Plot variable importance scores for the predictors in a model. 
+
+]
+
+
+```r
+vip(
+  object,       # fitted model object
+  geom = "col", # one of "col", "point", "boxplot", "violin"
+  ...
+  )
+```
+
+---
+
+
+```r
+imp_plot &lt;- get_tree_fit(imp_fit)
+vip::vip(imp_plot, geom = "point")
+```
+
+&lt;img src="04-Ensembling_files/figure-html/unnamed-chunk-58-1.png" width="504" /&gt;
+
+
+---
+class: your-turn
+
+# Your turn 7
+
+Make a new model spec called `treebag_imp_spec` to fit a bagged classification tree model. Set the variable `importance` mode to "permutation". Plot the variable importance- which variable was the most important?
+
+<div class="countdown" id="timer_5e46e31c" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+
+---
+class: middle
+
+```r
+treebag_imp_spec &lt;-
+  rand_forest(mtry = .preds()) %&gt;% 
+  set_engine("ranger", importance = 'permutation') %&gt;% 
+  set_mode("classification")
+
+imp_fit &lt;- 
+  fit_split(remote ~ ., 
+            model = treebag_imp_spec,
+            split = so_split) 
+
+imp_plot &lt;- get_tree_fit(imp_fit)
+```
+
+---
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="https://platform.twitter.com/widgets.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "solarized-light",
+"highlightLanguage": ["r", "css", "yaml"],
+"slideNumberFormat": "",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
