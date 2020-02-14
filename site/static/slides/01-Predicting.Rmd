@@ -1,0 +1,2068 @@
+---
+title: "Predicting"
+subtitle: "Introduction to Machine Learning in the Tidyverse"
+session: 01
+author: Alison Hill
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    css: ["default", "assets/css/my-theme.css", "assets/css/my-fonts.css"]
+    seal: false 
+    lib_dir: libs
+    nature:
+      # autoplay: 5000
+      highlightStyle: solarized-light
+      highlightLanguage: ["r", "css", "yaml"]
+      slideNumberFormat: "" 
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: "16:9"
+      beforeInit: "https://platform.twitter.com/widgets.js"
+    includes:
+      in_header: [assets/header.html]
+params:
+  wifi_network: ""
+  wifi_password: ""
+  site_link: "https://rstd.io/conf20-intro-ml"
+  class_link: "https://conf20-intro-ml.netlify.com/"
+  github_link: "TBD"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+options("scipen" = 16)
+knitr::opts_chunk$set(collapse = TRUE,
+                      fig.retina = 3,
+                      fig.path = "figs/01-Predicting/")
+yt_counter <- 0
+```
+
+```{r packages, include=FALSE}
+library(countdown)
+library(tidyverse)
+library(tidymodels)
+library(workflows)
+library(scico)
+library(gganimate)
+library(AmesHousing)
+library(tune)
+ames <- make_ames()
+theme_set(theme_minimal())
+
+# for figures
+train_color <- scico(1, palette = 'buda', begin = .9)
+test_color  <- scico(1, palette = 'hawaii', begin = .8)
+data_color  <- scico(1, palette = 'roma', begin = .9)
+assess_color <- scico(1, palette = 'berlin', begin = .1)
+splits_pal <- c(data_color, train_color, test_color)
+```
+
+```{r helpers, include =FALSE}
+fit_data <- function(formula, model, data, ...) {
+  wf <- workflows::add_model(workflows::add_formula(workflows::workflow(), formula), model)
+  fit(wf, data, ...)
+}
+
+fit_split <- function(formula, model, split, ...) {
+  wf <- workflows::add_model(workflows::add_formula(workflows::workflow(), formula, blueprint = hardhat::default_formula_blueprint(indicators = FALSE)), model)
+  tune::last_fit(wf, split, ...)
+}
+```
+
+
+
+class: title-slide, center
+
+<span class="fa-stack fa-4x">
+  <i class="fa fa-circle fa-stack-2x" style="color: #ffffff;"></i>
+  <strong class="fa-stack-1x" style="color:#E7553C;">`r rmarkdown::metadata$session`</strong>
+</span> 
+
+# `r rmarkdown::metadata$title`
+
+## `r rmarkdown::metadata$subtitle`
+
+### `r rmarkdown::metadata$author` &#183; Garrett Grolemund
+
+#### [`r params$class_link`](`r params$class_link`) &#183; [`r params$site_link`](`r params$site_link`)
+
+---
+class: middle, center, frame
+
+# How do we pick?
+
+--
+
+**Which** .display[data]
+
+--
+
+**Which** .display[criteria]
+
+--
+
+**Which** .display[model] 
+
+???
+
+This creates a large practical difference between Machine Learning and Hypothesis testing. At the end of the day, Machine Learners will evaluate _many_ different types of models for a single problem.
+
+---
+name: ml-goal
+class: middle, center, frame
+
+# Goal of Machine Learning
+
+--
+
+## generate accurate predictions
+
+
+---
+name: predictions
+class: middle, center, frame
+
+# Goal of Machine Learning
+
+## `r emo::ji("crystal_ball")` generate accurate .display[predictions]
+
+---
+class: middle
+
+# .center[`lm()`]
+
+
+```{r}
+lm_ames <- lm(Sale_Price ~ Gr_Liv_Area, data = ames)
+lm_ames
+```
+
+
+???
+
+So let's start with prediction. To predict, we have to have two things: a model to generate predictions, and data to predict
+
+---
+name: step1
+background-image: url("images/predicting/predicting.001.jpeg")
+background-size: contain
+
+---
+class: middle, center
+
+# Quiz
+
+How many R functions can you think of that do some type of linear regression?
+
+--
+
+`glmnet` for regularized regression
+
+`stan` for Bayesian regression
+
+`keras` for regression using tensorflow
+
+`spark` for large data sets
+
+...
+
+---
+class: inverse, middle, center
+
+
+# How would we do this with parsnip?
+
+```{r echo = FALSE, out.width="20%"}
+knitr::include_graphics("https://raw.githubusercontent.com/rstudio/hex-stickers/master/PNG/parsnip.png")
+```
+
+---
+class: middle, frame
+
+
+# .center[To specify a model with parsnip]
+
+.right-column[
+
+1\. Pick a .display[model]
+
+2\. Set the .display[engine]
+
+3\. Set the .display[mode] (if needed)
+
+]
+
+---
+class: middle, frame
+
+# .center[To specify a model with parsnip]
+
+
+
+```{r eval = FALSE}
+decision_tree() %>%
+  set_engine("C5.0") %>%
+  set_mode("classification")
+```
+
+
+
+
+---
+class: middle, frame
+
+# .center[To specify a model with parsnip]
+
+
+```{r eval = FALSE}
+nearest_neighbor() %>%              
+  set_engine("kknn") %>%             
+  set_mode("regression") %>%        
+```
+
+
+
+---
+class: middle, frame
+
+.fade[
+# .center[To specify a model with parsnip]
+]
+
+
+.right-column[
+
+1\. Pick a .display[model]
+.fade[
+2\. Set the .display[engine]
+
+3\. Set the .display[mode] (if needed)
+]
+
+]
+
+---
+class: middle, center
+
+# 1\. Pick a .display[model] 
+
+All available models are listed at
+
+<https://tidymodels.github.io/parsnip/articles/articles/Models.html>
+
+```{r echo=FALSE}
+knitr::include_url("https://tidymodels.github.io/parsnip/articles/articles/Models.html")
+```
+
+---
+class: middle
+
+.center[
+# `linear_reg()`
+
+Specifies a model that uses linear regression
+]
+
+```{r results='hide'}
+linear_reg(mode = "regression", penalty = NULL, mixture = NULL)
+```
+
+---
+class: middle
+
+.center[
+# `linear_reg()`
+
+Specifies a model that uses linear regression
+]
+
+```{r results='hide'}
+linear_reg(
+  mode = "regression", # "default" mode, if exists
+  penalty = NULL,      # model hyper-parameter
+  mixture = NULL       # model hyper-parameter
+  )
+```
+
+---
+class: middle, frame
+
+.fade[
+# .center[To specify a model with parsnip]
+]
+
+
+.right-column[
+.fade[
+1\. Pick a .display[model]
+]
+
+2\. Set the .display[engine]
+
+.fade[
+3\. Set the .display[mode] (if needed)
+]
+
+]
+
+---
+class: middle, center
+
+
+# `set_engine()`
+
+Adds an engine to power or implement the model.
+
+
+```{r eval=FALSE}
+lm_spec %>% set_engine(engine = "lm", ...)
+```
+
+---
+class: middle, frame
+
+.fade[
+# .center[To specify a model with parsnip]
+]
+
+
+.right-column[
+.fade[
+1\. Pick a .display[model]
+
+2\. Set the .display[engine]
+]
+
+3\. Set the .display[mode] (if needed)
+
+
+]
+
+---
+class: middle, center
+
+
+# `set_mode()`
+
+Sets the class of problem the model will solve, which influences which output is collected. Not necessary if mode is set in Step 1.
+
+
+```{r eval=FALSE}
+lm_spec %>% set_mode(mode = "regression")
+```
+
+---
+class: your-turn
+
+# Your turn `r (yt_counter <- yt_counter + 1)`
+
+Write a pipe that creates a model that uses `lm()` to fit a linear regression. Save it as `lm_spec` and look at the object. What does it return?
+
+
+*Hint: you'll need https://tidymodels.github.io/parsnip/articles/articles/Models.html*
+
+
+```{r echo = FALSE}
+countdown(minutes = 3)
+```
+
+---
+
+
+```{r}
+lm_spec <- 
+   linear_reg() %>% # Pick linear regression
+   set_engine(engine = "lm") # set engine
+
+lm_spec
+```
+
+---
+class: middle, center
+
+# `fit_data()`
+
+Train a model by fitting a model. Returns a parsnip model fit.
+
+```{r results='hide'}
+fit_data(Sale_Price ~ Gr_Liv_Area, model = lm_spec, data = ames)
+```
+
+---
+class: middle
+
+.center[
+# `fit_data()`
+
+Train a model by fitting a model. Returns a parsnip model fit.
+]
+
+```{r results='hide'}
+fit_data(
+  Sale_Price ~ Gr_Liv_Area, # a formula
+  model = lm_spec,          # parsnip model
+  data = ames               # dataframe
+  )
+```
+
+---
+class: your-turn
+
+# Your turn `r (yt_counter <- yt_counter + 1)`
+
+Double check. Does
+
+```{r parsnip-lm, results='hide'}
+lm_fit <- fit_data(Sale_Price ~ Gr_Liv_Area, 
+                   model = lm_spec, 
+                   data = ames)
+lm_fit
+```
+
+give the same results as
+
+```{r plain-lm, results='hide'}
+lm(Sale_Price ~ Gr_Liv_Area, data = ames)
+```
+
+```{r echo=FALSE}
+countdown(minutes = 2)
+```
+
+---
+```{r ref.label='plain-lm'}
+
+```
+
+---
+```{r}
+lm_fit
+```
+
+---
+name: handout
+class: center, middle
+
+data `(x, y)` + model = fitted model
+
+---
+class: center, middle
+
+# Show of hands
+
+How many people have used a fitted model to generate .display[predictions] with R?
+
+---
+template: step1
+
+---
+name: step2
+background-image: url("images/predicting/predicting.003.jpeg")
+background-size: contain
+
+---
+class: middle, center
+
+# `predict()`
+
+Use a fitted model to predict new `y` values from data. Returns a tibble.
+
+```{r eval=FALSE}
+predict(lm_fit, new_data = ames) 
+```
+
+
+---
+
+```{r}
+lm_fit %>% 
+  predict(new_data = ames)
+```
+
+---
+name: lm-predict
+class: middle, center
+
+# Predictions
+
+```{r lm-predict, echo = FALSE, fig.align='center'}
+# smaller for plotting
+set.seed(0)
+small_ames <- ames %>% 
+  sample_n(80) %>% 
+  mutate(.row = dplyr::row_number())
+
+# split
+set.seed(100) # Important!
+small_split  <- initial_split(small_ames)
+small_train  <- training(small_split)
+small_test   <- testing(small_split)
+
+ggplot(small_train, aes(Gr_Liv_Area, Sale_Price)) +
+  geom_smooth(method = "lm", se = FALSE, colour = "#4D8DC9") +
+  geom_point(size = 3, alpha = .5) +
+  geom_point(aes(Gr_Liv_Area, fitted(lm(Sale_Price ~ Gr_Liv_Area))),
+             color = "#E7553C",
+             size = 3) +
+  coord_cartesian(y = c(50000, 500000)) +
+  theme(text = element_text(family = "Karla"))
+```
+
+---
+class: your-turn
+
+# Your turn `r (yt_counter <- yt_counter + 1)`
+
+Fill in the blanks. Use `predict()` to
+
+1. Use your linear model to predict sale prices; save the tibble as `price_pred`  
+1. Add a pipe and use `mutate()` to add a column with the observed sale prices; name it `truth`
+
+*Hint: Be sure to remove every `_` before running the code!*
+
+```{r echo=FALSE}
+countdown(minutes = 2)
+```
+
+---
+
+```{r}
+lm_fit <- fit_data(Sale_Price ~ Gr_Liv_Area, 
+                   model = lm_spec, 
+                   data = ames)
+
+price_pred <- lm_fit %>% 
+  predict(new_data = ames) %>% 
+  mutate(truth = ames$Sale_Price)
+
+price_pred
+```
+
+---
+template: handout
+
+--
+
+data `(x)` + fitted model = predictions
+
+---
+template: predictions
+
+---
+name: accurate-predictions
+class: middle, center, frame
+
+# Goal of Machine Learning
+
+## `r emo::ji("target")` generate .display[accurate predictions]
+
+???
+
+Now we have predictions from our model. What can we do with them? If we already know the truth, that is, the outcome variable that was observed, we can compare them!
+
+---
+class: middle, center, frame
+
+# Axiom
+
+Better Model = Better Predictions (Lower error rate)
+
+---
+template: lm-predict
+
+---
+class: middle, center
+
+# Residuals
+
+```{r lm-resid, echo = FALSE, fig.align='center'}
+ggplot(small_train, aes(Gr_Liv_Area, Sale_Price)) +
+  geom_segment(aes(x = Gr_Liv_Area, 
+                   xend = Gr_Liv_Area, 
+                   y = Sale_Price, 
+                   yend = predict(lm(Sale_Price ~ Gr_Liv_Area))), 
+               colour = "#E7553C") +
+  geom_smooth(method = "lm", se = FALSE, colour = "#4D8DC9") +
+  geom_point(size = 3) +  
+  geom_point(aes(Gr_Liv_Area, fitted(lm(Sale_Price ~ Gr_Liv_Area))),
+             color = "#E7553C",
+             size = 3) +
+  coord_cartesian(y = c(50000, 500000)) +
+  theme(text = element_text(family = "Karla"))
+```
+
+
+---
+class: middle, center
+
+# Residuals
+
+The difference between the predicted and observed values.
+
+$$ \hat{y}_i - {y}_i$$ 
+
+???
+
+refers to a single residual. Since residuals are errors, the sum of the errors would be a good measure of total error except for two things. What's one of them?
+
+---
+class: middle, center
+
+# Quiz
+
+What could go wrong?
+
+$$ \sum_{i=1}^n\hat{y}_i - {y}_i$$ 
+
+???
+
+First, the sum would increase every time we add a new data point. That means models fit on larger data sets would have bigger errors than models fit on small data sets. That makes no sense, so we work with the mean error.
+
+---
+class: middle, center
+
+# Quiz
+
+What could go wrong?
+
+$$ \frac{1}{n} \sum_{i=1}^n\hat{y}_i - {y}_i$$ 
+
+???
+
+What else makes this an insufficient measure of error?
+
+Positive and negative residuals would cancel each other out. We can fix that by taking the absolute value of each residual...
+
+---
+class: middle, center
+
+# Quiz
+
+What could go wrong?
+
+$$ \frac{1}{n} \sum_{i=1}^n |\hat{y}_i - {y}_i|$$ 
+
+.footnote[Mean Absolute Error]
+
+???
+
+...but absolute values are hard to work with mathematically. They're not differentiable at zero. That's not a big deal to us because we can use computers. But it mattered in the past, and as a result statisticians used the square instead, which also penalizes large residuals more than smaller residuals. The square version also has some convenient throretical properties. It's the standard deviation of the residuals about zero. So we will use the square.
+
+---
+class: middle, center
+
+# Quiz
+
+What could go wrong?
+
+$$ \frac{1}{n} \sum_{i=1}^n (\hat{y}_i - {y}_i)^2$$ 
+
+???
+
+If you take the square to return things to the same units as the residuals, you have the the root mean square error.
+
+---
+class: middle, center
+
+# Quiz
+
+What could go wrong?
+
+$$ \sqrt{\frac{1}{n} \sum_{i=1}^n (\hat{y}_i - {y}_i)^2 }$$ 
+
+
+.footnote[Root Mean Squared Error]
+
+---
+class: middle, center
+
+# RMSE
+
+Root Mean Squared Error - The standard deviation of the residuals about zero.
+
+$$ \sqrt{\frac{1}{n} \sum_{i=1}^n (\hat{y}_i - {y}_i)^2 }$$ 
+
+---
+class: middle, center
+
+# `rmse()*`
+
+Calculates the RMSE based on two columns in a dataframe: 
+
+The .display[truth]: ${y}_i$ 
+
+The predicted .display[estimate]: $\hat{y}_i$ 
+
+```{r eval = FALSE}
+rmse(data, truth, estimate)
+```
+
+
+.footnote[`*` from `yardstick`]
+
+---
+
+```{r}
+lm_fit <- fit_data(Sale_Price ~ Gr_Liv_Area, 
+                   model = lm_spec, 
+                   data = ames)
+
+price_pred <- lm_fit %>% 
+  predict(new_data = ames) %>% 
+  mutate(price_truth = ames$Sale_Price)
+
+rmse(price_pred, truth = price_truth, estimate = .pred) #<<
+```
+
+```{r include = FALSE}
+rmse_full <- rmse(price_pred, truth = price_truth, estimate = .pred) %>% pull(.estimate)
+```
+
+---
+template: step1
+
+---
+template: step2
+
+---
+name: step3
+background-image: url("images/predicting/predicting.004.jpeg")
+background-size: contain
+
+---
+template: handout
+
+--
+
+data `(x)` + fitted model = predictions
+
+--
+
+data `(y)` + predictions = metrics
+
+---
+class: middle, center, inverse
+
+A model doesn't have to be a straight line!
+
+---
+exclude: true
+
+```{r include = FALSE}
+set.seed(100)
+small_split_cv <- mc_cv(small_ames, times = 1)
+rt_spec <- 
+  decision_tree() %>%          
+  set_engine(engine = "rpart") %>% 
+  set_mode("regression")
+
+rt_train <- function(rset) {
+  rpart::rpart(Sale_Price ~ Gr_Liv_Area, 
+               data = analysis(rset))
+}
+
+rt_preds <- small_split_cv %>% 
+  mutate(tree = map(splits, rt_train)) %>% 
+  mutate(.fitted_tree = map(tree, predict)) %>% 
+  mutate(train_set = map(splits, analysis)) %>% 
+  unnest(c(train_set, .fitted_tree))
+```
+
+
+```{r results = 'hide'}
+rt_spec <- 
+  decision_tree() %>%          
+  set_engine(engine = "rpart") %>% 
+  set_mode("regression")
+
+rt_fit <- fit_data(Sale_Price ~ Gr_Liv_Area, 
+                   model = rt_spec, 
+                   data = ames)
+
+price_pred <- predict(rt_fit, new_data = ames) %>% 
+  mutate(price_truth = ames$Sale_Price)
+
+rmse(price_pred, truth = price_truth, estimate = .pred)
+```
+
+---
+class: middle, center
+
+```{r echo = FALSE}
+base_rt_plot <-
+  ggplot(rt_preds, aes(x = Gr_Liv_Area, y = Sale_Price)) +
+  scale_x_continuous(breaks=seq(-0.5, 0.5, 0.1)) +
+  scale_colour_scico_d(palette = "buda", end = .8) +
+  theme(legend.position="none", 
+        text = element_text(family = "Karla")) +
+  coord_cartesian(y = c(50000, 500000), x = c(700, 2750)) +
+  ggtitle("Regression Tree") 
+
+base_rt_plot +
+  geom_point(size = 3) +
+  geom_line(aes(x=Gr_Liv_Area, y = .fitted_tree), colour="#4D8DC9", size=2) 
+```
+
+---
+class: middle, center
+
+```{r echo = FALSE}
+base_rt_plot +
+  geom_segment(aes(x = Gr_Liv_Area, 
+                   xend = Gr_Liv_Area, 
+                   y = Sale_Price, 
+                   yend = .fitted_tree), 
+               colour = "#E7553C") +
+  geom_point(size = 3) +
+  geom_line(aes(x=Gr_Liv_Area, y = .fitted_tree), colour="#4D8DC9", size=2)
+```
+
+
+---
+class: middle, inverse, center
+
+# Do you trust it?
+
+
+
+---
+class: middle, inverse, center
+
+# Overfitting
+
+---
+
+```{r include = FALSE}
+overfit <-
+  ggplot(small_train, aes(Gr_Liv_Area, Sale_Price)) +
+  geom_point(size = 3) +
+  coord_cartesian(y = c(50000, 500000)) +
+  geom_smooth(method = "lm", se = FALSE, colour = "#4D8DC9", lwd = 1) +
+  theme(text = element_text(family = "Karla"))
+```
+
+```{r echo = FALSE, fig.align='center'}
+overfit +
+  stat_smooth(method = "lm", se = FALSE, formula = y ~ poly(x, 2), colour = "#E7553C", lwd = 1)
+```
+
+---
+
+```{r echo = FALSE, fig.align='center'}
+overfit +
+  stat_smooth(method = "lm", se = FALSE, formula = y ~ poly(x, 5), colour = "#E7553C", lwd = 1)
+```
+
+
+---
+
+```{r echo = FALSE, fig.align='center'}
+overfit +
+  stat_smooth(method = "lm", se = FALSE, formula = y ~ poly(x, 9), colour = "#E7553C", lwd = 1)
+```
+
+
+---
+
+```{r include = FALSE}
+single_pt <- filter(small_train, Sale_Price == max(Sale_Price))
+```
+
+
+.pull-left[
+
+```{r echo = FALSE, fig.align='center'}
+over1 <- overfit +
+  stat_smooth(method = "lm", se = FALSE, formula = y ~ poly(x, 5), colour = "#E7553C", lwd = 1) +
+  geom_point(data = single_pt, 
+             fill = "yellow", 
+             size = 5,
+             shape = 21)
+over1
+```
+
+]
+
+.pull-right[
+```{r echo = FALSE, fig.align='center'}
+over2 <- overfit +
+  stat_smooth(method = "lm", se = FALSE, formula = y ~ poly(x, 9), colour = "#E7553C", lwd = 1) +
+  geom_point(data = single_pt, 
+             fill = "yellow", 
+             size = 5, 
+             shape = 21)
+over2
+```
+]
+
+---
+class: your-turn
+
+# Your turn `r (yt_counter <- yt_counter + 1)`
+
+.pull-left[
+In your teams, decide which model:
+
+1. Has the smallest residuals  
+2. Will have lower prediction error. Why?  
+]
+
+.pull-right[
+```{r echo=FALSE, out.width='50%'}
+over1
+over2
+```
+
+]
+
+```{r echo=FALSE}
+countdown(seconds = 90, minutes = 0)
+```
+
+
+---
+
+```{r echo=FALSE, fig.align='center'}
+set.seed(100)
+mc_split <- mc_cv(small_ames, times = 1)
+poly_rec <- recipe(Sale_Price ~ Gr_Liv_Area, data = small_train) %>% 
+  step_poly(Gr_Liv_Area, degree = tune())
+
+library(workflows)
+poly_flow <- workflow() %>% 
+  add_recipe(poly_rec) %>% 
+  add_model(lm_spec)
+
+poly_grid <- expand.grid(degree = 1:12)
+
+mc_grid <- tune_grid(poly_flow, 
+                     resamples = mc_split,
+                     grid = poly_grid,
+                     metrics = metric_set(rmse))
+
+mc_grid %>% 
+  autoplot() +
+  geom_line() +
+  scale_x_continuous(breaks=pretty_breaks()) +
+  theme(text = element_text(family = "Karla")) +
+  coord_cartesian(y = c(45000, 95000))
+```
+
+---
+
+```{r echo=FALSE, message = FALSE, fig.align='center'}
+mod <- list()
+pred <- list()
+rmse <- list()
+for (i in 1:12) {
+    mod[[i]] <- lm(Sale_Price ~ poly(Gr_Liv_Area, i), small_train)
+    pred[[i]] <- predict(mod[[i]])
+    rmse[[i]] <- rmse_vec(truth = small_train %>% pull(Sale_Price),
+                          estimate = pred[[i]])
+}
+
+rmse_poly <- enframe(rmse, name = "degree", value = "train") %>% 
+  unnest(cols = c(train))
+
+mc_grid %>% 
+  collect_metrics() %>% 
+  left_join(rmse_poly) %>% 
+  pivot_longer(cols = c(mean, train)) %>% 
+  ggplot(aes(x = degree, y = value, colour = name)) +
+  geom_line(size = 2) +
+  scale_x_continuous(breaks=pretty_breaks()) +
+  theme(legend.position="none", 
+        text = element_text(family = "Karla")) +
+  ylab("rmse") +
+  coord_cartesian(y = c(45000, 95000)) +
+  scale_colour_scico_d(palette = "buda", end = .9)
+```
+
+
+---
+class: middle, center, frame
+
+# Axiom 1
+
+The best way to measure a model's performance at predicting new data is to .display[predict new data].
+
+---
+class: middle, center, frame
+
+# Goal of Machine Learning
+
+--
+
+
+## `r emo::ji("hammer")` construct .display[models] that
+
+--
+
+
+## `r emo::ji("target")` generate .display[accurate predictions]
+
+--
+
+
+## `r emo::ji("new")` for .display[future, yet-to-be-seen data]
+
+
+
+--
+
+.footnote[Max Kuhn & Kjell Johnston, http://www.feat.engineering/]
+
+
+???
+
+But need new data...
+
+
+---
+class: middle, center, frame
+
+# Method #1
+
+## The holdout method
+
+---
+
+```{r all-split, echo = FALSE, fig.width = 12, fig.height = 3}
+set.seed(16)
+one_split <- slice(ames, 1:30) %>% 
+  initial_split() %>% 
+  tidy() %>% 
+  add_row(Row = 1:30, Data = "Original") %>% 
+  mutate(Data = case_when(
+    Data == "Analysis" ~ "Training",
+    Data == "Assessment" ~ "Testing",
+    TRUE ~ Data
+  )) %>% 
+  mutate(Data = factor(Data, levels = c("Original", "Training", "Testing")))
+
+all_split <-
+  ggplot(one_split, aes(x = Row, y = fct_rev(Data), fill = Data)) + 
+  geom_tile(color = "white",
+            size = 1) + 
+  scale_fill_manual(values = splits_pal, guide = FALSE) +
+  theme_minimal() +
+  theme(axis.text.y = element_text(size = rel(2)),
+        axis.text.x = element_blank(),
+        legend.position = "top",
+        panel.grid = element_blank(),
+        text = element_text(family = "Karla")) +
+  coord_equal(ratio = 1) +
+  labs(x = NULL, y = NULL)
+
+all_split
+```
+
+???
+
+
+We refer to the group for which we know the outcome, and use to develop the algorithm, as the training set. We refer to the group for which we pretend we don’t know the outcome as the test set.
+
+---
+class: center
+
+# `initial_split()`
+
+"Splits" data randomly into a single testing and a single training set.
+
+```{r eval= FALSE}
+initial_split(data, prop = 3/4)
+```
+
+
+---
+
+```{r}
+ames_split <- initial_split(ames, prop = 0.75)
+ames_split
+```
+
+???
+
+data splitting
+
+---
+class: center
+
+# `training()` and `testing()`
+
+Extract training and testing sets from an rsplit
+
+```{r results='hide'}
+training(ames_split)
+testing(ames_split)
+```
+
+---
+```{r}
+train_set <- training(ames_split) 
+train_set
+```
+
+
+---
+class: middle, center
+
+# Quiz
+
+Now that we have training and testing sets...
+
+--
+
+Which dataset do you think we use for .display[fitting]?
+
+--
+
+Which do we use for .display[predicting]?
+
+---
+template: step1
+
+---
+template: step2
+
+---
+template: step3
+background-image: url("images/predicting/predicting.004.jpeg")
+background-size: contain
+
+---
+name: holdout-step1
+background-image: url("images/predicting/predicting.005.jpeg")
+background-size: contain
+
+---
+name: holdout-step2
+background-image: url("images/predicting/predicting.006.jpeg")
+background-size: contain
+
+---
+name: holdout-step3
+background-image: url("images/predicting/predicting.007.jpeg")
+background-size: contain
+
+---
+name: holdout-step4
+background-image: url("images/predicting/predicting.008.jpeg")
+background-size: contain
+
+---
+name: holdout
+background-image: url("images/predicting/predicting.009.jpeg")
+background-size: contain
+
+---
+class: your-turn
+
+# Your turn `r (yt_counter <- yt_counter + 1)`
+
+Fill in the blanks. 
+
+Use `initial_split()`, `training()`, `testing()`, `lm()` and `rmse()` to:
+
+1. Split **ames** into training and test sets. Save the rsplit!
+
+1. Extract the training data. Fit a linear model to it. Save the model!
+
+1. Measure the RMSE of your linear model with your test set.  
+
+Keep `set.seed(100)` at the start of your code.
+
+```{r echo=FALSE}
+countdown(minutes = 4)
+```
+
+---
+
+```{r results='hide'}
+set.seed(100) # Important!
+
+ames_split  <- initial_split(ames)
+ames_train  <- training(ames_split)
+ames_test   <- testing(ames_split)
+
+lm_fit      <- fit_data(Sale_Price ~ Gr_Liv_Area, 
+                        model = lm_spec, 
+                        data = ames_train)
+
+price_pred  <- lm_fit %>% 
+  predict(new_data = ames_test) %>% 
+  mutate(price_truth = ames_test$Sale_Price)
+
+rmse(price_pred, truth = price_truth, estimate = .pred)
+```
+
+```{r include=FALSE}
+price_resid  <- predict(lm_fit, new_data = ames_train) %>% 
+  mutate(price_truth = ames_train$Sale_Price)
+rmse_train <- rmse(price_resid, truth = price_truth, estimate = .pred) %>% pull(.estimate)
+rmse_test  <- rmse(price_pred, truth = price_truth, estimate = .pred) %>% pull(.estimate)
+```
+
+RMSE = `r round(rmse_test, 2)`; compare to `r round(rmse_full, 2)`
+
+---
+class: middle, center
+
+.pull-left[
+
+### Training RMSE = `r round(rmse_train, 2)`
+```{r ref.label='lm-resid', echo=FALSE}
+
+```
+
+
+]
+
+--
+
+.pull-right[
+
+### Testing RMSE = `r round(rmse_test, 2)`
+```{r lm-test-resid, echo=FALSE, message = FALSE, warning = FALSE}
+train_lm <- lm(Sale_Price ~ Gr_Liv_Area, data = small_train)
+
+lm_test_pred <- train_lm %>% 
+  broom::augment(newdata = small_test) %>% 
+  select(Sale_Price, Gr_Liv_Area, .fitted, .row)
+
+ggplot(data = NULL, aes(Gr_Liv_Area, Sale_Price)) +
+  geom_segment(data = lm_test_pred,
+               aes(x = Gr_Liv_Area, 
+                   xend = Gr_Liv_Area, 
+                   y = Sale_Price, 
+                   yend = .fitted), 
+               colour = "#E7553C") +
+  geom_smooth(data = small_train, method = "lm", se = FALSE, colour = "#4D8DC9",
+              fullrange = TRUE) +
+  #geom_smooth(data = small_test, method = "lm", se = FALSE, colour = "#2aa198", lty = 4, fullrange = TRUE) +
+  geom_point(data = small_test, size = 3) +
+  coord_cartesian(y = c(50000, 500000)) +
+  theme(text = element_text(family = "Karla"))
+```
+]
+
+
+---
+name: holdout-handout
+class: center, middle
+
+old data `(x, y)` + model = fitted model
+
+--
+
+new data `(x)` + fitted model = predictions
+
+--
+
+new data `(y)` + predictions = metrics
+
+---
+class: middle, center
+
+# Quiz
+
+How much data should you set aside for testing?
+
+--
+
+If .display[testing set] is small, 
+performance metrics may be unreliable
+
+--
+
+If .display[training set] is small, model fit may be poor
+
+---
+class: middle, center, inverse
+
+# Stratified sampling
+
+```{r include=FALSE}
+top_area <- small_ames %>% 
+  top_n(20, Gr_Liv_Area) %>% 
+  pull(.row)
+
+top_sale <- small_ames %>% 
+  top_n(20, Sale_Price) %>% 
+  pull(.row)
+
+bot_area <- small_ames %>% 
+  top_n(-20, Gr_Liv_Area) %>% 
+  pull(.row)
+
+bot_sale <- small_ames %>% 
+  top_n(-20, Sale_Price) %>% 
+  pull(.row)
+
+tidy_ssplit <- small_split %>% 
+  tidy() %>% 
+  mutate(Data = case_when(
+    Data == "Analysis" ~ "Training",
+    Data == "Assessment" ~ "Testing",
+    TRUE ~ Data
+  )) %>% 
+  mutate(Data = factor(Data, levels = c("Training", "Testing"))) %>% 
+  left_join(small_ames, by = c("Row" = ".row")) %>% 
+  select(Gr_Liv_Area, Sale_Price, Data, Row) %>% 
+  mutate(hi_area = if_else(Row %in% top_area, "Testing", "Training"),
+         hi_sale = if_else(Row %in% top_sale, "Testing", "Training"),
+         lo_sale = if_else(Row %in% bot_sale, "Testing", "Training"),
+         lo_area = if_else(Row %in% bot_area, "Testing", "Training"))
+
+split_plots <- 
+  ggplot(tidy_ssplit, aes(x = Gr_Liv_Area, y = Sale_Price)) +
+  geom_point(aes(fill = Data), size = 5, shape = 21) +
+  theme(legend.position="none", 
+        text = element_text(family = "Karla")) +
+  scale_fill_scico_d(palette = "buda", end = .9)
+```
+
+---
+
+```{r echo=FALSE, fig.align='center'}
+split_plots
+```
+
+---
+
+```{r echo=FALSE, fig.align='center'}
+split_plots +
+  geom_point(aes(fill = hi_area), size = 5, shape = 21)
+```
+
+---
+
+```{r echo=FALSE, fig.align='center'}
+split_plots +
+  geom_point(aes(fill = hi_sale), size = 5, shape = 21)
+```
+
+---
+
+```{r echo=FALSE, fig.align='center'}
+split_plots +
+  geom_point(aes(fill = lo_sale), size = 5, shape = 21)
+```
+
+---
+
+```{r echo=FALSE, fig.align='center'}
+split_plots +
+  geom_point(aes(fill = lo_area), size = 5, shape = 21)
+```
+
+---
+```{r echo = FALSE, fig.align='center'}
+set.seed(100)
+small_strata <- initial_split(small_ames, 
+                              strata = Sale_Price, 
+                              breaks = 4)
+
+strata_split <- small_strata %>% 
+  tidy() %>% 
+  mutate(Data = case_when(
+    Data == "Analysis" ~ "Training",
+    Data == "Assessment" ~ "Testing",
+    TRUE ~ Data
+  )) %>% 
+  mutate(Data = factor(Data, levels = c("Training", "Testing"))) %>% 
+  left_join(small_ames, by = c("Row" = ".row")) %>% 
+  select(Gr_Liv_Area, Sale_Price, Data, Row) %>% 
+  mutate(bucket = ntile(Sale_Price, n = 4))
+
+strata_plot <- ggplot(strata_split, aes(x = Gr_Liv_Area, y = Sale_Price)) +
+  geom_point(size = 5, shape = 21) +
+  theme(legend.position="none", 
+        text = element_text(family = "Karla")) +
+  scale_fill_scico_d(palette = "buda", end = .9)
+
+strata_plot
+```
+
+---
+```{r echo=FALSE, fig.align='center'}
+strata_plot +
+  geom_point(data = filter(strata_split, bucket == 1), 
+             aes(fill = Data), size = 5, shape = 21)
+```
+
+---
+
+```{r echo=FALSE, fig.align='center'}
+strata_plot +
+  geom_point(data = filter(strata_split, bucket == 2), aes(fill = Data), 
+             size = 5, shape = 21) 
+```
+
+---
+
+```{r echo=FALSE, fig.align='center'}
+strata_plot +
+  geom_point(data = filter(strata_split, bucket == 3), aes(fill = Data), 
+             size = 5, shape = 21) 
+```
+
+---
+
+```{r echo=FALSE, fig.align='center'}
+strata_plot +
+  geom_point(data = filter(strata_split, bucket == 4), aes(fill = Data), 
+             size = 5, shape = 21)
+```
+
+
+
+
+---
+```{r strata, eval=FALSE}
+set.seed(100) # Important!
+
+ames_split  <- initial_split(ames, 
+                             strata = Sale_Price, #<<
+                             breaks = 4) #<<
+ames_train  <- training(ames_split)
+ames_test   <- testing(ames_split)
+
+lm_fit      <- fit_data(Sale_Price ~ Gr_Liv_Area, 
+                        model = lm_spec, 
+                        data = ames_train)
+
+price_pred  <- lm_fit %>% 
+  predict(new_data = ames_test) %>% 
+  mutate(price_truth = ames_test$Sale_Price)
+
+rmse(price_pred, truth = price_truth, estimate = .pred)
+```
+
+---
+class: middle, inverse
+
+.left-column[
+# A bit messy, no?
+]
+
+.right-column[
+```{r ref.label='strata', eval=FALSE}
+
+```
+
+]
+
+---
+class: middle, center
+
+# `fit_split()`
+
+Trains and tests a model with split data. Returns a tibble.
+
+
+```{r eval=FALSE}
+fit_split(Sale_Price ~ Gr_Liv_Area, model, split)
+```
+
+```{r fit-split, include=FALSE}
+lm_split <- fit_split(Sale_Price ~ Gr_Liv_Area, 
+                      model = lm_spec, 
+                      split = ames_split) #<<
+
+lm_split
+```
+
+
+---
+```{r ref.label='fit-split'}
+```
+
+---
+
+.pull-left[
+```{r eval=FALSE}
+fit_data(
+  Sale_Price ~ Gr_Liv_Area, 
+  model, 
+  data
+  )
+```
+
+]
+
+--
+
+.pull-right[
+```{r eval=FALSE}
+fit_split(
+  Sale_Price ~ Gr_Liv_Area, 
+  model, 
+  split #<<
+  )
+```
+
+]
+---
+class: middle
+
+.center[
+# Quiz
+
+The id column of `lm_split` contains a character vector with 1 row. What does the `splits` column contain?
+]
+
+```{r ref.label='fit-split'}
+```
+
+
+---
+class: inverse, middle, center
+
+
+A .display[list]!
+
+
+```{r echo=FALSE}
+knitr::include_graphics("https://media.giphy.com/media/BzyTuYCmvSORqs1ABM/giphy.gif")
+```
+
+---
+class: middle, center
+
+# Quiz
+
+How are data frames related to lists?
+
+---
+class: middle, center
+
+# Quiz
+
+Can lists contain other lists?
+
+---
+class: middle
+
+# A simpler list
+
+```{r}
+simple_split <- lm_split %>% 
+  select(splits, id)
+simple_split
+```
+
+---
+class: inverse
+
+# `r c(emo::ji("cat2"), emo::ji("lightning"))`
+
+How can you return just the contents of the first cell in splits? Write the code.
+
+```{r}
+simple_split
+```
+
+```{r echo=FALSE}
+countdown(minutes = 1)
+```
+
+---
+class: middle
+
+```{r first-cell}
+simple_split %>% pluck("splits", 1)
+simple_split[["splits"]][[1]]
+simple_split[[1, 1]]
+```
+
+
+---
+class: middle, center
+
+# Quiz
+
+What is the difference between `[[` and `[` indexing?
+
+---
+class: middle
+
+.columns[
+
+.left-col[
+```{r comment=NA}
+band_members
+```
+]
+
+.middle-col[
+```{r comment=NA}
+band_members[1]
+```
+
+]
+
+.right-col[
+```{r comment=NA}
+band_members[[1]]
+```
+]
+]
+
+---
+background-image: url(images/listcols.001.jpeg)
+background-size: contain
+
+---
+background-image: url(images/listcols.002.jpeg)
+background-size: contain
+
+---
+background-image: url(images/listcols.003.jpeg)
+background-size: contain
+
+---
+background-image: url(images/listcols.004.jpeg)
+background-size: contain
+
+---
+class: middle
+
+```{r ref.label='first-cell'}
+
+```
+
+---
+class: middle, center
+
+
+# `pluck()`
+
+Iterative `[[` indexing for lists
+
+```{r eval=FALSE}
+pluck(list, "name", 1, ...)
+```
+
+---
+class: middle
+
+# What would this do?
+
+```{r pluck-what, results='hide'}
+simple_split %>% 
+  pluck("splits", 1) %>%
+  testing()
+```
+
+---
+class: middle
+
+# What would this do?
+
+```{r ref.label='pluck-what'}
+```
+
+---
+class: middle
+
+# What would this do?
+
+```{r pluck-list, results='hide'}
+simple_split %>% 
+  pluck("splits")
+```
+
+---
+class: middle
+
+# What would this do?
+
+```{r ref.label='pluck-list'}
+```
+
+---
+class: inverse
+
+# `r c(emo::ji("cat2"), emo::ji("lightning"))`
+
+Which tidyverse function could you use to run `testing()` on a row in splits? Complete the code to extract the test set as a list. Do not use a for loop. 
+
+```{r eval=FALSE}
+simple_split %>% 
+  pluck("splits") %>%
+  ________________
+```
+
+```{r echo = FALSE}
+countdown(minutes = 1)
+```
+
+---
+
+```{r}
+simple_split %>% 
+  pluck("splits") %>% 
+  map(testing)
+```
+
+---
+class: middle, center
+
+# `map()`
+
+Applies a function to every element of a list.  
+Returns the results as a list.
+
+```{r eval=FALSE}
+map(.x, .f, …)
+```
+
+--
+
+*"for every element of `.x` do `.f`"*
+
+---
+class: middle
+
+.center[
+
+# `map()`
+
+Applies a function to every element of a list.  
+Returns the results as a list.
+]
+
+```{r eval=FALSE}
+map(
+  .x, # list or vector
+  .f, # function to apply to each list element
+  ... # other args to pass to function
+  )
+```
+
+---
+class: middle, center
+
+```{r echo=FALSE}
+knitr::include_graphics("https://raw.githubusercontent.com/hadley/adv-r/master/diagrams/functionals/map.png")
+```
+
+.footnote[From [Adv R](https://adv-r.hadley.nz/functionals.html)]
+
+---
+class: inverse
+
+# `r c(emo::ji("cat2"), emo::ji("lightning"))`
+
+Complete the code! Use a `dplyr` function to add the training data as a list column to the `lm_split` table.
+
+```{r eval=FALSE}
+simple_split %>%   __________________
+```
+
+```{r mutate-map, echo=FALSE}
+simple_split %>% 
+  mutate(train_set = map(splits, training))
+```
+
+```{r echo=FALSE}
+countdown(minutes = 1)
+```
+
+---
+```{r ref.label='mutate-map'}
+
+```
+
+---
+class: middle, center
+
+|                       | List     | Atomic            | Same type   | Nothing   |
+|-----------------------|----------|-------------------|-------------|-----------|
+| One argument          | `map()`  | `map_lgl()`, ...  | `modify()`  | `walk()`  |
+| Two arguments         | `map2()` | `map2_lgl()`, ... | `modify2()` | `walk2()` |
+| One argument + index  | `imap()` | `imap_lgl()`, ... | `imodify()` | `iwalk()` |
+| N arguments           | `pmap()` | `pmap_lgl()`, ... | ---         | `pwalk()` |
+
+.footnote[From [Adv R](https://adv-r.hadley.nz/functionals.html)]
+---
+class: middle, center
+
+# `unnest()`
+
+Unnests one or more list columns
+
+```{r eval = FALSE}
+.Last.value %>% unnest(train_set)
+```
+
+---
+```{r}
+simple_split %>% 
+  mutate(train_set = map(splits, training)) %>% 
+  unnest(train_set) #<<
+```
+
+
+---
+class: middle, center, inverse
+
+```{r echo=FALSE}
+knitr::include_graphics("https://media.giphy.com/media/tLde68S4YOt5C/giphy.gif")
+```
+
+---
+class: middle, center
+
+# Quiz
+
+How we can expand a list column to see what is in it?
+
+--
+
+`tidyr::unnest()`
+
+.footnote[https://tidyr.tidyverse.org/reference/unnest.html]
+
+---
+```{r}
+lm_split %>% 
+  unnest(.metrics)
+```
+
+---
+class: middle, center
+
+# `collect_metrics()`
+
+Unnest the metrics column from a tidymodels `fit_split()`
+
+```{r eval = FALSE}
+split_results %>% collect_metrics()
+```
+
+---
+class: your-turn
+
+# Your turn `r (yt_counter <- yt_counter + 1)`
+
+Rewrite your code from the previous exercise using `fit_split()` and `collect_metrics()` to:
+
+1. Split **ames** into training and test sets. Save the rsplit!
+
+1. Fit a linear model to the training set, then use the model to predict new observations from the test set.
+
+1. Extract the rmse- is it the same as what we just calculated in our previous exercise `r round(rmse_test, 0)`?
+
+Keep `set.seed(100)` at the start of your code.
+
+```{r echo=FALSE}
+countdown(minutes = 2)
+```
+
+---
+
+```{r}
+set.seed(100) # Important!
+
+ames_split <- initial_split(ames)
+
+lm_split <- fit_split(Sale_Price ~ Gr_Liv_Area, 
+                      model = lm_spec, 
+                      split = ames_split)
+
+lm_split %>% 
+  collect_metrics()
+```
+
+---
+class: middle, center
+
+
+# `decision_tree()`
+
+Specifies a decision tree model
+
+
+```{r results='hide'}
+decision_tree(tree_depth = NULL, min_n = NULL, cost_complexity = NULL)
+```
+
+---
+class: your-turn
+
+# Your turn `r (yt_counter <- yt_counter + 1)`
+
+Write a pipe to create a model that uses the rpart package to fit a regression tree. Use `fit_split()` and `collect_metrics()` to compare the RMSE here to one using the linear model for the same formula- which is better?
+
+*Hint: you'll need https://tidymodels.github.io/parsnip/articles/articles/Models.html*
+
+```{r echo=FALSE}
+countdown(minutes = 3)
+```
+
+---
+
+.pull-left[
+```{r}
+rt_spec <- 
+  decision_tree() %>%          
+  set_engine(engine = "rpart") %>% 
+  set_mode("regression")
+
+set.seed(100) # Important!
+fit_split(Sale_Price ~ Gr_Liv_Area, 
+          model = rt_spec, 
+          split = ames_split) %>% 
+  collect_metrics()
+```
+]
+
+.pull-right[
+```{r}
+set.seed(100) # Important!
+fit_split(Sale_Price ~ Gr_Liv_Area, 
+          model = lm_spec, 
+          split = ames_split) %>% 
+  collect_metrics()
+```
+
+]
+
+---
+class: middle, center
+
+
+# `nearest_neighbor()`
+
+Specifies a KNN model
+
+
+```{r results='hide'}
+nearest_neighbor(neighbors = 1)
+```
+
+---
+class: your-turn
+
+# Your turn `r (yt_counter <- yt_counter + 1)`
+
+Write *another* pipe to create a model that uses the kknn package to fit a K nearest neighbors model. Use `fit_split()` and `collect_metrics()` to compare the RMSE here to our other models with the same formula- which is better?
+
+*Hint: you'll need https://tidymodels.github.io/parsnip/articles/articles/Models.html*
+
+```{r echo=FALSE}
+countdown(minutes = 3)
+```
+
+---
+
+.pull-left[
+```{r}
+knn_spec <- 
+  nearest_neighbor() %>%          
+  set_engine(engine = "kknn") %>% 
+  set_mode("regression")
+
+set.seed(100) # Important!
+fit_split(Sale_Price ~ Gr_Liv_Area, 
+          model = knn_spec, 
+          split = ames_split) %>% 
+  collect_metrics()
+```
+]
+
+.pull-right[
+`lm_spec`
+```{r echo=FALSE}
+set.seed(100) # Important!
+fit_split(Sale_Price ~ Gr_Liv_Area, 
+          model = lm_spec, 
+          split = ames_split) %>% 
+  collect_metrics()
+```
+`rt_spec`
+```{r echo=FALSE}
+set.seed(100) # Important!
+fit_split(Sale_Price ~ Gr_Liv_Area, 
+          model = rt_spec, 
+          split = ames_split) %>% 
+  collect_metrics()
+```
+
+]
+---
+class: middle
+
+# .center[`fit_split()`]
+
+.center[.fade[Trains and tests a model with split data. Returns a tibble.]]
+
+```{r eval=FALSE}
+fit_split(
+  formula, 
+  model, 
+  split, 
+  metrics = NULL #<<
+)
+```
+
+If `NULL`, `rmse` and `rsq` when mode = "regression"
+
+---
+class: middle, center
+
+# `metric_set()`
+
+A helper function for selecting yardstick metric functions.
+
+```{r eval=FALSE}
+metric_set(rmse, rsq)
+```
+
+
+---
+class: middle, center
+
+```{r echo=FALSE}
+knitr::include_url("https://tidymodels.github.io/yardstick/articles/metric-types.html#metrics")
+```
+
+https://tidymodels.github.io/yardstick/articles/metric-types.html#metrics
+
+---
+class: middle
+
+# .center[`fit_split()`]
+
+.center[.fade[Trains and tests a model with split data. Returns a tibble.]]
+
+
+```{r eval=FALSE}
+fit_split(
+  formula, 
+  model, 
+  split, 
+  metrics = metric_set(rmse) #<<
+)
+```
+
+---
+class: middle, center, frame
+
+# How do we pick?
+
+--
+
+**Which** .display[data]
+
+--
+
+**Which** .display[criteria]
+
+--
+
+**Which** .display[model] 

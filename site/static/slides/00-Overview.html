@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Welcome</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Alison Hill" />
+    <meta name="date" content="2020-02-14" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/countdown/countdown.css" rel="stylesheet" />
+    <script src="libs/countdown/countdown.js"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+    <link rel="stylesheet" href="assets/css/my-theme.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/my-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+class: title-slide, center
+
+&lt;span class="fa-stack fa-4x"&gt;
+  &lt;i class="fa fa-circle fa-stack-2x" style="color: #ffffff;"&gt;&lt;/i&gt;
+  &lt;strong class="fa-stack-1x" style="color:#E7553C;"&gt;Hi!&lt;/strong&gt;
+&lt;/span&gt; 
+
+# Welcome
+
+## Introduction to Machine Learning in the Tidyverse
+
+### Alison Hill &amp;#183; Garrett Grolemund
+
+#### [https://conf20-intro-ml.netlify.com/](https://conf20-intro-ml.netlify.com/) &amp;#183; [https://rstd.io/conf20-intro-ml](https://rstd.io/conf20-intro-ml)
+
+
+
+
+
+---
+class: middle, inverse
+
+# Workshop policies
+
+.left-column[
+
+.center[
+
+🚪 💨 
+
+&lt;br&gt;
+
+🚫 📷 
+
+&lt;br&gt;
+&lt;br&gt;
+
+🧘 ⛺
+
+]
+
+]
+
+
+.right-column[
+
+Identify the exits closest to you in case of emergency
+
+&lt;br&gt;
+
+Please do not photograph people wearing .display[red lanyards]
+
+&lt;br&gt;
+
+A chill-out room is available for neurologically diverse attendees on the 4th floor of tower 1
+]
+
+---
+
+# Code of conduct
+
+- Please review the [rstudio::conf code of conduct](https://rstd.io/code-of-conduct) that applies to all workshops &lt;https://rstd.io/code-of-conduct&gt;
+
+--
+
+- CoC issues can be addressed three ways:
+
+  - In person: contact any rstudio::conf staff member or the conference registration desk
+  - By email: send a message to `conf@rstudio.com`
+  - By phone: call 844-448-1212
+  
+---
+class: middle, center
+
+.pull-left[
+# &lt;i class="fas fa-wifi"&gt;&lt;/i&gt;
+
+Wifi network name  
+
+
+
+]
+
+.pull-left[
+# &lt;i class="fas fa-key"&gt;&lt;/i&gt;
+
+Wifi password
+
+
+
+]
+
+
+---
+class: top, center
+background-image: url(images/intro/intro.001.jpeg)
+background-size: contain
+
+# Goals
+
+Explain key concepts that guide Machine Learning
+
+Use a handful of common ML algorithms
+
+???
+
+Welcome to _Introduction to Machine Learning with the Tidyverse_. This is a new workshop that we're developing in response to feedback on our _Advanced Machine Learning_ workshop taught by Max Kuhn. For some people, that workshop moves too fast and skips over too much. This workshop will provide a true introduction to machine learning that focuses heavily on the basics.
+
+In two days we won't be able to absorb all of the material in a typical machine learning course. But we will be able to develop a strong, intuitive understanding of how Machine Learning works. At the end of this workshop, I want you to be able to:
+
+1. explain the ideas that guide Machine Learning
+1. use a handful of common Machine Learning algorithms
+
+In short, I'd like you to be able to talk your way into an intro-level ML job ;) 
+
+---
+class: middle, center
+
+# Goals
+
+![](https://imgs.xkcd.com/comics/machine_learning.png )&lt;!-- --&gt;
+
+---
+class: top, center
+background-image: url(images/intro/intro.002.jpeg)
+background-size: cover
+
+---
+class: top, center
+background-image: url(images/intro/intro.003.jpeg)
+background-size: cover
+
+---
+background-image: url(images/artificial-intelligence-4417279_1920.jpg)
+background-size: cover
+
+
+---
+background-image: url(images/adi-goldstein-mDinBvq1Sfg-unsplash.jpg)
+background-size: cover
+
+
+---
+class: middle, center
+
+.pull-left[
+![](https://media.giphy.com/media/OZvMMeKdYmPpS/giphy.gif)&lt;!-- --&gt;
+
+]
+
+--
+
+.pull-right[
+![](https://media.giphy.com/media/uGjzzKY4BhtKw/giphy.gif)&lt;!-- --&gt;
+
+]
+
+---
+class: your-turn
+
+# Your turn 1
+
+Form teams of three. 
+
+Share your backgrounds with R, data, and Machine Learning. 
+
+Then choose a team name.
+
+<div class="countdown" id="timer_5e46e9c6" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">05</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+???
+
+Introduce yourself to the people near you and form teams of three. Share your backgrounds with R, data, and Machine Learning. Then choose a team name.
+
+
+---
+background-image: url(images/hello-red.jpg)
+background-position: top center
+background-size: 100%
+class: bottom, center
+
+.pull-left[
+## Alison Hill 
+
+&lt;img style="border-radius: 50%;" src="https://conf20-intro-ml.netlify.com/authors/alison/avatar.jpg" width="150px"/&gt;
+
+[&lt;i class="fab fa-github"&gt;&lt;/i&gt; @apreshill](https://github.com/apreshill)  
+[&lt;i class="fab fa-twitter"&gt;&lt;/i&gt; @apreshill](https://twitter.com/apreshill)
+
+]
+
+.pull-right[
+## Garrett Grolemund  
+
+&lt;img style="border-radius: 50%;" src="https://github.com/garrettgman.png" width="150px"/&gt;
+
+[&lt;i class="fab fa-github"&gt;&lt;/i&gt; @garrettgman](https://github.com/garrettgman)  
+[&lt;i class="fab fa-twitter"&gt;&lt;/i&gt; @StatGarrett](https://twitter.com/StatGarrett)
+
+]
+
+
+---
+background-image: url(images/hello.jpg)
+background-position: top center
+background-size: contain
+class: bottom, center
+
+.columns[
+
+.column-5[
+
+&lt;img style="border-radius: 50%;" src="https://conf20-intro-ml.netlify.com/authors/daniel/avatar.jpg" width="150px"/&gt;
+
+[Daniel Chen](https://conf20-intro-ml.netlify.com/authors/daniel/)
+
+
+]
+
+.column-5[
+
+
+&lt;img style="border-radius: 50%;" src="https://conf20-intro-ml.netlify.com/authors/desiree/avatar.jpg" width="150px"/&gt;
+
+[Desirée De Leon](https://conf20-intro-ml.netlify.com/authors/desiree/)
+
+]
+
+.column-5[
+
+
+&lt;img style="border-radius: 50%;" src="https://conf20-intro-ml.netlify.com/authors/gwynn/avatar.jpg" width="150px"/&gt;
+
+[gwynn sturdevant](https://conf20-intro-ml.netlify.com/authors/gwynn/)
+
+]
+
+.column-5[
+
+
+&lt;img style="border-radius: 50%;" src="https://conf20-intro-ml.netlify.com/authors/hasse/avatar.jpg" width="150px"/&gt;
+
+[Hasse Walum](https://conf20-intro-ml.netlify.com/authors/hasse/)
+
+]
+
+.column-5[
+
+
+&lt;img style="border-radius: 50%;" src="https://conf20-intro-ml.netlify.com/authors/josiah/avatar.jpg" width="150px"/&gt;
+
+[Josiah Parry](https://conf20-intro-ml.netlify.com/authors/josiah/)
+
+]
+
+]
+
+---
+class: middle, center
+
+.pull-left[
+
+# Day One:
+
+### How to get good predictions from models 
+]
+
+--
+
+.pull-right[
+
+# Day Two:
+
+### How to build a good prediction pipeline  
+
+]
+
+---
+class: middle, center
+
+.pull-left[
+
+# Day One:
+
+### How to get good predictions from models 
+
+Predicting
+
+Classifying
+
+Sampling and Resampling
+
+Ensembling
+]
+
+--
+
+.pull-right[
+
+# Day Two:
+
+### How to build a good prediction pipeline  
+
+Workflows
+
+Feature Engineering
+
+More Resampling
+
+Tuning
+]
+
+---
+class: middle, center
+
+# Schedule
+
+| Time          | Activity                                                      |
+|:--------------|:--------------------------------------------------------------|
+| 09:00 - 10:30 | Session 1                              |
+| 10:30 - 11:00 | *Break* ☕                                 |
+| 11:00 - 12:30 | Session 2                                    |
+| 12:30 - 01:30 | *Lunch* 🍱 &lt;br&gt;*Grand Ballroom A (Grand Ballroom Level)*                                  |
+| 01:30 - 03:00 | Session 3                                       |
+| 03:00 - 03:30 | *Break* 🍵                                    |
+| 03:30 - 05:00 | Session 4  
+
+---
+class: center, middle, inverse
+
+# What is Machine Learning?
+
+???
+
+Machine Learning is usually thought of as a subfield of artificial intelligence that itself contains other hot sub-fields.
+
+Let's start somewhere familiar. I have a data set and I want to analyze it. 
+
+The actual data set is named `ames` and it comes in the `AmesHousing` R package. No need to open your computers. Let's just discuss for a few minutes.
+
+
+
+---
+class: middle
+
+# .center[AmesHousing]
+
+Descriptions of 2,930 houses sold in Ames, IA from 2006 to 2010, collected by the Ames Assessor’s Office.
+
+
+```r
+# install.packages("AmesHousing")
+library(AmesHousing)
+ames &lt;- make_ames() %&gt;% 
+  dplyr::select(-matches("Qu"))
+```
+
+???
+
+`ames` contains descriptions of 2,930 houses sold in Ames, IA from 2006 to 2010. The data comes from the Ames Assessor’s Office and contains things like the square footage of a house, its lot size, and its sale price.
+
+---
+class: middle
+
+
+```r
+glimpse(ames)
+## Observations: 2,930
+## Variables: 74
+## $ MS_SubClass        &lt;fct&gt; One_Story_1946_and_Newer_All_Styles, One_Story_194…
+## $ MS_Zoning          &lt;fct&gt; Residential_Low_Density, Residential_High_Density,…
+## $ Lot_Frontage       &lt;dbl&gt; 141, 80, 81, 93, 74, 78, 41, 43, 39, 60, 75, 0, 63…
+## $ Lot_Area           &lt;int&gt; 31770, 11622, 14267, 11160, 13830, 9978, 4920, 500…
+## $ Street             &lt;fct&gt; Pave, Pave, Pave, Pave, Pave, Pave, Pave, Pave, Pa…
+## $ Alley              &lt;fct&gt; No_Alley_Access, No_Alley_Access, No_Alley_Access,…
+## $ Lot_Shape          &lt;fct&gt; Slightly_Irregular, Regular, Slightly_Irregular, R…
+## $ Land_Contour       &lt;fct&gt; Lvl, Lvl, Lvl, Lvl, Lvl, Lvl, Lvl, HLS, Lvl, Lvl, …
+## $ Utilities          &lt;fct&gt; AllPub, AllPub, AllPub, AllPub, AllPub, AllPub, Al…
+## $ Lot_Config         &lt;fct&gt; Corner, Inside, Corner, Corner, Inside, Inside, In…
+## $ Land_Slope         &lt;fct&gt; Gtl, Gtl, Gtl, Gtl, Gtl, Gtl, Gtl, Gtl, Gtl, Gtl, …
+## $ Neighborhood       &lt;fct&gt; North_Ames, North_Ames, North_Ames, North_Ames, Gi…
+## $ Condition_1        &lt;fct&gt; Norm, Feedr, Norm, Norm, Norm, Norm, Norm, Norm, N…
+## $ Condition_2        &lt;fct&gt; Norm, Norm, Norm, Norm, Norm, Norm, Norm, Norm, No…
+## $ Bldg_Type          &lt;fct&gt; OneFam, OneFam, OneFam, OneFam, OneFam, OneFam, Tw…
+## $ House_Style        &lt;fct&gt; One_Story, One_Story, One_Story, One_Story, Two_St…
+## $ Overall_Cond       &lt;fct&gt; Average, Above_Average, Above_Average, Average, Av…
+## $ Year_Built         &lt;int&gt; 1960, 1961, 1958, 1968, 1997, 1998, 2001, 1992, 19…
+## $ Year_Remod_Add     &lt;int&gt; 1960, 1961, 1958, 1968, 1998, 1998, 2001, 1992, 19…
+## $ Roof_Style         &lt;fct&gt; Hip, Gable, Hip, Hip, Gable, Gable, Gable, Gable, …
+## $ Roof_Matl          &lt;fct&gt; CompShg, CompShg, CompShg, CompShg, CompShg, CompS…
+## $ Exterior_1st       &lt;fct&gt; BrkFace, VinylSd, Wd Sdng, BrkFace, VinylSd, Vinyl…
+## $ Exterior_2nd       &lt;fct&gt; Plywood, VinylSd, Wd Sdng, BrkFace, VinylSd, Vinyl…
+## $ Mas_Vnr_Type       &lt;fct&gt; Stone, None, BrkFace, None, None, BrkFace, None, N…
+## $ Mas_Vnr_Area       &lt;dbl&gt; 112, 0, 108, 0, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+## $ Exter_Cond         &lt;fct&gt; Typical, Typical, Typical, Typical, Typical, Typic…
+## $ Foundation         &lt;fct&gt; CBlock, CBlock, CBlock, CBlock, PConc, PConc, PCon…
+## $ Bsmt_Cond          &lt;fct&gt; Good, Typical, Typical, Typical, Typical, Typical,…
+## $ Bsmt_Exposure      &lt;fct&gt; Gd, No, No, No, No, No, Mn, No, No, No, No, No, No…
+## $ BsmtFin_Type_1     &lt;fct&gt; BLQ, Rec, ALQ, ALQ, GLQ, GLQ, GLQ, ALQ, GLQ, Unf, …
+## $ BsmtFin_SF_1       &lt;dbl&gt; 2, 6, 1, 1, 3, 3, 3, 1, 3, 7, 7, 1, 7, 3, 3, 1, 3,…
+## $ BsmtFin_Type_2     &lt;fct&gt; Unf, LwQ, Unf, Unf, Unf, Unf, Unf, Unf, Unf, Unf, …
+## $ BsmtFin_SF_2       &lt;dbl&gt; 0, 144, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1120, …
+## $ Bsmt_Unf_SF        &lt;dbl&gt; 441, 270, 406, 1045, 137, 324, 722, 1017, 415, 994…
+## $ Total_Bsmt_SF      &lt;dbl&gt; 1080, 882, 1329, 2110, 928, 926, 1338, 1280, 1595,…
+## $ Heating            &lt;fct&gt; GasA, GasA, GasA, GasA, GasA, GasA, GasA, GasA, Ga…
+## $ Heating_QC         &lt;fct&gt; Fair, Typical, Typical, Excellent, Good, Excellent…
+## $ Central_Air        &lt;fct&gt; Y, Y, Y, Y, Y, Y, Y, Y, Y, Y, Y, Y, Y, Y, Y, Y, Y,…
+## $ Electrical         &lt;fct&gt; SBrkr, SBrkr, SBrkr, SBrkr, SBrkr, SBrkr, SBrkr, S…
+## $ First_Flr_SF       &lt;int&gt; 1656, 896, 1329, 2110, 928, 926, 1338, 1280, 1616,…
+## $ Second_Flr_SF      &lt;int&gt; 0, 0, 0, 0, 701, 678, 0, 0, 0, 776, 892, 0, 676, 0…
+## $ Gr_Liv_Area        &lt;int&gt; 1656, 896, 1329, 2110, 1629, 1604, 1338, 1280, 161…
+## $ Bsmt_Full_Bath     &lt;dbl&gt; 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0,…
+## $ Bsmt_Half_Bath     &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
+## $ Full_Bath          &lt;int&gt; 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 3, 2,…
+## $ Half_Bath          &lt;int&gt; 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0,…
+## $ Bedroom_AbvGr      &lt;int&gt; 3, 2, 3, 3, 3, 3, 2, 2, 2, 3, 3, 3, 3, 2, 1, 4, 4,…
+## $ Kitchen_AbvGr      &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,…
+## $ TotRms_AbvGrd      &lt;int&gt; 7, 5, 6, 8, 6, 7, 6, 5, 5, 7, 7, 6, 7, 5, 4, 12, 8…
+## $ Functional         &lt;fct&gt; Typ, Typ, Typ, Typ, Typ, Typ, Typ, Typ, Typ, Typ, …
+## $ Fireplaces         &lt;int&gt; 2, 0, 0, 2, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0,…
+## $ Garage_Type        &lt;fct&gt; Attchd, Attchd, Attchd, Attchd, Attchd, Attchd, At…
+## $ Garage_Finish      &lt;fct&gt; Fin, Unf, Unf, Fin, Fin, Fin, Fin, RFn, RFn, Fin, …
+## $ Garage_Cars        &lt;dbl&gt; 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 2,…
+## $ Garage_Area        &lt;dbl&gt; 528, 730, 312, 522, 482, 470, 582, 506, 608, 442, …
+## $ Garage_Cond        &lt;fct&gt; Typical, Typical, Typical, Typical, Typical, Typic…
+## $ Paved_Drive        &lt;fct&gt; Partial_Pavement, Paved, Paved, Paved, Paved, Pave…
+## $ Wood_Deck_SF       &lt;int&gt; 210, 140, 393, 0, 212, 360, 0, 0, 237, 140, 157, 4…
+## $ Open_Porch_SF      &lt;int&gt; 62, 0, 36, 0, 34, 36, 0, 82, 152, 60, 84, 21, 75, …
+## $ Enclosed_Porch     &lt;int&gt; 0, 0, 0, 0, 0, 0, 170, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+## $ Three_season_porch &lt;int&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
+## $ Screen_Porch       &lt;int&gt; 0, 120, 0, 0, 0, 0, 0, 144, 0, 0, 0, 0, 0, 0, 140,…
+## $ Pool_Area          &lt;int&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
+## $ Pool_QC            &lt;fct&gt; No_Pool, No_Pool, No_Pool, No_Pool, No_Pool, No_Po…
+## $ Fence              &lt;fct&gt; No_Fence, Minimum_Privacy, No_Fence, No_Fence, Min…
+## $ Misc_Feature       &lt;fct&gt; None, None, Gar2, None, None, None, None, None, No…
+## $ Misc_Val           &lt;int&gt; 0, 0, 12500, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0, 0, 0,…
+## $ Mo_Sold            &lt;int&gt; 5, 6, 6, 4, 3, 6, 4, 1, 3, 6, 4, 3, 5, 2, 6, 6, 6,…
+## $ Year_Sold          &lt;int&gt; 2010, 2010, 2010, 2010, 2010, 2010, 2010, 2010, 20…
+## $ Sale_Type          &lt;fct&gt; WD , WD , WD , WD , WD , WD , WD , WD , WD , WD , …
+## $ Sale_Condition     &lt;fct&gt; Normal, Normal, Normal, Normal, Normal, Normal, No…
+## $ Sale_Price         &lt;int&gt; 215000, 105000, 172000, 244000, 189900, 195500, 21…
+## $ Longitude          &lt;dbl&gt; -93.61975, -93.61976, -93.61939, -93.61732, -93.63…
+## $ Latitude           &lt;dbl&gt; 42.05403, 42.05301, 42.05266, 42.05125, 42.06090, …
+```
+
+---
+background-image: url(images/zillow.jpeg)
+background-size: contain
+
+---
+class: middle, center
+
+# Show of hands
+
+How many people have taken a course in statistics?
+
+---
+class: middle, center
+
+# Show of hands
+
+How many people have *a degree* in statistics?
+
+
+---
+
+
+```r
+lm_ames &lt;- lm(Sale_Price ~ Gr_Liv_Area, data = ames)
+lm_ames
+## 
+## Call:
+## lm(formula = Sale_Price ~ Gr_Liv_Area, data = ames)
+## 
+## Coefficients:
+## (Intercept)  Gr_Liv_Area  
+##     13289.6        111.7
+```
+
+???
+
+Since I'm a data scientist, I might do something like this with the data.
+
+Who recognizes what this code does? What does it do?
+
+Excellent.
+
+---
+class: center, middle
+
+# Show of hands
+
+How many people have .display[fit] a model with `lm()`?
+
+---
+class: middle, center
+
+# `lm()`
+
+Fits linear models with Ordinary Least Squares regression
+
+
+```r
+lm_ames &lt;- lm(Sale_Price ~ Gr_Liv_Area, data = ames)
+```
+
+???
+
+`lm()` is the archetype R modeling function. It fits a linear model to a data set. In this case, the linear model predicts the `Sale_Price` variable in the `ames` data set with another variable in the `ames` data set:
+
+1. `Gr_Liv_Area` - which is the total above ground square feet of the house and 
+
+You can tell this from the arguments we pass to `lm()`.
+
+---
+class: middle, center
+
+# Formulas
+
+Bare variable names separated by a `~` 
+
+
+
+```r
+Sale_Price ~ Gr_Liv_Area + Full_Bath
+```
+
+$$ y = \alpha + \beta{x} + \epsilon$$
+
+`\(y\)` `~` `\(x\)`
+
+
+.footnote[See `?formula` for help.]
+
+???
+
+That's great. `lm()` is one of the simplest places to start with Machine Learning. We'll use it to establish some important points. And if you've never used `lm()` before, don't worry. I'll review what you need to know as we go. 
+
+Like many modeling functions in R, `lm()` takes a _formula_ that describes the relationship we wish to model. Formulas are always divided by a `~` and contain bare variable names, that is variable names that are _not_ surrounded by quotation marks. The variable to the left of the `~` becomes the response variable in the model. The variables to the right of the tilde become the predictors. Where do these variables live? In the data set passed to the data argument. 
+
+A formula can have a single variable on the right hand side, or many as we see here. Alternatively, the right hand side can contain a `.`, which is shorthand for "every other variable in the data set." Formulas in R come with their own extensive syntax which you can read more about at `?formula`. For example, you can add a zero to the right-hand side to remove the intercept term, which is included by default. And you can specify the interaction between two terms with `:`. We're going to use formulas throughout the day; but they will only be simple formulas like this.
+
+Notice that I saved the model results to `lm_ames`. This is common practice in R. Model results contain _a lot_ of information, a lot more information than you see when you call `lm_ames`. This poses a question:
+
+
+---
+class: middle, center
+
+# Volunteer
+
+How can we see more of the results?
+
+---
+class: middle
+
+# .center[`summary()`]
+
+Display a "summary" of the results. Not `summarise()`!
+
+
+
+```r
+summary(lm_ames)
+```
+
+
+.footnote[See `?summary` for help.]
+
+???
+
+One popular way is to run `summary()` on the model object—not to be confused with `summarise()` from the dplyr package.
+
+---
+
+```r
+summary(lm_ames)
+## 
+## Call:
+## lm(formula = Sale_Price ~ Gr_Liv_Area, data = ames)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -483467  -30219   -1966   22728  334323 
+## 
+## Coefficients:
+##              Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) 13289.634   3269.703   4.064 4.94e-05 ***
+## Gr_Liv_Area   111.694      2.066  54.061  &lt; 2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 56520 on 2928 degrees of freedom
+## Multiple R-squared:  0.4995,	Adjusted R-squared:  0.4994 
+## F-statistic:  2923 on 1 and 2928 DF,  p-value: &lt; 2.2e-16
+```
+
+---
+background-image: url(images/modeling.jpeg)
+background-size: contain
+
+???
+
+Statistical modeling is an extension of hypothesis testing. Statisticians want to test hypotheses about nature. They do this by formulating those hypotheses as models and then testing the models against data.
+
+At one level, models embed hypotheses like _`Sale_Price` depends on `Gr_Liv_Area`."_ We use the model to test whether these hypotheses agree with the data. At another level, the model _is_ a hypothesis and we test how well _it_ comports with the data. 
+
+If the model passes the tests, we check to see how much it explains about the data. The best models explain the most. The hope is that we will find a hypothesis that accurately explains the data, and hence reality. In this context, the data is sacred and every model is evaluated by how closely it fits the data at hand.
+
+So statisticians ask questions like, "Is this model a reasonable representation of the world given the data?"
+
+---
+class: middle, center, frame
+
+# The hypothesis determines
+
+1\. Which .display[data] to use
+
+2\. Which .display[model] to use
+
+3\. How to .display[assess] the model
+
+???
+
+In other words, statisticians use a model to test the hypotheses in the model. The hypotheses dictate:
+
+1. Which data to use
+2. Which model to use
+3. How to assess the model, e.g. Does it better than the null model according to a well-established, non-generalizable statistical test custom made for the assessment?
+
+This is an important starting place for Machine Learning, because the first thing you need to know about Machine Learning is that Machine Learning is nothing like Hypothesis Testing.
+
+---
+class: your-turn
+
+# Your turn 2
+
+Work together in your team to fill out as much of the handout as you can. Feel free to leave some blank.
+
+<div class="countdown" id="timer_5e46eb13" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+background-image: url(images/ml-01/ml-01.001.jpeg)
+background-size: contain
+
+---
+background-image: url(images/ml-01/ml-01.002.jpeg)
+background-size: contain
+
+---
+background-image: url(images/ml-01/ml-01.003.jpeg)
+background-size: contain
+
+---
+background-image: url(images/ml-01/ml-01.004.jpeg)
+background-size: contain
+
+---
+background-image: url(images/ml-01/ml-01.005.jpeg)
+background-size: contain
+
+---
+background-image: url(images/ml-01/ml-01.006.jpeg)
+background-size: contain
+
+---
+name: ml-goal
+class: middle, center, frame
+
+# Goal of Machine Learning
+
+--
+
+## generate accurate predictions
+
+---
+class: middle, center
+
+.pull-left[
+![](http://www.gstatic.com/tv/thumb/tvbanners/14671198/p14671198_b_v8_ab.jpg)&lt;!-- --&gt;
+
+]
+
+--
+
+.pull-right[
+![](http://www.gstatic.com/tv/thumb/tvbanners/15822356/p15822356_b_v8_ab.jpg)&lt;!-- --&gt;
+
+]
+
+
+
+---
+class: middle, center
+
+.pull-left[
+&lt;img src="images/marriage.jpg" width="418" /&gt;
+
+]
+
+--
+
+.pull-right[
+![](http://www.gstatic.com/tv/thumb/tvbanners/8415427/p8415427_b_v8_ab.jpg)&lt;!-- --&gt;
+
+]
+
+
+---
+background-image: url(images/538-1.png)
+background-size: contain
+
+---
+background-image: url(images/538-2.png)
+background-size: contain
+
+---
+class: middle, center
+
+.pull-left[
+![](https://media3.s-nbcnews.com/j/newscms/2019_18/2841296/mika_joe_blue_63fd550ccc7b77b875d5f87470c77576.fit-760w.jpg)&lt;!-- --&gt;
+
+]
+
+.pull-right[
+![](https://fivethirtyeight.com/wp-content/uploads/2015/07/natesilver2_light.jpg?w=1200)&lt;!-- --&gt;
+
+]
+
+---
+class: middle, center
+background-image: url(images/rsp-step1.png)
+background-position: right
+background-size: contain
+
+.pull-left[
+
+# Step 1
+
+# Go here:
+
+[https://conf20-intro-ml.netlify.com/](https://conf20-intro-ml.netlify.com/)
+
+&lt;br&gt;
+
+## Workshop identifier:
+
+`intro_ml`
+
+]
+
+---
+class: middle, center
+background-image: url(https://raw.githubusercontent.com/sol-eng/classroom-getting-started/master/inst/images/credentials.png)
+background-position: right
+background-size: 49%
+
+.pull-left[
+# Step 2
+
+# Register
+
+Enter name + email
+
+
+**Keep this tab open!** You will need these additional credentials later.
+
+]
+
+---
+class: middle, center
+background-image: url(https://raw.githubusercontent.com/sol-eng/classroom-getting-started/master/inst/images/getting-started-screen.png)
+background-position: right
+background-size: 40%
+
+.pull-left[
+# Step 3
+
+# Click .display[RStudio Server Pro]
+
+You will be prompted for a `username` and `password`. 
+
+Use the information you collected from previous step.
+
+
+]
+
+---
+class: middle, center
+
+# Step 4
+
+Click on “New Session” - use default settings:
+
+`Session Name:` RStudio Session  
+`Editor:` RStudio  
+`Cluster:` Local
+
+---
+# Step 5
+
+Click on the class-repo folder
+
+Click on the class-repo.Rproj to load the project. It will ask you if you want to open the project ~/class-repo…choose “Yes”
+
+---
+background-image: url(images/intro/intro.004.jpeg)
+background-size: contain
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="https://platform.twitter.com/widgets.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "solarized-light",
+"highlightLanguage": ["r", "css", "yaml"],
+"slideNumberFormat": "",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

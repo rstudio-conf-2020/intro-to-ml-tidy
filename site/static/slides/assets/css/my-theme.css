@@ -1,0 +1,480 @@
+.remark-slide-content p, ul, ol, li {
+  font-size: 1.6rem;
+}
+
+.remark-slide-content {
+  background-color: #fbf9f4;
+}
+
+.remark-slide-content h1 {
+	margin-bottom: 1.0em !important;
+}
+
+.footnote {
+	bottom: 1em;
+	font-size: 75%;
+}
+
+img {
+	margin-bottom: 1.5rem;
+	overflow: hidden;
+	/*background: #fff;*/
+	box-shadow: 0 2px 4px 0 rgba(0,0,0,.2);
+}
+
+
+/* code */
+/* https://github.com/rstudio/blogdown/blob/master/docs/02-hugo.Rmd */
+
+pre {
+  border: 1px solid #fff;
+  box-shadow: 0px 0px 4px #282a36;
+  padding: 0.25em;
+  background-color: #fff;
+  overflow-x: auto;
+  border-radius: 0px; /*undo rounded corners*/
+}
+
+pre code { 
+  background: none; 
+  font-size: 0.8rem;
+}
+
+.hljs {
+	background: #fff !important;
+}
+
+.display {
+  font-weight: 700;
+  color: #E7553C;
+}
+
+.title {
+  font-family: 'Karla', serif;
+  font-weight: 400;
+}
+
+/* link color */
+a, a > code {
+  color: #E7553C;
+}
+
+
+:any-link {
+    color: #E7553C;
+    text-decoration: underline;
+}
+
+
+/* mouse over link */
+a:hover, a:active, a:focus {
+    color: rgba(231,85,60,.8);
+    text-decoration: underline;
+}
+
+.remark-code {
+  color: #E7553C;
+  font-size: 1.25em;
+}
+
+.remark-inline-code { 
+  color: #E7553C;
+  font-size: 1em;
+}
+
+.remark-code-line-highlighted { 
+  background-color:  #bed3eca1; 
+}
+
+/* darken up code and results */
+
+.hljs-solarized-light .hljs {
+  color: #2B3D43; 
+}
+
+.inverse {
+  background-color: #282a36;
+  color: #FFFFFF;
+  text-shadow: none;
+}
+
+.inverse .remark-inline-code {
+  color: #8be9fd;
+}
+
+.inverse a {
+  color: #fff;
+}
+
+.inverse a:hover {
+  color: #bed3ec;
+}
+
+
+/* Two-column layout */
+.left-column {
+  color: #777;
+  width: 25%;
+  height: 92%;
+  float: left;
+  font-size: 18px;
+}
+.left-column h2:last-of-type, .left-column h3:last-child {
+  color: #000;
+}
+.right-column {
+  width: 74%;
+  float: right;
+  padding-top: 0em;
+}
+.pull-left {
+  float: left;
+  width: 47%;
+}
+.pull-right {
+  float: right;
+  width: 47%;
+}
+.pull-right ~ * {
+  clear: both;
+}
+
+img, video, iframe {
+  max-width: 100%;
+}
+blockquote {
+  border-left: solid 5px lightgray;
+  padding-left: 1em;
+}
+table {
+  margin: auto;
+  border-top: 1px solid #666;
+  border-bottom: 1px solid #666;
+}
+table thead th { border-bottom: 1px solid #ddd; }
+th, td { padding: 5px; }
+thead, tfoot, tr:nth-child(even) { background: #eee }
+
+@page { margin: 0; }
+
+.title-slide {
+  background-image: 
+    /* top is white; middle is orange; bottom is blue */
+    linear-gradient(
+      rgba(255, 255, 255, 0), 
+      rgba(231, 85, 60, .1), 
+      rgba(68, 112, 153, 1)
+    ),
+    /* your image */
+    url(../../images/robert-bye-678640-unsplash.jpg);
+  background-size: cover;
+}
+
+
+.title-slide h1 {
+  font-family: 'Karla', serif;
+  color: #FFFFFF;
+  font-size: 3em;
+  padding-top: 1em;
+  line-height: 1em;
+  padding-bottom: .1em;
+  word-wrap: break-word;
+  text-shadow: 3px 3px #282a36;
+}
+
+.title-slide h2 {
+  font-family: 'Karla', sans-serif;
+  font-weight: 700;
+  font-size: 1.6em;
+  color: #FFFFFF;
+  text-shadow: none;
+  padding-top: .1em;
+  margin-top: 0px;
+  margin-bottom: .1em;
+}
+
+.title-slide h3 {
+  font-family: 'Karla', sans-serif;
+  font-weight: 400;
+  font-size: 1.6em;
+  color: #FFFFFF;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  line-height: 1.6em;
+}
+
+.title-slide h4 {
+  font-family: 'Karla', sans-serif;
+  font-weight: 400;
+  font-size: 1.4em;
+  color: #FFFFFF;
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+.title-slide a {
+  color: #fff;
+}
+
+/* Wider cols */
+
+.right-wide {
+  width: 60%;
+  float: right;
+  padding-top: 1em;
+}
+
+.left-narrow {
+  width: 40%;
+  float: left;
+  padding-top: 1em;
+}
+
+.left-wide {
+  width: 60%;
+  float: left;
+  padding-top: 1em;
+}
+
+.right-narrow {
+  width: 40%;
+  float: right;
+  padding-top: 1em;
+}
+
+/* footer */
+
+div.my-footer {
+    background-color: #282a36;
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    height: 20px;
+    width: 100%;
+}
+
+div.my-footer span {
+    font-size: 10pt;
+    color: #ffffff;
+    position: absolute;
+    left: 15px;
+    bottom: 2px;
+}
+
+/* your turns */
+
+.your-turn {
+  background-color: #447099;
+  color: #fff;
+}
+
+.your-turn a {
+  color: #fff!important;
+}
+
+.your-turn a:hover,
+.your-turn a:active {
+  color: #f1fa8c!important;
+}
+
+
+.your-turn h1 {
+  color: #fff;
+  font-size: 3.5em;
+}
+
+.your-turn .arcade {
+  color: #8be9fd!important;
+}
+
+/* pop quiz */
+
+.pop-quiz h1, h1#pop-quiz {
+  color: #bd93f9;
+  font-size: 3.5em;
+  padding-bottom: .5em;
+}
+
+.pop-quiz h2, h2#pop-quiz {
+  color: #bd93f9;
+}
+
+h1#pop-quiz:before,
+h1#pop-quiz:after {
+    content: "";
+    display: inline-block;
+    background: url("../question-box.png") no-repeat;
+    width: 70px;
+    height: 70px;
+    background-size: 100%;
+    background-position: bottom;
+    margin: 0 7px -10px 7px;
+}
+
+/* live code */
+
+.live-code {
+  background-color: #000;
+  color: #fff;
+}
+
+.live-code h1 {
+  color: #fff;
+  text-shadow: 1px 1px 2px #1f5386;
+  font-size: 3.5em;
+}
+
+.live-code h1:before {
+    content: "";
+    display: inline-block;
+    background: url("../Live-code.png") no-repeat;
+    width: 100px;
+    height: 100px;
+    float: left;
+    background-size: 100px;
+    padding-right: 50px;
+}
+
+.your-turn .remark-inline-code,
+.live-code .remark-inline-code {
+  color: #f1fa8c;
+}
+
+.codedrop .remark-code {
+  background-color: #6272a4!important;
+}
+
+.codedrop .remark-code-line-highlighted { 
+  background-color:  #8be9fdbf; 
+}
+
+/* darken dracula comments */
+.codedrop .hljs-comment,
+.codedrop .hljs-meta {
+	color: #282a36;
+}
+
+/* level up */
+
+.level-up {
+  background-color: #282a36;
+  color: #f1fa8c;
+}
+
+.level-up h1:before {
+    content: "";
+    display: inline-block;
+    background: url("../level-up.png") no-repeat;
+    width: 70px;
+    height: 70px;
+    background-size: 100%;
+    padding-right: 10px;
+    margin-right: 10px;
+}
+
+.level-up h1:after {
+    content: "";
+    display: inline-block;
+    background: url("../level-up.png") no-repeat;
+    width: 70px;
+    height: 70px;
+    background-size: 100%;
+    padding-left: 10px;
+}
+
+.level-up h1, h1#level-up {
+  font-family: 'Press Start 2P', cursive;
+  color: #8be9fd;
+  padding-bottom: 1em;
+  text-transform: uppercase;
+  text-align: center;
+  text-shadow: 1px 1px #fff, 
+               2px 2px #f1fa8c, 
+               3px 3px #8be9fd;
+}
+
+.level-up p {
+  font-size: 1.5em;
+}
+
+/* happy path */
+
+.tip-block {
+  background-color: #f8f8f2;
+  color: #282a36;
+}
+
+.tip-block h1:before,
+.tip-block h1:after {
+    content: "";
+    display: inline-block;
+    background: url("../tip-block.png") no-repeat;
+    width: 70px;
+    height: 70px;
+    background-size: 100%;
+    background-position: bottom;
+    margin: 0 7px -10px 7px;
+}
+
+.tip-block h1, h1#tip-block {
+  font-family: 'Press Start 2P', cursive;
+  color: #FD9BB4;
+  padding-bottom: 1em;
+  text-transform: lowercase;
+  text-align: center;
+  text-shadow: 1px 1px #fff, 
+               2px 2px #FECC98, 
+               3px 3px #FD9BB4;
+}
+
+.level-up p {
+  font-size: 1.5em;
+}
+
+
+/* --------------Even split- 3 columns--------------- */
+
+.columns {
+  display: flex;
+}
+
+.left-col {
+  width: 33%;
+  text-align: left;
+}
+
+.middle-col {
+  width: 33%;
+  text-align: left;
+  padding-left: 20px;
+}
+
+.right-col {
+  width: 33%;
+  text-align: left;
+  padding-left: 20px;
+}
+
+/* five-column layout */
+
+.column-5 {
+  float: left;
+  width: 20%;
+  text-align: center;
+}
+
+.fade {
+  opacity: 0.3;
+}
+
+.frame h1 {
+  color: #2f5275;
+  padding-bottom: 1.0em !important;
+  border-bottom: 3px solid #bed3ec;
+}
+
+.inverse .frame h1 {
+  color: #bed3ec;
+  padding-bottom: 1.0em !important;
+  border-bottom: 3px solid #bed3ec;
+}

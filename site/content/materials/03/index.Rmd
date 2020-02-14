@@ -12,9 +12,9 @@ links:
 - icon: images
   icon_pack: fas
   name: slides
-  url: https://pedantic-pike-efd356.netlify.com/day-1/slides/03-resampling#1
+  url: /slides/03-resampling.html
 ---
 
 ```{r echo=FALSE}
-knitr::include_url("https://pedantic-pike-efd356.netlify.com/day-1/slides/03-resampling#1")
+knitr::include_url("/slides/03-resampling.html")
 ```

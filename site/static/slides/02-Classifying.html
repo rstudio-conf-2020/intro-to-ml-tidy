@@ -1,0 +1,1607 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Classifying</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Alison Hill" />
+    <meta name="date" content="2020-02-14" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/countdown/countdown.css" rel="stylesheet" />
+    <script src="libs/countdown/countdown.js"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+    <link rel="stylesheet" href="assets/css/my-theme.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/my-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+
+
+
+
+
+
+
+class: title-slide, center
+
+&lt;span class="fa-stack fa-4x"&gt;
+  &lt;i class="fa fa-circle fa-stack-2x" style="color: #ffffff;"&gt;&lt;/i&gt;
+  &lt;strong class="fa-stack-1x" style="color:#E7553C;"&gt;2&lt;/strong&gt;
+&lt;/span&gt; 
+
+# Classifying
+
+## Introduction to Machine Learning in the Tidyverse
+
+### Alison Hill &amp;#183; Garrett Grolemund
+
+#### [https://conf20-intro-ml.netlify.com/](https://conf20-intro-ml.netlify.com/) &amp;#183; [https://rstd.io/conf20-intro-ml](https://rstd.io/conf20-intro-ml)
+
+---
+class: middle, center, frame
+
+# Goal of Machine Learning
+
+--
+
+
+## 🔨 construct .display[models] that
+
+--
+
+
+## 🎯 generate .display[accurate predictions]
+
+--
+
+
+## 🆕 for .display[future, yet-to-be-seen data]
+
+--
+
+.footnote[Max Kuhn &amp; Kjell Johnston, http://www.feat.engineering/]
+
+---
+class: inverse, middle, center
+
+A model doesn't have to be a straight line...
+
+&lt;img src="02-Classifying_files/figure-html/lm-fig-1.svg" width="504" style="display: block; margin: auto;" /&gt;
+
+
+---
+class: inverse, middle, center
+
+.pull-left[
+&lt;img src="02-Classifying_files/figure-html/unnamed-chunk-1-1.svg" width="504" /&gt;
+]
+
+.pull-right[
+&lt;img src="02-Classifying_files/figure-html/unnamed-chunk-2-1.svg" width="504" style="display: block; margin: auto;" /&gt;
+]
+
+---
+class: middle, frame, center
+
+# Decision Trees
+
+To predict the outcome of a new data point:
+
+Uses rules learned from splits
+
+Each split maximizes information gain
+
+---
+class: middle, center
+
+![](https://media.giphy.com/media/gj4ZruUQUnpug/source.gif)
+
+---
+
+
+
+
+&lt;img src="02-Classifying_files/figure-html/unnamed-chunk-4-1.png" width="504" style="display: block; margin: auto;" /&gt;
+
+---
+
+&lt;img src="02-Classifying_files/figure-html/unnamed-chunk-5-1.png" width="504" style="display: block; margin: auto;" /&gt;
+
+
+---
+class: middle, center
+
+# Quiz
+
+How do assess predictions here?
+
+--
+
+RMSE
+
+---
+
+&lt;img src="02-Classifying_files/figure-html/rt-test-resid-1.png" width="504" style="display: block; margin: auto;" /&gt;
+
+
+
+---
+class: middle, center
+
+.pull-left[
+### LM RMSE = 53884.78
+
+]
+
+--
+
+.pull-right[
+
+
+
+### Tree RMSE = 61687.24
+&lt;img src="02-Classifying_files/figure-html/unnamed-chunk-8-1.png" width="504" /&gt;
+
+]
+
+
+
+---
+class: inverse, middle, center
+
+.pull-left[
+&lt;img src="02-Classifying_files/figure-html/unnamed-chunk-9-1.svg" width="504" /&gt;
+]
+
+.pull-right[
+&lt;img src="02-Classifying_files/figure-html/dt-fig-1.svg" width="504" style="display: block; margin: auto;" /&gt;
+]
+
+---
+class: middle, center, inverse
+
+# What is a model?
+
+---
+class: middle, center, frame
+
+# K Nearest Neighbors (KNN)
+
+To predict the outcome of a new data point:
+
+Find the K most similar old data points
+
+Take the average/mode/etc. outcome
+
+---
+
+
+```r
+knn_spec &lt;- nearest_neighbor(neighbors = 5) %&gt;% 
+           set_engine("kknn") %&gt;% 
+           set_mode("regression")
+
+set.seed(100)
+fit_split(Sale_Price ~ ., model = knn_spec, split = ames_split) %&gt;% 
+  collect_metrics()
+# A tibble: 2 x 3
+  .metric .estimator .estimate
+  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+1 rmse    standard   35870.   
+2 rsq     standard       0.812
+```
+
+---
+
+
+
+
+
+---
+
+&lt;img src="02-Classifying_files/figure-html/knn-home1-1.png" width="504" style="display: block; margin: auto;" /&gt;
+
+---
+
+&lt;img src="02-Classifying_files/figure-html/knn-home2-1.png" width="504" style="display: block; margin: auto;" /&gt;
+
+---
+
+&lt;img src="02-Classifying_files/figure-html/knn-home2-10-1.png" width="504" style="display: block; margin: auto;" /&gt;
+
+---
+
+&lt;img src="02-Classifying_files/figure-html/knn-home2-25-1.png" width="504" style="display: block; margin: auto;" /&gt;
+
+---
+
+&lt;img src="02-Classifying_files/figure-html/knn-home2-50-1.png" width="504" style="display: block; margin: auto;" /&gt;
+
+
+
+---
+
+.pull-left[
+&lt;img src="02-Classifying_files/figure-html/unnamed-chunk-13-1.png" width="504" style="display: block; margin: auto;" /&gt;
+]
+
+.pull-right[
+&lt;img src="02-Classifying_files/figure-html/underfit-knn-1.png" width="504" /&gt;
+]
+
+---
+
+.pull-left[
+&lt;img src="02-Classifying_files/figure-html/unnamed-chunk-14-1.png" width="504" style="display: block; margin: auto;" /&gt;
+]
+
+.pull-right[
+&lt;img src="02-Classifying_files/figure-html/fit-knn-1.png" width="504" /&gt;
+]
+
+
+---
+exclude: true
+class: inverse
+
+.pull-left[
+![](figs/01-Predicting/lm-fig-1.svg)
+]
+
+.pull-right[
+![](figs/01-Predicting/dt-fig-1.svg)
+]
+
+
+---
+class: inverse, middle, center
+exclude: true
+
+.pull-left[
+![](figs/01-Predicting/lm-fig-1.svg)
+]
+
+--
+
+.pull-right[
+&lt;img src="02-Classifying_files/figure-html/lr-fig-1.svg" width="504" /&gt;
+]
+
+.footnote[[Why is logistic regression considered a linear model?](https://sebastianraschka.com/faq/docs/logistic_regression_linear.html)]
+
+---
+exclude: true
+class: inverse, middle, center
+
+.pull-left[
+![](01-Prediction/dt-fig-1.svg)
+]
+
+--
+
+.pull-right[
+
+]
+
+
+
+
+---
+class: middle, center
+&lt;img src="https://raw.githubusercontent.com/EmilHvitfeldt/blog/master/static/blog/2019-08-09-authorship-classification-with-tidymodels-and-textrecipes_files/figure-html/unnamed-chunk-18-1.png" width="70%" /&gt;
+
+https://www.hvitfeldt.me/blog/authorship-classification-with-tidymodels-and-textrecipes/
+
+---
+class: middle, center
+&lt;img src="https://www.kaylinpavlik.com/content/images/2019/12/dt-1.png" width="50%" /&gt;
+
+https://www.kaylinpavlik.com/classifying-songs-genres/
+
+---
+class: middle, center
+&lt;img src="images/sing-tree.png" width="607" /&gt;
+
+[The Science of Singing Along](http://www.doc.gold.ac.uk/~mas03dm/papers/PawleyMullensiefen_Singalong_2012.pdf)
+
+---
+class: middle, center
+
+&lt;img src="https://a3.typepad.com/6a0105360ba1c6970c01b7c95c61fb970b-pi" width="40%" /&gt;
+
+.footnote[[tweetbotornot2](https://github.com/mkearney/tweetbotornot2)]
+
+
+---
+name: guess-the-animal
+class: middle, center, inverse
+
+
+&lt;img src="http://www.atarimania.com/8bit/screens/guess_the_animal.gif" width="100%" /&gt;
+
+
+---
+class: your-turn
+
+# Your turn 1
+
+Get in your teams. Have one member think of an animal; other members try to guess it by asking *yes/no* questions about it. Go!
+
+Write down how many questions it takes your team.
+
+<div class="countdown" id="timer_5e46e3f4" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">05</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+class: your-turn
+
+# Your turn 2
+
+In your teams, discuss what qualities made for a good versus a bad question.
+
+<div class="countdown" id="timer_5e46e35c" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">02</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+class: middle, center
+
+# What makes a good guesser?
+
+--
+
+High information gain per question (can it fly?)
+
+--
+
+Clear features (feathers vs. is it "small"?)
+
+--
+
+Order matters
+
+---
+class: inverse, middle, center
+
+# Congratulations!
+
+You just built a decision tree 🎉
+
+
+
+---
+background-image: url(images/aus-standard-animals.png)
+background-size: cover
+
+.footnote[[Australian Computing Academy](https://aca.edu.au/resources/decision-trees-classifying-animals/)]
+
+---
+background-image: url(images/aus-standard-tree.png)
+background-size: cover
+
+.footnote[[Australian Computing Academy](https://aca.edu.au/resources/decision-trees-classifying-animals/)]
+
+---
+background-image: url(images/annotated-tree/annotated-tree.001.png)
+background-size: cover
+
+---
+background-image: url(images/annotated-tree/annotated-tree.002.png)
+background-size: cover
+
+---
+background-image: url(images/annotated-tree/annotated-tree.003.png)
+background-size: cover
+
+---
+background-image: url(images/annotated-tree/annotated-tree.004.png)
+background-size: cover
+
+---
+background-image: url(images/annotated-tree/annotated-tree.005.png)
+background-size: cover
+
+
+---
+background-image: url(images/bonsai-anatomy.jpg)
+background-size: cover
+
+---
+background-image: url(images/bonsai-anatomy-flip.jpg)
+background-size: cover
+
+---
+class: center, middle
+
+# Quiz
+
+Name that variable type!
+
+&lt;img src="images/vartypes_quiz.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+&lt;img src="images/vartypes_answers.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+
+&lt;img src="images/vartypes_unicorn.jpeg" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+class: center, middle
+
+# Show of hands
+
+How many people have .display[fit] a logistic regression model with `glm()`?
+
+---
+exclude: true
+
+
+
+---
+class: middle, center, inverse
+
+.pull-left[
+&lt;img src="02-Classifying_files/figure-html/unnamed-chunk-26-1.png" width="1695" /&gt;
+
+]
+
+.pull-right[
+&lt;img src="02-Classifying_files/figure-html/unnamed-chunk-27-1.png" width="1695" /&gt;
+]
+
+---
+
+.pull-left[
+
+```r
+uni_train %&gt;% 
+  count(unicorn)
+# A tibble: 2 x 2
+  unicorn     n
+  &lt;fct&gt;   &lt;int&gt;
+1 0         100
+2 1          50
+```
+]
+
+.pull-right[
+&lt;img src="02-Classifying_files/figure-html/unnamed-chunk-29-1.png" width="504" /&gt;
+
+]
+
+---
+
+&lt;img src="02-Classifying_files/figure-html/unnamed-chunk-30-1.png" width="504" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+
+
+&lt;img src="02-Classifying_files/figure-html/unnamed-chunk-32-1.png" width="504" style="display: block; margin: auto;" /&gt;
+
+---
+
+&lt;img src="02-Classifying_files/figure-html/unnamed-chunk-33-1.png" width="504" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+&lt;img src="02-Classifying_files/figure-html/unnamed-chunk-34-1.png" width="504" style="display: block; margin: auto;" /&gt;
+
+
+
+---
+class: middle, center
+
+
+&lt;img src="02-Classifying_files/figure-html/unnamed-chunk-35-1.png" width="504" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+
+
+```
+parsnip model object
+
+Fit time:  4ms 
+n= 150 
+
+node), split, n, loss, yval, (yprob)
+      * denotes terminal node
+
+1) root 150 50 0 (0.6666667 0.3333333)  
+  2) n_butterflies&gt;=29.5 93 16 0 (0.8279570 0.1720430) *
+  3) n_butterflies&lt; 29.5 57 23 1 (0.4035088 0.5964912)  
+    6) n_kittens&gt;=62.5 18  6 0 (0.6666667 0.3333333) *
+    7) n_kittens&lt; 62.5 39 11 1 (0.2820513 0.7179487) *
+```
+
+---
+class: middle, center
+
+
+&lt;img src="02-Classifying_files/figure-html/unnamed-chunk-38-1.png" width="720" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+```
+ nn ..y    0   1                                               cover
+  2   0 [.83 .17] when n_butterflies &gt;= 30                       62%
+  6   0 [.67 .33] when n_butterflies &lt;  30 &amp; n_kittens &gt;= 63     12%
+  7   1 [.28 .72] when n_butterflies &lt;  30 &amp; n_kittens &lt;  63     26%
+```
+
+
+---
+
+
+
+.pull-left[
+&lt;img src="02-Classifying_files/figure-html/unnamed-chunk-41-1.png" width="504" style="display: block; margin: auto;" /&gt;
+]
+
+--
+
+.pull-right[
+&lt;img src="02-Classifying_files/figure-html/unnamed-chunk-42-1.png" width="504" style="display: block; margin: auto;" /&gt;
+
+]
+
+---
+
+.pull-left[
+
+&lt;img src="02-Classifying_files/figure-html/unnamed-chunk-43-1.png" width="504" /&gt;
+
+
+]
+
+--
+
+.pull-right[
+
+&lt;img src="02-Classifying_files/figure-html/unnamed-chunk-44-1.png" width="504" /&gt;
+
+]
+
+--
+
+### .center[🦋 split wins]
+
+---
+
+.pull-left[
+
+&lt;img src="02-Classifying_files/figure-html/unnamed-chunk-45-1.png" width="504" /&gt;
+
+
+]
+
+--
+
+.pull-right[
+
+&lt;img src="02-Classifying_files/figure-html/unnamed-chunk-46-1.png" width="504" /&gt;
+
+]
+
+--
+
+### .center[🐱 split wins]
+
+
+---
+class: middle, center
+
+# Sadly, we are not classifying unicorns today
+
+&lt;img src="images/sad_unicorn.png" width="20%" style="display: block; margin: auto;" /&gt;
+
+---
+background-image: url(images/copyingandpasting-big.png)
+background-size: contain
+background-position: center
+class: middle, center
+
+---
+background-image: url(images/so-dev-survey.png)
+background-size: contain
+background-position: center
+class: middle, center
+
+---
+
+&lt;img src="https://github.com/juliasilge/supervised-ML-case-studies-course/blob/master/img/remote_size.png?raw=true" width="80%" /&gt;
+
+.footnote[[Julia Silge](https://supervised-ml-course.netlify.com/)]
+
+???
+
+Notes: The specific question we are going to address is what makes a developer more likely to work remotely. Developers can work in their company offices or they can work remotely, and it turns out that there are specific characteristics of developers, such as the size of the company that they work for, how much experience they have, or where in the world they live, that affect how likely they are to be a remote developer.
+
+---
+
+# StackOverflow Data
+
+
+
+
+```r
+glimpse(stackoverflow)
+Observations: 1,150
+Variables: 21
+Groups: remote [2]
+$ country                              &lt;fct&gt; United States, United States, Un…
+$ salary                               &lt;dbl&gt; 63750.00, 93000.00, 40625.00, 45…
+$ years_coded_job                      &lt;int&gt; 4, 9, 8, 3, 8, 12, 20, 17, 20, 4…
+$ open_source                          &lt;dbl&gt; 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1,…
+$ hobby                                &lt;dbl&gt; 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1,…
+$ company_size_number                  &lt;dbl&gt; 20, 1000, 10000, 1, 10, 100, 20,…
+$ remote                               &lt;fct&gt; Remote, Remote, Remote, Remote, …
+$ career_satisfaction                  &lt;int&gt; 8, 8, 5, 10, 8, 10, 9, 7, 8, 7, …
+$ data_scientist                       &lt;dbl&gt; 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,…
+$ database_administrator               &lt;dbl&gt; 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0,…
+$ desktop_applications_developer       &lt;dbl&gt; 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,…
+$ developer_with_stats_math_background &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,…
+$ dev_ops                              &lt;dbl&gt; 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,…
+$ embedded_developer                   &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,…
+$ graphic_designer                     &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
+$ graphics_programming                 &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
+$ machine_learning_specialist          &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
+$ mobile_developer                     &lt;dbl&gt; 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0,…
+$ quality_assurance_engineer           &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
+$ systems_administrator                &lt;dbl&gt; 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0,…
+$ web_developer                        &lt;dbl&gt; 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1,…
+```
+
+---
+
+# .center[`initial_split()`]
+
+.center["Splits" data randomly into a single testing and a single training set;
+extract `training` and `testing` sets from an rsplit]
+
+
+```r
+set.seed(100) # Important!
+so_split &lt;- initial_split(stackoverflow, strata = remote)
+so_train &lt;- training(so_split)
+so_test  &lt;- testing(so_split)
+```
+
+---
+class: your-turn
+
+# Your turn 3
+
+Using the `so_train` and `so_test` datasets, how many individuals in our training set are remote? How about in the testing set?
+
+<div class="countdown" id="timer_5e46e2ef" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">02</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+
+---
+
+
+
+```r
+so_train %&gt;% 
+  count(remote)
+# A tibble: 2 x 2
+# Groups:   remote [2]
+  remote         n
+  &lt;fct&gt;      &lt;int&gt;
+1 Remote       432
+2 Not remote   432
+
+so_test %&gt;% 
+  count(remote)
+# A tibble: 2 x 2
+# Groups:   remote [2]
+  remote         n
+  &lt;fct&gt;      &lt;int&gt;
+1 Remote       143
+2 Not remote   143
+```
+
+---
+
+.pull-left[
+
+```r
+so_train %&gt;% 
+  count(remote)
+# A tibble: 2 x 2
+# Groups:   remote [2]
+  remote         n
+  &lt;fct&gt;      &lt;int&gt;
+1 Remote       432
+2 Not remote   432
+
+so_test %&gt;% 
+  count(remote)
+# A tibble: 2 x 2
+# Groups:   remote [2]
+  remote         n
+  &lt;fct&gt;      &lt;int&gt;
+1 Remote       143
+2 Not remote   143
+```
+
+]
+
+.pull-right[
+
+&lt;img src="02-Classifying_files/figure-html/unnamed-chunk-54-1.png" width="504" /&gt;
+]
+
+
+---
+class: inverse, middle, center
+
+
+# How would we do fit a tree with parsnip?
+
+&lt;img src="https://raw.githubusercontent.com/rstudio/hex-stickers/master/PNG/parsnip.png" width="20%" /&gt;
+
+---
+class: middle, frame
+
+
+# .center[To specify a model with parsnip]
+
+.right-column[
+
+1\. Pick a .display[model]
+
+2\. Set the .display[engine]
+
+3\. Set the .display[mode] (if needed)
+
+]
+
+---
+class: middle, center
+
+# 1\. Pick a .display[model] 
+
+All available models are listed at
+
+&lt;tidymodels.github.io/parsnip/articles/articles/Models.html&gt;
+
+&lt;iframe src="https://tidymodels.github.io/parsnip/articles/articles/Models.html" width="504" height="400px"&gt;&lt;/iframe&gt;
+
+---
+class: middle, center
+
+# 2\. Set the .display[engine] 
+
+We'll use `rpart` for building `C`lassification `A`nd `R`egression `T`rees
+
+
+```r
+set_engine("rpart") 
+```
+
+---
+class: middle, center
+
+# 3\. Set the .display[mode] 
+
+A character string for the model type (e.g. "classification" or "regression")
+
+
+```r
+set_mode("classification") 
+```
+
+---
+class: middle, frame
+
+# .center[To specify a model with parsnip]
+
+
+
+```r
+decision_tree() %&gt;%
+  set_engine("rpart") %&gt;%
+  set_mode("classification")
+```
+
+---
+class: middle
+
+# .center[`fit_split()`]
+
+.center[.fade[Trains and tests a model with split data. Returns a tibble.]]
+
+
+
+```r
+fit_split(
+  formula, 
+  model, 
+  split
+)
+```
+
+---
+class: your-turn
+
+# Your turn 4
+
+Fill in the blanks. Use the `tree_spec` model provided and `fit_split()` to:
+
+1. Train a CART-based model with the formula = `remote ~ years_coded_job + salary`.
+
+1. Predict remote status with the testing data.
+
+1. Remind yourself what the output looks like!
+
+1. Keep `set.seed(100)` at the start of your code.  
+
+<div class="countdown" id="timer_5e46e30d" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+
+
+```r
+tree_spec &lt;- 
+  decision_tree() %&gt;%         
+  set_engine("rpart") %&gt;%      
+  set_mode("classification") 
+
+set.seed(100) # Important!
+tree_fit &lt;- fit_split(remote ~ years_coded_job + salary, 
+                      model = tree_spec, 
+                      split = so_split) 
+
+tree_fit
+# # Monte Carlo cross-validation (0.75/0.25) with 1 resamples  
+# A tibble: 1 x 6
+  splits        id           .metrics      .notes      .predictions    .workflow
+* &lt;list&gt;        &lt;chr&gt;        &lt;list&gt;        &lt;list&gt;      &lt;list&gt;          &lt;list&gt;   
+1 &lt;split [864/… train/test … &lt;tibble [2 ×… &lt;tibble [0… &lt;tibble [286 ×… &lt;workflo…
+```
+
+---
+class: middle, center
+
+# Volunteer
+
+How we can expand a list column to see what is in it?
+
+--
+
+`tidyr::unnest()`
+
+.footnote[https://tidyr.tidyverse.org/reference/unnest.html]
+
+---
+
+```r
+tree_fit %&gt;% 
+  unnest(.predictions)
+# A tibble: 286 x 10
+   splits id    .metrics .notes .pred_Remote `.pred_Not remo…  .row .pred_class
+   &lt;list&gt; &lt;chr&gt; &lt;list&gt;   &lt;list&gt;        &lt;dbl&gt;            &lt;dbl&gt; &lt;int&gt; &lt;fct&gt;      
+ 1 &lt;spli… trai… &lt;tibble… &lt;tibb…        0.687            0.313     2 Remote     
+ 2 &lt;spli… trai… &lt;tibble… &lt;tibb…        0.687            0.313    12 Remote     
+ 3 &lt;spli… trai… &lt;tibble… &lt;tibb…        0.368            0.632    15 Not remote 
+ 4 &lt;spli… trai… &lt;tibble… &lt;tibb…        0.368            0.632    19 Not remote 
+ 5 &lt;spli… trai… &lt;tibble… &lt;tibb…        0.687            0.313    23 Remote     
+ 6 &lt;spli… trai… &lt;tibble… &lt;tibb…        0.368            0.632    28 Not remote 
+ 7 &lt;spli… trai… &lt;tibble… &lt;tibb…        0.687            0.313    38 Remote     
+ 8 &lt;spli… trai… &lt;tibble… &lt;tibb…        0.368            0.632    46 Not remote 
+ 9 &lt;spli… trai… &lt;tibble… &lt;tibb…        0.687            0.313    53 Remote     
+10 &lt;spli… trai… &lt;tibble… &lt;tibb…        0.368            0.632    56 Not remote 
+# … with 276 more rows, and 2 more variables: remote &lt;fct&gt;, .workflow &lt;list&gt;
+```
+
+---
+class: middle, center
+
+# `collect_predictions()`
+
+Unnest the predictions column from a tidymodels `fit_split()`
+
+
+```r
+tree_fit %&gt;% collect_predictions()
+```
+
+---
+
+
+```r
+tree_fit %&gt;% 
+  collect_predictions()
+# A tibble: 286 x 6
+   id               .pred_Remote `.pred_Not remote`  .row .pred_class remote
+   &lt;chr&gt;                   &lt;dbl&gt;              &lt;dbl&gt; &lt;int&gt; &lt;fct&gt;       &lt;fct&gt; 
+ 1 train/test split        0.687              0.313     2 Remote      Remote
+ 2 train/test split        0.687              0.313    12 Remote      Remote
+ 3 train/test split        0.368              0.632    15 Not remote  Remote
+ 4 train/test split        0.368              0.632    19 Not remote  Remote
+ 5 train/test split        0.687              0.313    23 Remote      Remote
+ 6 train/test split        0.368              0.632    28 Not remote  Remote
+ 7 train/test split        0.687              0.313    38 Remote      Remote
+ 8 train/test split        0.368              0.632    46 Not remote  Remote
+ 9 train/test split        0.687              0.313    53 Remote      Remote
+10 train/test split        0.368              0.632    56 Not remote  Remote
+# … with 276 more rows
+```
+
+---
+
+class: middle, center, frame
+
+# Goal of Machine Learning
+
+
+## 🔨 construct .display[models] that
+
+.fade[
+
+## 🔮 generate accurate .display[predictions]
+
+## 🆕 for .display[future, yet-to-be-seen data]
+
+]
+
+---
+
+class: middle, center, frame
+
+# Goal of Machine Learning
+
+
+.fade[
+## 🔨 construct .display[models] that
+
+
+
+## 🔮 generate accurate .display[predictions]
+
+]
+
+
+## 🆕 for .display[future, yet-to-be-seen data]
+
+---
+
+class: middle, center, frame
+
+# Goal of Machine Learning
+
+
+.fade[
+## 🔨 construct .display[models] that
+
+]
+
+## 🔮 generate accurate .display[predictions]
+
+.fade[
+
+## 🆕 for .display[future, yet-to-be-seen data]
+
+]
+---
+
+class: middle, center, frame
+
+# Goal of Machine Learning
+
+
+.fade[
+## 🔨 construct .display[models] that
+
+]
+
+## 🎯 generate .display[accurate predictions]
+
+.fade[
+
+## 🆕 for .display[future, yet-to-be-seen data]
+
+]
+
+---
+class: your-turn
+
+# Your turn 5
+
+Use `collect_predictions()` and `count()` to count the number of individuals (i.e., rows) by their true and predicted remote status. In groups, answer the following questions:
+
+1. How many predictions did we make?
+2. How many times is "remote" status predicted?
+3. How many respondents are actually remote?
+4. How many predictions did we get right?
+
+*Hint: You can create a 2x2 table using* `count(var1, var2)`
+
+<div class="countdown" id="timer_5e46e259" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">05</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+
+
+```r
+tree_fit %&gt;%   
+  collect_predictions() %&gt;% 
+  count(.pred_class, truth = remote)
+# A tibble: 4 x 3
+  .pred_class truth          n
+  &lt;fct&gt;       &lt;fct&gt;      &lt;int&gt;
+1 Remote      Remote        89
+2 Remote      Not remote    40
+3 Not remote  Remote        54
+4 Not remote  Not remote   103
+```
+
+---
+class: middle, center
+
+# `conf_mat()`
+
+Creates confusion matrix, or truth table, from a data frame with observed and predicted classes.
+
+
+```r
+conf_mat(data, truth = remote, estimate = .pred_class)
+```
+
+---
+
+
+```r
+tree_fit %&gt;%   
+  collect_predictions() %&gt;% 
+  conf_mat(truth = remote, estimate = .pred_class)
+            Truth
+Prediction   Remote Not remote
+  Remote         89         40
+  Not remote     54        103
+```
+
+---
+
+
+```r
+tree_fit %&gt;%   
+  collect_predictions() %&gt;% 
+  conf_mat(truth = remote, estimate = .pred_class) %&gt;% 
+  autoplot(type = "heatmap")
+```
+
+&lt;img src="02-Classifying_files/figure-html/unnamed-chunk-70-1.png" width="40%" style="display: block; margin: auto;" /&gt;
+
+---
+class: middle, center
+
+# Confusion matrix
+
+&lt;img src="images/conf-matrix/conf-matrix.001.jpeg" width="853" /&gt;
+
+---
+class: middle, center
+
+# Confusion matrix
+
+&lt;img src="images/conf-matrix/conf-matrix.002.jpeg" width="853" /&gt;
+
+---
+class: middle, center
+
+# Confusion matrix
+
+&lt;img src="images/conf-matrix/conf-matrix.003.jpeg" width="853" /&gt;
+
+---
+class: middle, center
+
+# Confusion matrix
+
+&lt;img src="images/conf-matrix/conf-matrix.004.jpeg" width="853" /&gt;
+
+---
+class: middle, center
+
+# Accuracy 
+
+&lt;img src="images/conf-matrix/conf-matrix.007.jpeg" width="853" /&gt;
+
+---
+class: middle, center
+
+# Accuracy 
+
+&lt;img src="images/conf-matrix/conf-matrix.008.jpeg" width="853" /&gt;
+
+---
+class: middle, center
+
+# Accuracy 
+
+&lt;img src="images/conf-matrix/conf-matrix.009.jpeg" width="853" /&gt;
+
+
+---
+class: center
+background-image: url(images/conf-matrix/sens-spec.jpeg)
+background-size: 80%
+background-position: bottom
+
+# Sensitivity vs. Specificity
+
+---
+name: sens
+class: center
+background-image: url(images/conf-matrix/sens.jpeg)
+background-size: 80%
+background-position: bottom
+
+# Sensitivity
+
+
+---
+template: sens
+
+.pull-right[
+True positive rate
+
+*Out of all **true positives**, how many did you predict right?*
+]
+
+---
+name: spec
+class: center
+background-image: url(images/conf-matrix/spec.jpeg)
+background-size: 80%
+background-position: bottom
+
+# Specificity
+
+
+---
+template: spec
+
+.pull-left[
+True negative rate
+
+*Out of all **true negatives**, how many did you predict right?*
+]
+
+---
+class: middle, center
+
+# `collect_metrics()`
+
+Unnest the metrics column from a tidymodels `fit_split()`
+
+
+```r
+tree_fit %&gt;% collect_metrics()
+```
+
+---
+
+
+```r
+tree_fit %&gt;% 
+  collect_metrics()
+# A tibble: 2 x 3
+  .metric  .estimator .estimate
+  &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
+1 accuracy binary         0.671
+2 roc_auc  binary         0.678
+```
+
+
+---
+class: middle, center
+
+&lt;iframe src="https://tidymodels.github.io/yardstick/articles/metric-types.html#metrics" width="504" height="400px"&gt;&lt;/iframe&gt;
+
+&lt;https://tidymodels.github.io/yardstick/articles/metric-types.html#metrics&gt;
+
+---
+class: middle
+
+# .center[`fit_split()`]
+
+.center[.fade[Trains and tests a model with split data. Returns a tibble.]]
+
+
+```r
+fit_split(
+  formula, 
+  model, 
+  split, 
+* metrics = NULL
+)
+```
+
+If `NULL`, `accuracy` and `roc_auc` when mode = "classification"
+
+---
+class: middle, center
+
+# `metric_set()`
+
+A helper function for selecting yardstick metric functions.
+
+
+```r
+metric_set(accuracy, sens, spec)
+```
+
+--
+
+.footnote[Warning! Make sure you load `tidymodels` *after* `tidyverse`, as the `yardstick::spec` function has a name conflict.]
+
+---
+class: middle
+
+# .center[`fit_split()`]
+
+.center[.fade[Trains and tests a model with split data. Returns a tibble.]]
+
+
+
+```r
+fit_split(
+  formula, 
+  model, 
+  split, 
+* metrics = metric_set(accuracy, sens, spec)
+)
+```
+
+---
+
+
+```r
+fit_split(remote ~ years_coded_job + salary, 
+          model = tree_spec, 
+          split = so_split,
+          metrics = metric_set(accuracy, sens, spec)) %&gt;% 
+  collect_metrics()
+# A tibble: 3 x 3
+  .metric  .estimator .estimate
+  &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
+1 accuracy binary         0.671
+2 sens     binary         0.622
+3 spec     binary         0.720
+```
+
+
+
+---
+
+
+```r
+fit_split(remote ~ years_coded_job + salary, 
+          model = tree_spec, 
+          split = so_split,
+          metrics = metric_set(accuracy, roc_auc)) %&gt;% 
+  collect_metrics()
+# A tibble: 2 x 3
+  .metric  .estimator .estimate
+  &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
+1 accuracy binary         0.671
+2 roc_auc  binary         0.678
+```
+
+---
+
+
+```r
+fit_split(remote ~ years_coded_job + salary, 
+          model = tree_spec, 
+          split = so_split) %&gt;% 
+  collect_metrics()
+# A tibble: 2 x 3
+  .metric  .estimator .estimate
+  &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
+1 accuracy binary         0.671
+2 roc_auc  binary         0.678
+```
+
+---
+class: middle, center
+
+# `roc_curve()`
+
+Takes predictions from `fit_split()`.
+
+Returns a tibble with probabilities.
+
+
+```r
+roc_curve(data, truth = remote, estimate = .pred_Remote)
+```
+
+Truth = .display[probability] of target response
+
+Estimate = .display[predicted] class
+
+---
+
+
+```r
+fit_split(remote ~ years_coded_job + salary, 
+          model = tree_spec, 
+          split = so_split) %&gt;% 
+  collect_predictions() %&gt;% 
+  roc_curve(truth = remote, estimate = .pred_Remote)
+# A tibble: 5 x 3
+  .threshold specificity sensitivity
+       &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;
+1   -Inf           0           1    
+2      0.368       0           1    
+3      0.6         0.720       0.622
+4      0.687       0.762       0.573
+5    Inf           1           0    
+```
+
+---
+class: your-turn
+
+# Your turn 6
+
+Use `collect_predictions()` and `roc_curve` to calculate the data needed to construct the full ROC curve.
+
+What is the threshold for achieving specificity &gt; .75?
+---
+
+
+```r
+tree_fit &lt;-
+  fit_split(remote ~ years_coded_job + salary, 
+            model = tree_spec, 
+            split = so_split) 
+
+tree_fit %&gt;% 
+  collect_predictions() %&gt;% 
+  roc_curve(truth = remote, estimate = .pred_Remote)
+# A tibble: 5 x 3
+  .threshold specificity sensitivity
+       &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;
+1   -Inf           0           1    
+2      0.368       0           1    
+3      0.6         0.720       0.622
+4      0.687       0.762       0.573
+5    Inf           1           0    
+```
+
+---
+
+.pull-left[
+
+```r
+tree_fit %&gt;% 
+  collect_predictions() %&gt;% 
+  roc_curve(truth = remote, 
+            estimate = .pred_Remote) %&gt;% 
+  ggplot(aes(x = 1 - specificity, 
+             y = sensitivity)) +
+  geom_line(
+    color = "midnightblue",
+    size = 1.5
+  ) +
+  geom_abline(
+    lty = 2, alpha = 0.5,
+    color = "gray50",
+    size = 1.2
+  )
+```
+]
+
+.pull-right[
+&lt;img src="02-Classifying_files/figure-html/unnamed-chunk-90-1.png" width="504" /&gt;
+
+]
+
+---
+
+
+
+```r
+tree_fit %&gt;% 
+  collect_predictions() %&gt;%  
+  roc_curve(truth = remote, 
+            estimate = .pred_Remote) %&gt;% 
+  autoplot()
+```
+
+&lt;img src="02-Classifying_files/figure-html/unnamed-chunk-91-1.png" width="40%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Area under the curve
+
+
+.pull-left[
+&lt;img src="images/roc-pretty-good.png" width="1037" /&gt;
+]
+
+.pull-right[
+* AUC = 0.5: random guessing
+
+* AUC = 1: perfect classifer
+
+* In general AUC of above 0.8 considered "good"
+]
+
+
+---
+
+
+&lt;img src="images/roc-guessing.png" width="80%" /&gt;
+
+
+
+---
+
+
+&lt;img src="images/roc-perfect.png" width="80%" /&gt;
+
+
+
+---
+
+&lt;img src="images/roc-bad.png" width="80%" /&gt;
+
+
+
+---
+
+
+&lt;img src="images/roc-ok.png" width="80%" /&gt;
+
+
+
+---
+
+
+&lt;img src="images/roc-pretty-good.png" width="80%" /&gt;
+
+
+
+---
+class: your-turn
+
+# Your turn 7
+
+
+Add a `autoplot()` to visualize the ROC AUC.
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="https://platform.twitter.com/widgets.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "solarized-light",
+"highlightLanguage": ["r", "css", "yaml"],
+"slideNumberFormat": "",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

@@ -13,10 +13,18 @@ links:
 - icon: images
   icon_pack: fas
   name: slides
-  url: https://pedantic-pike-efd356.netlify.com/day-2/slides/01-workflows
+  url: /slides/05-workflows.html
+- icon: dumbbell
+  icon_pack: fas
+  name: Exercises
+  url: https://github.com/rstudio-conf-2020/intro-to-ml-tidy/blob/master/materials/exercises/05-Workflows.Rmd
+- icon: check-square
+  icon_pack: far
+  name: Solutions
+  url: https://github.com/rstudio-conf-2020/intro-to-ml-tidy/blob/master/materials/solutions/05-Workflows.Rmd
 ---
 
 
 ```{r echo=FALSE}
-knitr::include_url("https://pedantic-pike-efd356.netlify.com/day-2/slides/01-workflows")
+knitr::include_url("/slides/05-workflows.html")
 ```

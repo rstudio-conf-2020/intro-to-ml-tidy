@@ -1,0 +1,917 @@
+---
+title: "Tuning"
+subtitle: "Machine Learning in the Tidyverse"
+session: 08
+author: Alison Hill
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    css: ["default", "assets/css/my-theme.css", "assets/css/my-fonts.css"]
+    seal: false 
+    lib_dir: libs
+    nature:
+      # autoplay: 5000
+      highlightStyle: solarized-light
+      highlightLanguage: ["r", "css", "yaml"]
+      slideNumberFormat: "" 
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: "16:9"
+      beforeInit: "https://platform.twitter.com/widgets.js"
+    includes:
+      in_header: [assets/header.html]
+params:
+  wifi_network: ""
+  wifi_password: ""
+  site_link: "https://rstd.io/conf20-intro-ml"
+  class_link: "https://conf20-intro-ml.netlify.com/"
+  github_link: "TBD"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+options("scipen" = 16)
+knitr::opts_chunk$set(collapse = TRUE,
+                      fig.retina = 3,
+                      fig.path = "figs/04-Tune/",
+                      comment = NA)
+yt_counter <- 0
+library(showtext)
+font_add_google("Amatic SC", "Amatic SC")
+font_add_google("Karla", "Karla")
+```
+
+```{r packages, include=FALSE}
+library(countdown)
+library(tidyverse)
+library(tidymodels)
+library(workflows)
+library(scico)
+library(gganimate)
+library(AmesHousing)
+library(tune)
+ames <- make_ames()
+theme_set(theme_minimal())
+
+set.seed(100) # Important!
+ames_split  <- initial_split(ames)
+ames_train  <- training(ames_split)
+ames_test   <- testing(ames_split)
+
+# for figures
+not_col <- scico(1, palette = "acton", begin = .6)
+uni_col <- scico(1, palette = "acton", begin = 0)
+train_color <- scico(1, palette = 'buda', begin = .9)
+test_color  <- scico(1, palette = 'hawaii', begin = .8)
+data_color  <- scico(1, palette = 'roma', begin = .9)
+assess_color <- scico(1, palette = 'berlin', begin = .1)
+splits_pal <- c(data_color, train_color, test_color)
+
+lm_spec <- 
+  linear_reg() %>% 
+  set_engine("lm") %>% 
+  set_mode("regression")
+
+set.seed(100)
+cv_folds <- 
+    vfold_cv(ames, v= 10, strata = Sale_Price, breaks = 4)
+```
+
+```{r helpers, include =FALSE}
+fit_data <- function(object, model, data, ...) {
+  if (inherits(object, "formula")) {
+    object <- add_model(add_formula(workflow(), object, blueprint = hardhat::default_formula_blueprint(indicators = FALSE)), model)
+  }
+  fit(object, data, ...)
+}
+
+fit_split <- function(object, model, split, ...) {
+  if (inherits(object, "formula")) {
+    object <- add_model(add_formula(workflow(), object, blueprint = hardhat::default_formula_blueprint(indicators = FALSE)), model)
+  }
+  tune::last_fit(object, split, ...)
+}
+```
+
+
+
+class: title-slide, center
+
+<span class="fa-stack fa-4x">
+  <i class="fa fa-circle fa-stack-2x" style="color: #ffffff;"></i>
+  <strong class="fa-stack-1x" style="color:#E7553C;">`r rmarkdown::metadata$session`</strong>
+</span> 
+
+# `r rmarkdown::metadata$title`
+
+## `r rmarkdown::metadata$subtitle`
+
+### `r rmarkdown::metadata$author` &#183; Garrett Grolemund
+
+#### [`r params$class_link`](`r params$class_link`) &#183; [`r params$site_link`](`r params$site_link`)   
+
+
+---
+
+# KNN
+
+---
+class: middle, center
+
+# `nearest_neighbor()`
+
+Specifies a model that uses K Nearest Neighbors
+
+```{r eval=FALSE}
+nearest_neighbor(neighbors = 1)
+```
+
+--
+
+### k = `neighbors` (PLURAL)
+
+--
+
+.footnote[regression and classification modes]
+
+---
+class: your-turn
+
+# Your Turn `r (yt_counter <- yt_counter + 1)`
+
+Here's a new recipe (also in your .Rmd)…
+
+```{r normalize-rec}
+normalize_rec <-
+  recipe(Sale_Price ~ ., data = ames) %>% 
+    step_novel(all_nominal()) %>% 
+    step_dummy(all_nominal()) %>% 
+    step_zv(all_predictors()) %>% 
+    step_center(all_predictors()) %>% 
+    step_scale(all_predictors())
+```
+
+---
+class: your-turn
+
+# Your Turn `r yt_counter`
+
+…and a new model. Can you tell what type of model this is?…
+
+```{r knn-spec}
+knn5_spec <- 
+  nearest_neighbor(neighbors = 5) %>% 
+    set_engine("kknn") %>% 
+    set_mode("regression")
+```
+
+---
+class: your-turn
+
+# Your Turn `r yt_counter`
+
+Combine the recipe and model into a new workflow named knn_wf.
+Fit the workflow to cv_folds and collect its RMSE.
+
+```{r echo=FALSE}
+countdown(minutes = 4)
+```
+
+---
+
+```{r}
+knn5_wf <-
+  workflow() %>% 
+  add_recipe(normalize_rec) %>% 
+  add_model(knn5_spec)
+
+knn5_wf %>%
+  fit_resamples(resamples = cv_folds) %>% 
+  collect_metrics()
+```
+
+---
+class: your-turn
+
+# Your Turn `r (yt_counter <- yt_counter + 1)`
+
+Repeat the process in Your Turn 1 with a similar workflow that uses neighbors = 10. Does the RMSE change?
+
+```{r echo=FALSE}
+countdown(minutes = 5)
+```
+
+---
+
+```{r}
+knn10_spec <- nearest_neighbor(neighbors = 10) %>% 
+    set_engine("kknn") %>% 
+    set_mode("regression")
+
+knn10_wf <- 
+  knn5_wf %>% 
+    update_model(knn10_spec)
+
+knn10_wf %>%
+  fit_resamples(resamples = cv_folds) %>% 
+  collect_metrics()
+```
+
+---
+class: middle, center
+
+# Quiz
+
+How can you find the best value of neighbors/k?
+
+--
+
+Compare all the separate values/models
+
+---
+class: inverse, middle, center
+
+# `tune_grid()`
+
+---
+class: middle, center, frame
+
+
+# tune 
+
+Functions for fitting and tuning models
+
+<tidymodels.github.io/tune/>
+
+```{r echo=FALSE, out.width="100%"}
+knitr::include_url("https://tidymodels.github.io/tune/")
+```
+
+---
+class: middle, center
+
+# `tune()`
+
+A placeholder for hyper-parameters to be "tuned"
+
+```{r results='hide'}
+nearest_neighbor(neighbors = tune())
+```
+
+
+---
+
+.center[
+# `tune_grid()`
+
+A version of `fit_resamples()` that performs a grid search for the best combination of tuned hyper-parameters.
+]
+
+.pull-left[
+
+```{r tune-grid, eval = FALSE}
+tune_grid(
+  object, 
+  resamples, 
+  ..., 
+  grid = 10, 
+  metrics = NULL, 
+  control = control_grid()
+)
+```
+
+]
+
+---
+
+.center[
+# `tune_grid()`
+
+A version of `fit_resamples()` that performs a grid search for the best combination of tuned hyper-parameters.
+]
+
+.pull-left[
+
+```{r eval = FALSE}
+tune_grid(
+  object, #<<
+  resamples, 
+  ..., 
+  grid = 10, 
+  metrics = NULL, 
+  control = control_grid()
+)
+```
+
+]
+
+--
+
+.pull-right[
+One of:
+
++ A `workflow`
+
++ A formula
+
++ A `recipe` 
+]
+
+---
+
+.center[
+# `tune_grid()`
+
+A version of `fit_resamples()` that performs a grid search for the best combination of tuned hyper-parameters.
+]
+
+.pull-left[
+
+```{r eval = FALSE}
+tune_grid(
+  object, #<<
+  model, #<<
+  resamples, 
+  ..., 
+  grid = 10, 
+  metrics = NULL, 
+  control = control_grid()
+)
+```
+
+]
+
+.pull-right[
+One of: 
+
++ formula + `model`
+
++ `recipe` + `model`
+]
+
+---
+
+.center[
+# `tune_grid()`
+
+A version of `fit_resamples()` that performs a grid search for the best combination of tuned hyper-parameters.
+]
+
+.pull-left[
+
+```{r eval = FALSE}
+tune_grid(
+  object, 
+  resamples, 
+  ..., 
+  grid = 10, #<<
+  metrics = NULL, 
+  control = control_grid()
+)
+```
+
+]
+
+.pull-right[
+One of:
+
++ A positive integer. 
+
++ A data frame of tuning combinations.
+
+]
+
+---
+
+.center[
+
+# `tune_grid()`
+
+A version of `fit_resamples()` that performs a grid search for the best combination of tuned hyper-parameters.
+
+]
+
+.pull-left[
+
+```{r eval = FALSE}
+tune_grid(
+  object, 
+  resamples, 
+  ..., 
+  grid = 10, #<<
+  metrics = NULL, 
+  control = control_grid()
+)
+```
+
+]
+
+.pull-right[
+Number of candidate parameter sets to be created automatically.
+]
+
+---
+
+.center[
+# `tune_grid()`
+
+A version of `fit_resamples()` that performs a grid search for the best combination of tuned hyper-parameters.
+
+]
+
+.pull-left[
+
+```{r eval = FALSE}
+tune_grid(
+  object, 
+  resamples, 
+  ..., 
+  grid = df, #<<
+  metrics = NULL, 
+  control = control_grid()
+)
+```
+
+]
+
+.pull-right[
+A data frame of tuning combinations.
+]
+
+---
+class: middle, center
+
+# `expand_grid()`
+
+Takes one or more vectors, and returns a data frame holding all combinations of their values.
+
+```{r}
+expand_grid(neighbors = c(1,2), foo = 3:5)
+```
+
+--
+
+.footnote[tidyr package; see also base `expand.grid()`]
+
+---
+class: your-turn
+
+# Your Turn `r (yt_counter <- yt_counter + 1)`
+
+Use `expand_grid()` to create a grid of values for neighbors that spans from 10 to 20. Save the result as `k10_20`.
+
+```{r echo=FALSE}
+countdown(minutes = 2)
+```
+
+
+---
+
+```{r}
+k10_20 <- expand_grid(neighbors = 10:20)
+k10_20
+```
+
+---
+class: your-turn
+
+# Your Turn `r (yt_counter <- yt_counter + 1)`
+
+Create a knn workflow that tunes over neighbors. 
+
+Then use `tune_grid()`, `cv_folds` and `k10_20` to find the best value of neighbors. 
+
+Save the output of `tune_grid()` as `knn_results`.
+
+```{r echo=FALSE}
+countdown(minutes = 5)
+```
+
+---
+
+
+```{r results='hide'}
+knn_tuner <- 
+  nearest_neighbor(neighbors = tune()) %>% 
+    set_engine("kknn") %>% 
+    set_mode("regression")
+
+knn_twf <-
+  workflow() %>% 
+    add_recipe(normalize_rec) %>% 
+    add_model(knn_tuner)
+
+knn_results <- 
+  knn_twf %>%
+    tune_grid(resamples = cv_folds, 
+              grid = k10_20) 
+
+knn_results %>% 
+  collect_metrics() %>% 
+  filter(.metric == "rmse")
+```
+
+---
+
+```{r echo=FALSE}
+knn_results %>% 
+  collect_metrics() %>% 
+  filter(.metric == "rmse")
+```
+
+---
+```{r echo=FALSE}
+knn_results %>% 
+  collect_metrics(summarize = FALSE) %>% 
+  filter(.metric == "rmse")
+```
+
+---
+class: middle
+name: show-best
+
+.center[
+# `show_best()`
+
+Shows the .display[n] most optimum combinations of hyper-parameters
+]
+
+```{r show-best, results='hide'}
+knn_results %>% 
+  show_best(metric = "rmse", n = 5, maximize = FALSE)
+```
+
+---
+template: show-best
+
+```{r ref.label='show-best', echo=FALSE}
+```
+
+
+---
+class: middle, center
+
+# `autoplot()`
+
+Quickly visualize tuning results
+
+
+```{r knn-plot}
+knn_results %>% autoplot()
+```
+
+---
+class: middle, center
+
+```{r ref.label='knn-plot', echo=FALSE}
+
+```
+
+---
+
+# You can tune models *and* recipes!
+
+---
+class: your-turn
+
+# Your Turn `r (yt_counter <- yt_counter + 1)`
+
+Modify our PCA workflow provided to find the best value for `num_comp` on the grid provided. Which is it? Use `show_best()` to see. Save the output of the fit function as `pca_results`.
+
+
+```{r echo=FALSE}
+countdown(minutes = 5)
+```
+
+---
+
+```{r pca, results='hide'}
+lm_spec <- linear_reg() %>% set_engine("lm")
+pca_tuner <- recipe(Sale_Price ~ ., data = ames) %>%
+    step_novel(all_nominal()) %>%
+    step_dummy(all_nominal()) %>%
+    step_zv(all_predictors()) %>%
+    step_center(all_predictors()) %>%
+    step_scale(all_predictors()) %>%
+    step_pca(all_predictors(), num_comp = tune())
+pca_twf <- workflow() %>% 
+    add_recipe(pca_tuner) %>% 
+    add_model(lm_spec)
+nc10_40 <- expand_grid(num_comp = c(10,20,30,40))
+pca_results <- pca_twf %>% 
+    tune_grid(resamples = cv_folds, grid = nc10_40)
+pca_results %>% show_best(metric = "rmse", maximize = FALSE)
+```
+
+---
+```{r ref.label='pca', echo=FALSE}
+
+```
+
+
+
+---
+```{r}
+library(modeldata)
+data(stackoverflow)
+
+# split the data
+set.seed(100) # Important!
+so_split <- initial_split(stackoverflow, strata = Remote)
+so_train <- training(so_split)
+so_test  <- testing(so_split)
+
+set.seed(100) # Important!
+so_folds <- vfold_cv(so_train, v = 10, strata = Remote)
+```
+
+---
+class: your-turn
+
+# Your Turn `r (yt_counter <- yt_counter + 1)`
+
+Here's a new recipe (also in your .Rmd)…
+
+```{r}
+so_rec <- recipe(Remote ~ ., 
+                 data = so_train) %>% 
+  step_dummy(all_nominal(), -all_outcomes()) %>% 
+  step_lincomb(all_predictors()) %>% 
+  step_downsample(Remote)
+```
+
+---
+class: your-turn
+
+# Your Turn `r yt_counter`
+
+…and a new model plus workflow. Can you tell what type of model this is?…
+
+```{r}
+rf_spec <- 
+  rand_forest() %>% 
+    set_engine("ranger") %>% 
+    set_mode("classification")
+
+rf_wf <-
+  workflow() %>% 
+    add_recipe(so_rec) %>% 
+    add_model(rf_spec)
+```
+
+
+---
+class: your-turn
+
+# Your Turn `r yt_counter`
+
+Here is the output from `fit_resamples()`...
+
+```{r}
+rf_results <-
+  rf_wf %>% 
+    fit_resamples(resamples = so_folds,
+                  metrics = metric_set(roc_auc))
+
+rf_results %>% 
+  collect_metrics(summarize = TRUE)
+```
+
+
+---
+class: your-turn
+
+# Your Turn `r yt_counter`
+
+Edit the random forest model to tune the `mtry` and `min_n` hyper-parameters; call the new model spec `rf_tuner`. 
+
+Update the model for your workflow; save it as `rf_twf`.
+
+Tune the workflow to so_folds and show the best combination of hyper-parameters to maximize `roc_auc`. 
+
+How does it compare to the average ROC AUC across folds from `fit_resamples()`?
+
+```{r echo=FALSE}
+countdown(minutes = 10)
+```
+
+---
+
+```{r results='hide', messages = FALSE, warning = FALSE}
+rf_tuner <- 
+  rand_forest(mtry = tune(),
+              min_n = tune()) %>% 
+    set_engine("ranger") %>% 
+    set_mode("classification")
+
+rf_twf <-
+  rf_wf %>% 
+    update_model(rf_tuner)
+
+rf_results <-
+  rf_twf %>% 
+    tune_grid(resamples = so_folds)
+```
+
+
+---
+class: middle, center
+
+# `metric_set()`
+
+A helper function for selecting yardstick metric functions.
+
+```{r eval=FALSE}
+metric_set(roc_auc, sens, spec)
+```
+
+---
+
+# What next?
+
+
+---
+class: middle
+name: show-best
+
+.center[
+# `show_best()`
+
+Shows the .display[n] most optimum combinations of hyper-parameters.
+]
+
+```{r}
+rf_results %>% 
+  show_best(metric = "roc_auc")
+```
+
+---
+class: middle
+name: select-best
+
+.center[
+# `select_best()`
+
+Shows the .display[top] combination of hyper-parameters.
+]
+
+```{r select-best, results='hide'}
+so_best <-
+  rf_results %>% 
+    select_best(metric = "roc_auc")
+
+so_best
+```
+
+---
+template: select-best
+
+```{r ref.label='select-best', echo=FALSE}
+```
+
+---
+
+.center[
+# `finalize_workflow()`
+
+Replaces `tune()` placeholders in a model/recipe/workflow with a set of hyper-parameter values.
+]
+
+```{r}
+so_wfl_final <- 
+  rf_twf %>%
+    finalize_workflow(so_best) 
+```
+
+---
+class: middle, center
+
+# The test set
+
+Remember me?
+
+
+---
+class: middle
+
+.center[
+
+# `fit_split()`
+
+Remember me?
+
+]
+
+```{r}
+so_test_results <-
+  so_wfl_final %>% 
+    fit_split(split = so_split)
+```
+
+---
+
+```{r}
+so_test_results
+```
+
+---
+class: your-turn
+
+# Your Turn `r (yt_counter <- yt_counter + 1)`
+
+Use `select_best()`, `finalize_workflow()`, and `fit_split()` to take the best combination of hyper-parameters from `rf_results` and use them to predict the test set.
+
+How does our actual test ROC AUC compare to our cross-validated estimate?
+
+```{r echo=FALSE}
+countdown(minutes = 5)
+```
+
+---
+
+```{r results='hide'}
+so_best <-
+  rf_results %>% 
+    select_best(metric = "roc_auc")
+
+so_wfl_final <- 
+  rf_twf %>%
+    finalize_workflow(so_best)
+
+so_test_results <-
+  so_wfl_final %>% 
+    fit_split(split = so_split)
+
+so_test_results %>% 
+  collect_metrics()
+```
+
+---
+
+# final final final
+
+---
+class: middle
+
+.center[
+# Final metrics
+]
+
+```{r}
+so_test_results %>% 
+  collect_metrics()
+```
+
+
+---
+class: middle
+
+.center[
+# Predict the test set
+]
+
+```{r}
+so_test_results %>% 
+  collect_predictions()
+```
+
+---
+
+```{r}
+roc_values <- 
+  so_test_results %>% 
+    collect_predictions() %>% 
+    roc_curve(truth = Remote, estimate = .pred_Remote)
+autoplot(roc_values)
+```
+
+
+---
+
+# Mea Culpa
+
+.pull-left[
+```{r fit-split, eval = FALSE}
+fit_split(
+  object, 
+  split, 
+  ..., 
+  metrics = NULL
+)
+```
+]
+
+.pull-right[
+```{r last-fit, eval = FALSE}
+last_fit(
+  object, 
+  split, 
+  ..., 
+  metrics = NULL
+)
+```
+
+From the tune package
+]

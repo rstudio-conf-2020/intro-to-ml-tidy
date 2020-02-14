@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Tuning</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Alison Hill" />
+    <meta name="date" content="2020-02-14" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/countdown/countdown.css" rel="stylesheet" />
+    <script src="libs/countdown/countdown.js"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+    <link rel="stylesheet" href="assets/css/my-theme.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/my-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+
+
+
+
+class: title-slide, center
+
+&lt;span class="fa-stack fa-4x"&gt;
+  &lt;i class="fa fa-circle fa-stack-2x" style="color: #ffffff;"&gt;&lt;/i&gt;
+  &lt;strong class="fa-stack-1x" style="color:#E7553C;"&gt;08&lt;/strong&gt;
+&lt;/span&gt; 
+
+# Tuning
+
+## Machine Learning in the Tidyverse
+
+### Alison Hill &amp;#183; Garrett Grolemund
+
+#### [https://conf20-intro-ml.netlify.com/](https://conf20-intro-ml.netlify.com/) &amp;#183; [https://rstd.io/conf20-intro-ml](https://rstd.io/conf20-intro-ml)   
+
+
+---
+
+# KNN
+
+---
+class: middle, center
+
+# `nearest_neighbor()`
+
+Specifies a model that uses K Nearest Neighbors
+
+
+```r
+nearest_neighbor(neighbors = 1)
+```
+
+--
+
+### k = `neighbors` (PLURAL)
+
+--
+
+.footnote[regression and classification modes]
+
+---
+class: your-turn
+
+# Your Turn 1
+
+Here's a new recipe (also in your .Rmd)…
+
+
+```r
+normalize_rec &lt;-
+  recipe(Sale_Price ~ ., data = ames) %&gt;% 
+    step_novel(all_nominal()) %&gt;% 
+    step_dummy(all_nominal()) %&gt;% 
+    step_zv(all_predictors()) %&gt;% 
+    step_center(all_predictors()) %&gt;% 
+    step_scale(all_predictors())
+```
+
+---
+class: your-turn
+
+# Your Turn 1
+
+…and a new model. Can you tell what type of model this is?…
+
+
+```r
+knn5_spec &lt;- 
+  nearest_neighbor(neighbors = 5) %&gt;% 
+    set_engine("kknn") %&gt;% 
+    set_mode("regression")
+```
+
+---
+class: your-turn
+
+# Your Turn 1
+
+Combine the recipe and model into a new workflow named knn_wf.
+Fit the workflow to cv_folds and collect its RMSE.
+
+<div class="countdown" id="timer_5e46e80f" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">04</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+
+
+```r
+knn5_wf &lt;-
+  workflow() %&gt;% 
+  add_recipe(normalize_rec) %&gt;% 
+  add_model(knn5_spec)
+
+knn5_wf %&gt;%
+  fit_resamples(resamples = cv_folds) %&gt;% 
+  collect_metrics()
+# A tibble: 2 x 5
+  .metric .estimator      mean     n    std_err
+  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt;
+1 rmse    standard   37191.       10 1130.     
+2 rsq     standard       0.786    10    0.00971
+```
+
+---
+class: your-turn
+
+# Your Turn 2
+
+Repeat the process in Your Turn 1 with a similar workflow that uses neighbors = 10. Does the RMSE change?
+
+<div class="countdown" id="timer_5e46e88c" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">05</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+
+
+```r
+knn10_spec &lt;- nearest_neighbor(neighbors = 10) %&gt;% 
+    set_engine("kknn") %&gt;% 
+    set_mode("regression")
+
+knn10_wf &lt;- 
+  knn5_wf %&gt;% 
+    update_model(knn10_spec)
+
+knn10_wf %&gt;%
+  fit_resamples(resamples = cv_folds) %&gt;% 
+  collect_metrics()
+# A tibble: 2 x 5
+  .metric .estimator      mean     n   std_err
+  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt;
+1 rmse    standard   35817.       10 972.     
+2 rsq     standard       0.806    10   0.00869
+```
+
+---
+class: middle, center
+
+# Quiz
+
+How can you find the best value of neighbors/k?
+
+--
+
+Compare all the separate values/models
+
+---
+class: inverse, middle, center
+
+# `tune_grid()`
+
+---
+class: middle, center, frame
+
+
+# tune 
+
+Functions for fitting and tuning models
+
+&lt;tidymodels.github.io/tune/&gt;
+
+&lt;iframe src="https://tidymodels.github.io/tune/" width="100%" height="400px"&gt;&lt;/iframe&gt;
+
+---
+class: middle, center
+
+# `tune()`
+
+A placeholder for hyper-parameters to be "tuned"
+
+
+```r
+nearest_neighbor(neighbors = tune())
+```
+
+
+---
+
+.center[
+# `tune_grid()`
+
+A version of `fit_resamples()` that performs a grid search for the best combination of tuned hyper-parameters.
+]
+
+.pull-left[
+
+
+```r
+tune_grid(
+  object, 
+  resamples, 
+  ..., 
+  grid = 10, 
+  metrics = NULL, 
+  control = control_grid()
+)
+```
+
+]
+
+---
+
+.center[
+# `tune_grid()`
+
+A version of `fit_resamples()` that performs a grid search for the best combination of tuned hyper-parameters.
+]
+
+.pull-left[
+
+
+```r
+tune_grid(
+* object,
+  resamples, 
+  ..., 
+  grid = 10, 
+  metrics = NULL, 
+  control = control_grid()
+)
+```
+
+]
+
+--
+
+.pull-right[
+One of:
+
++ A `workflow`
+
++ A formula
+
++ A `recipe` 
+]
+
+---
+
+.center[
+# `tune_grid()`
+
+A version of `fit_resamples()` that performs a grid search for the best combination of tuned hyper-parameters.
+]
+
+.pull-left[
+
+
+```r
+tune_grid(
+* object,
+* model,
+  resamples, 
+  ..., 
+  grid = 10, 
+  metrics = NULL, 
+  control = control_grid()
+)
+```
+
+]
+
+.pull-right[
+One of: 
+
++ formula + `model`
+
++ `recipe` + `model`
+]
+
+---
+
+.center[
+# `tune_grid()`
+
+A version of `fit_resamples()` that performs a grid search for the best combination of tuned hyper-parameters.
+]
+
+.pull-left[
+
+
+```r
+tune_grid(
+  object, 
+  resamples, 
+  ..., 
+* grid = 10,
+  metrics = NULL, 
+  control = control_grid()
+)
+```
+
+]
+
+.pull-right[
+One of:
+
++ A positive integer. 
+
++ A data frame of tuning combinations.
+
+]
+
+---
+
+.center[
+
+# `tune_grid()`
+
+A version of `fit_resamples()` that performs a grid search for the best combination of tuned hyper-parameters.
+
+]
+
+.pull-left[
+
+
+```r
+tune_grid(
+  object, 
+  resamples, 
+  ..., 
+* grid = 10,
+  metrics = NULL, 
+  control = control_grid()
+)
+```
+
+]
+
+.pull-right[
+Number of candidate parameter sets to be created automatically.
+]
+
+---
+
+.center[
+# `tune_grid()`
+
+A version of `fit_resamples()` that performs a grid search for the best combination of tuned hyper-parameters.
+
+]
+
+.pull-left[
+
+
+```r
+tune_grid(
+  object, 
+  resamples, 
+  ..., 
+* grid = df,
+  metrics = NULL, 
+  control = control_grid()
+)
+```
+
+]
+
+.pull-right[
+A data frame of tuning combinations.
+]
+
+---
+class: middle, center
+
+# `expand_grid()`
+
+Takes one or more vectors, and returns a data frame holding all combinations of their values.
+
+
+```r
+expand_grid(neighbors = c(1,2), foo = 3:5)
+# A tibble: 6 x 2
+  neighbors   foo
+      &lt;dbl&gt; &lt;int&gt;
+1         1     3
+2         1     4
+3         1     5
+4         2     3
+5         2     4
+6         2     5
+```
+
+--
+
+.footnote[tidyr package; see also base `expand.grid()`]
+
+---
+class: your-turn
+
+# Your Turn 3
+
+Use `expand_grid()` to create a grid of values for neighbors that spans from 10 to 20. Save the result as `k10_20`.
+
+<div class="countdown" id="timer_5e46e7e6" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">02</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+
+---
+
+
+```r
+k10_20 &lt;- expand_grid(neighbors = 10:20)
+k10_20
+# A tibble: 11 x 1
+   neighbors
+       &lt;int&gt;
+ 1        10
+ 2        11
+ 3        12
+ 4        13
+ 5        14
+ 6        15
+ 7        16
+ 8        17
+ 9        18
+10        19
+11        20
+```
+
+---
+class: your-turn
+
+# Your Turn 4
+
+Create a knn workflow that tunes over neighbors. 
+
+Then use `tune_grid()`, `cv_folds` and `k10_20` to find the best value of neighbors. 
+
+Save the output of `tune_grid()` as `knn_results`.
+
+<div class="countdown" id="timer_5e46e813" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">05</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+
+
+
+```r
+knn_tuner &lt;- 
+  nearest_neighbor(neighbors = tune()) %&gt;% 
+    set_engine("kknn") %&gt;% 
+    set_mode("regression")
+
+knn_twf &lt;-
+  workflow() %&gt;% 
+    add_recipe(normalize_rec) %&gt;% 
+    add_model(knn_tuner)
+
+knn_results &lt;- 
+  knn_twf %&gt;%
+    tune_grid(resamples = cv_folds, 
+              grid = k10_20) 
+
+knn_results %&gt;% 
+  collect_metrics() %&gt;% 
+  filter(.metric == "rmse")
+```
+
+---
+
+
+```
+# A tibble: 11 x 6
+   neighbors .metric .estimator   mean     n std_err
+       &lt;int&gt; &lt;chr&gt;   &lt;chr&gt;       &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt;
+ 1        10 rmse    standard   35817.    10    972.
+ 2        11 rmse    standard   35719.    10    979.
+ 3        12 rmse    standard   35648.    10    991.
+ 4        13 rmse    standard   35596.    10   1004.
+ 5        14 rmse    standard   35558.    10   1017.
+ 6        15 rmse    standard   35533.    10   1030.
+ 7        16 rmse    standard   35524.    10   1044.
+ 8        17 rmse    standard   35530.    10   1057.
+ 9        18 rmse    standard   35543.    10   1068.
+10        19 rmse    standard   35557.    10   1078.
+11        20 rmse    standard   35577.    10   1088.
+```
+
+---
+
+```
+# A tibble: 110 x 5
+   id     neighbors .metric .estimator .estimate
+   &lt;chr&gt;      &lt;int&gt; &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+ 1 Fold01        10 rmse    standard      39579.
+ 2 Fold01        11 rmse    standard      39582.
+ 3 Fold01        12 rmse    standard      39628.
+ 4 Fold01        13 rmse    standard      39693.
+ 5 Fold01        14 rmse    standard      39743.
+ 6 Fold01        15 rmse    standard      39787.
+ 7 Fold01        16 rmse    standard      39850.
+ 8 Fold01        17 rmse    standard      39928.
+ 9 Fold01        18 rmse    standard      40004.
+10 Fold01        19 rmse    standard      40081.
+# … with 100 more rows
+```
+
+---
+class: middle
+name: show-best
+
+.center[
+# `show_best()`
+
+Shows the .display[n] most optimum combinations of hyper-parameters
+]
+
+
+```r
+knn_results %&gt;% 
+  show_best(metric = "rmse", n = 5, maximize = FALSE)
+```
+
+---
+template: show-best
+
+
+```
+# A tibble: 5 x 6
+  neighbors .metric .estimator   mean     n std_err
+      &lt;int&gt; &lt;chr&gt;   &lt;chr&gt;       &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt;
+1        16 rmse    standard   35524.    10   1044.
+2        17 rmse    standard   35530.    10   1057.
+3        15 rmse    standard   35533.    10   1030.
+4        18 rmse    standard   35543.    10   1068.
+5        19 rmse    standard   35557.    10   1078.
+```
+
+
+---
+class: middle, center
+
+# `autoplot()`
+
+Quickly visualize tuning results
+
+
+
+```r
+knn_results %&gt;% autoplot()
+```
+
+&lt;img src="figs/04-Tune/knn-plot-1.png" width="504" /&gt;
+
+---
+class: middle, center
+
+&lt;img src="figs/04-Tune/unnamed-chunk-21-1.png" width="504" /&gt;
+
+---
+
+# You can tune models *and* recipes!
+
+---
+class: your-turn
+
+# Your Turn 5
+
+Modify our PCA workflow provided to find the best value for `num_comp` on the grid provided. Which is it? Use `show_best()` to see. Save the output of the fit function as `pca_results`.
+
+
+<div class="countdown" id="timer_5e46e74c" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">05</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+
+
+```r
+lm_spec &lt;- linear_reg() %&gt;% set_engine("lm")
+pca_tuner &lt;- recipe(Sale_Price ~ ., data = ames) %&gt;%
+    step_novel(all_nominal()) %&gt;%
+    step_dummy(all_nominal()) %&gt;%
+    step_zv(all_predictors()) %&gt;%
+    step_center(all_predictors()) %&gt;%
+    step_scale(all_predictors()) %&gt;%
+    step_pca(all_predictors(), num_comp = tune())
+pca_twf &lt;- workflow() %&gt;% 
+    add_recipe(pca_tuner) %&gt;% 
+    add_model(lm_spec)
+nc10_40 &lt;- expand_grid(num_comp = c(10,20,30,40))
+pca_results &lt;- pca_twf %&gt;% 
+    tune_grid(resamples = cv_folds, grid = nc10_40)
+pca_results %&gt;% show_best(metric = "rmse", maximize = FALSE)
+```
+
+---
+
+```
+# A tibble: 4 x 6
+  num_comp .metric .estimator   mean     n std_err
+     &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;       &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt;
+1       40 rmse    standard   32384.    10   2184.
+2       30 rmse    standard   33549.    10   2089.
+3       20 rmse    standard   33997.    10   2063.
+4       10 rmse    standard   36081.    10   1881.
+```
+
+
+
+---
+
+```r
+library(modeldata)
+data(stackoverflow)
+
+# split the data
+set.seed(100) # Important!
+so_split &lt;- initial_split(stackoverflow, strata = Remote)
+so_train &lt;- training(so_split)
+so_test  &lt;- testing(so_split)
+
+set.seed(100) # Important!
+so_folds &lt;- vfold_cv(so_train, v = 10, strata = Remote)
+```
+
+---
+class: your-turn
+
+# Your Turn 6
+
+Here's a new recipe (also in your .Rmd)…
+
+
+```r
+so_rec &lt;- recipe(Remote ~ ., 
+                 data = so_train) %&gt;% 
+  step_dummy(all_nominal(), -all_outcomes()) %&gt;% 
+  step_lincomb(all_predictors()) %&gt;% 
+  step_downsample(Remote)
+```
+
+---
+class: your-turn
+
+# Your Turn 6
+
+…and a new model plus workflow. Can you tell what type of model this is?…
+
+
+```r
+rf_spec &lt;- 
+  rand_forest() %&gt;% 
+    set_engine("ranger") %&gt;% 
+    set_mode("classification")
+
+rf_wf &lt;-
+  workflow() %&gt;% 
+    add_recipe(so_rec) %&gt;% 
+    add_model(rf_spec)
+```
+
+
+---
+class: your-turn
+
+# Your Turn 6
+
+Here is the output from `fit_resamples()`...
+
+
+```r
+rf_results &lt;-
+  rf_wf %&gt;% 
+    fit_resamples(resamples = so_folds,
+                  metrics = metric_set(roc_auc))
+
+rf_results %&gt;% 
+  collect_metrics(summarize = TRUE)
+# A tibble: 1 x 5
+  .metric .estimator  mean     n std_err
+  &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt;
+1 roc_auc binary     0.684    10  0.0165
+```
+
+
+---
+class: your-turn
+
+# Your Turn 6
+
+Edit the random forest model to tune the `mtry` and `min_n` hyper-parameters; call the new model spec `rf_tuner`. 
+
+Update the model for your workflow; save it as `rf_twf`.
+
+Tune the workflow to so_folds and show the best combination of hyper-parameters to maximize `roc_auc`. 
+
+How does it compare to the average ROC AUC across folds from `fit_resamples()`?
+
+<div class="countdown" id="timer_5e46e755" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">10</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+
+
+```r
+rf_tuner &lt;- 
+  rand_forest(mtry = tune(),
+              min_n = tune()) %&gt;% 
+    set_engine("ranger") %&gt;% 
+    set_mode("classification")
+
+rf_twf &lt;-
+  rf_wf %&gt;% 
+    update_model(rf_tuner)
+
+rf_results &lt;-
+  rf_twf %&gt;% 
+    tune_grid(resamples = so_folds)
+i Creating pre-processing data to finalize unknown parameter: mtry
+```
+
+
+---
+class: middle, center
+
+# `metric_set()`
+
+A helper function for selecting yardstick metric functions.
+
+
+```r
+metric_set(roc_auc, sens, spec)
+```
+
+---
+
+# What next?
+
+
+---
+class: middle
+name: show-best
+
+.center[
+# `show_best()`
+
+Shows the .display[n] most optimum combinations of hyper-parameters.
+]
+
+
+```r
+rf_results %&gt;% 
+  show_best(metric = "roc_auc")
+# A tibble: 5 x 7
+   mtry min_n .metric .estimator  mean     n std_err
+  &lt;int&gt; &lt;int&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt;
+1     1    33 roc_auc binary     0.690    10  0.0182
+2     4    17 roc_auc binary     0.689    10  0.0169
+3     8    32 roc_auc binary     0.686    10  0.0189
+4    17    38 roc_auc binary     0.682    10  0.0200
+5    13    24 roc_auc binary     0.679    10  0.0198
+```
+
+---
+class: middle
+name: select-best
+
+.center[
+# `select_best()`
+
+Shows the .display[top] combination of hyper-parameters.
+]
+
+
+```r
+so_best &lt;-
+  rf_results %&gt;% 
+    select_best(metric = "roc_auc")
+
+so_best
+```
+
+---
+template: select-best
+
+
+```
+# A tibble: 1 x 2
+   mtry min_n
+  &lt;int&gt; &lt;int&gt;
+1     1    33
+```
+
+---
+
+.center[
+# `finalize_workflow()`
+
+Replaces `tune()` placeholders in a model/recipe/workflow with a set of hyper-parameter values.
+]
+
+
+```r
+so_wfl_final &lt;- 
+  rf_twf %&gt;%
+    finalize_workflow(so_best) 
+```
+
+---
+class: middle, center
+
+# The test set
+
+Remember me?
+
+
+---
+class: middle
+
+.center[
+
+# `fit_split()`
+
+Remember me?
+
+]
+
+
+```r
+so_test_results &lt;-
+  so_wfl_final %&gt;% 
+    fit_split(split = so_split)
+```
+
+---
+
+
+```r
+so_test_results
+# # Monte Carlo cross-validation (0.75/0.25) with 1 resamples  
+# A tibble: 1 x 6
+  splits        id          .metrics      .notes      .predictions     .workflow
+* &lt;list&gt;        &lt;chr&gt;       &lt;list&gt;        &lt;list&gt;      &lt;list&gt;           &lt;list&gt;   
+1 &lt;split [4.2K… train/test… &lt;tibble [2 ×… &lt;tibble [0… &lt;tibble [1,398 … &lt;workflo…
+```
+
+---
+class: your-turn
+
+# Your Turn 7
+
+Use `select_best()`, `finalize_workflow()`, and `fit_split()` to take the best combination of hyper-parameters from `rf_results` and use them to predict the test set.
+
+How does our actual test ROC AUC compare to our cross-validated estimate?
+
+<div class="countdown" id="timer_5e46e71d" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">05</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+
+
+```r
+so_best &lt;-
+  rf_results %&gt;% 
+    select_best(metric = "roc_auc")
+
+so_wfl_final &lt;- 
+  rf_twf %&gt;%
+    finalize_workflow(so_best)
+
+so_test_results &lt;-
+  so_wfl_final %&gt;% 
+    fit_split(split = so_split)
+
+so_test_results %&gt;% 
+  collect_metrics()
+```
+
+---
+
+# final final final
+
+---
+class: middle
+
+.center[
+# Final metrics
+]
+
+
+```r
+so_test_results %&gt;% 
+  collect_metrics()
+# A tibble: 2 x 3
+  .metric  .estimator .estimate
+  &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
+1 accuracy binary         0.665
+2 roc_auc  binary         0.709
+```
+
+
+---
+class: middle
+
+.center[
+# Predict the test set
+]
+
+
+```r
+so_test_results %&gt;% 
+  collect_predictions()
+# A tibble: 1,398 x 6
+   id               .pred_Remote `.pred_Not remote`  .row .pred_class Remote    
+   &lt;chr&gt;                   &lt;dbl&gt;              &lt;dbl&gt; &lt;int&gt; &lt;fct&gt;       &lt;fct&gt;     
+ 1 train/test split        0.479              0.521     1 Not remote  Remote    
+ 2 train/test split        0.450              0.550     6 Not remote  Not remote
+ 3 train/test split        0.409              0.591    18 Not remote  Not remote
+ 4 train/test split        0.582              0.418    23 Remote      Not remote
+ 5 train/test split        0.513              0.487    30 Remote      Not remote
+ 6 train/test split        0.521              0.479    50 Remote      Not remote
+ 7 train/test split        0.609              0.391    53 Remote      Not remote
+ 8 train/test split        0.504              0.496    56 Remote      Not remote
+ 9 train/test split        0.552              0.448    63 Remote      Not remote
+10 train/test split        0.418              0.582    68 Not remote  Not remote
+# … with 1,388 more rows
+```
+
+---
+
+
+```r
+roc_values &lt;- 
+  so_test_results %&gt;% 
+    collect_predictions() %&gt;% 
+    roc_curve(truth = Remote, estimate = .pred_Remote)
+autoplot(roc_values)
+```
+
+&lt;img src="figs/04-Tune/unnamed-chunk-40-1.png" width="504" /&gt;
+
+
+---
+
+# Mea Culpa
+
+.pull-left[
+
+```r
+fit_split(
+  object, 
+  split, 
+  ..., 
+  metrics = NULL
+)
+```
+]
+
+.pull-right[
+
+```r
+last_fit(
+  object, 
+  split, 
+  ..., 
+  metrics = NULL
+)
+```
+
+From the tune package
+]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="https://platform.twitter.com/widgets.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "solarized-light",
+"highlightLanguage": ["r", "css", "yaml"],
+"slideNumberFormat": "",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

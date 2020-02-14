@@ -1,0 +1,1717 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Feature Engineering</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Alison Hill" />
+    <meta name="date" content="2020-02-14" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/countdown/countdown.css" rel="stylesheet" />
+    <script src="libs/countdown/countdown.js"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+    <link rel="stylesheet" href="assets/css/my-theme.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/my-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+
+
+
+
+class: title-slide, center
+
+&lt;span class="fa-stack fa-4x"&gt;
+  &lt;i class="fa fa-circle fa-stack-2x" style="color: #ffffff;"&gt;&lt;/i&gt;
+  &lt;strong class="fa-stack-1x" style="color:#E7553C;"&gt;6&lt;/strong&gt;
+&lt;/span&gt; 
+
+# Feature Engineering
+
+## Machine Learning in the Tidyverse
+
+### Alison Hill &amp;#183; Garrett Grolemund
+
+#### [https://conf20-intro-ml.netlify.com/](https://conf20-intro-ml.netlify.com/) &amp;#183; [https://rstd.io/conf20-intro-ml](https://rstd.io/conf20-intro-ml)    
+
+---
+class: middle, center, frame
+
+# Recipes
+
+&lt;iframe src="https://tidymodels.github.io/recipes/" width="100%" height="400px"&gt;&lt;/iframe&gt;
+
+---
+background-image: url(images/workflows/workflows.013.jpeg)
+background-size: contain
+background-position: center
+
+---
+background-image: url(images/recipe-hex/recipe-hex.001.jpeg)
+background-size: contain
+background-position: center
+
+---
+background-image: url(images/recipe-hex/recipe-hex.002.jpeg)
+background-size: contain
+background-position: center
+
+---
+background-image: url(images/recipe-hex/recipe-hex.003.jpeg)
+background-size: contain
+background-position: center
+
+---
+background-image: url(images/recipe-hex/recipe-hex.004.jpeg)
+background-size: contain
+background-position: center
+
+---
+background-image: url(images/recipe-hex/recipe-hex.005.jpeg)
+background-size: contain
+background-position: center
+
+---
+background-image: url(images/recipe-hex/recipe-hex.006.jpeg)
+background-size: contain
+background-position: center
+
+---
+class: middle, center
+
+# Quiz
+
+What is multicollinearity?
+
+--
+
+When multiple predictors are strongly correlated. It can impair linear models.
+
+---
+class: middle, center
+
+# Principle Components Analysis
+
+Transforms variables into the orthogonal "components" that most concisely capture all of the variation.
+
+
+
+&lt;img src="figs/02-Recipes/unnamed-chunk-3-1.png" width="38%" /&gt;
+
+---
+class: middle, center, frame
+
+# Goal
+
+To fit a linear model to the main Principal Components of the ames data
+
+
+---
+class: middle, center, frame
+
+# To build a recipe
+
+1\. Start the `recipe()`
+
+2\. Define the .display[variables] involved
+
+3\. Describe **prep**rocessing .display[step-by-step]
+
+---
+class: middle, center
+
+# `recipe()`
+
+Creates a recipe for a set of variables
+
+
+```r
+recipe(Sale_Price ~ ., data = ames)
+```
+
+---
+class: middle
+
+# .center[`step_*()`]
+
+.center[Adds a single transformation to a recipe. 
+Transformations are replayed in order when the recipe is run on data.]
+
+
+```r
+rec %&gt;% 
+  step_novel(all_nominal()) %&gt;%
+  step_zv(all_predictors())
+```
+
+---
+class: middle, center
+
+# .center[`step_*()`]
+
+Complete list at:
+&lt;https://tidymodels.github.io/recipes/reference/index.html&gt;
+
+&lt;iframe src="https://tidymodels.github.io/recipes/reference/index.html" width="100%" height="400px"&gt;&lt;/iframe&gt;
+
+---
+class: middle
+
+# .center[selectors]
+
+Helper functions for selecting sets of variables
+
+
+```r
+rec %&gt;% 
+  step_novel(all_nominal()) %&gt;%
+  step_zv(all_predictors())
+```
+
+---
+class: middle
+
+
+
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#jatoruqxbv .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 200px;
+  background-color: #FFFFFF;
+  width: 10%;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+}
+
+#jatoruqxbv .gt_heading {
+  background-color: #FFFFFF;
+  border-bottom-color: #FFFFFF;
+  border-left-style: hidden;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: hidden;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#jatoruqxbv .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#jatoruqxbv .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 4px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#jatoruqxbv .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#jatoruqxbv .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#jatoruqxbv .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  vertical-align: bottom;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#jatoruqxbv .gt_column_spanner {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  vertical-align: bottom;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 97%;
+}
+
+#jatoruqxbv .gt_group_heading {
+  padding: 8px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#jatoruqxbv .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#jatoruqxbv .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#jatoruqxbv .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#jatoruqxbv .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#jatoruqxbv .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#jatoruqxbv .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 12px;
+}
+
+#jatoruqxbv .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#jatoruqxbv .gt_first_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+}
+
+#jatoruqxbv .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#jatoruqxbv .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#jatoruqxbv .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#jatoruqxbv .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#jatoruqxbv .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding: 4px;
+}
+
+#jatoruqxbv .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#jatoruqxbv .gt_sourcenote {
+  font-size: 90%;
+  padding: 4px;
+}
+
+#jatoruqxbv .gt_left {
+  text-align: left;
+}
+
+#jatoruqxbv .gt_center {
+  text-align: center;
+}
+
+#jatoruqxbv .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#jatoruqxbv .gt_font_normal {
+  font-weight: normal;
+}
+
+#jatoruqxbv .gt_font_bold {
+  font-weight: bold;
+}
+
+#jatoruqxbv .gt_font_italic {
+  font-style: italic;
+}
+
+#jatoruqxbv .gt_super {
+  font-size: 65%;
+}
+
+#jatoruqxbv .gt_footnote_marks {
+  font-style: italic;
+  font-size: 65%;
+}
+</style>
+<div id="jatoruqxbv" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;"><table class="gt_table">
+  
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">selector</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">description</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr>
+      <td class="gt_row gt_left"><div class='gt_from_md'><p><code>all_predictors()</code></p>
+</div></td>
+      <td class="gt_row gt_left"><div class='gt_from_md'><p>Each x variable  (right side of ~)</p>
+</div></td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left gt_striped"><div class='gt_from_md'><p><code>all_outcomes()</code></p>
+</div></td>
+      <td class="gt_row gt_left gt_striped"><div class='gt_from_md'><p>Each y variable  (left side of ~)</p>
+</div></td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left"><div class='gt_from_md'><p><code>all_numeric()</code></p>
+</div></td>
+      <td class="gt_row gt_left"><div class='gt_from_md'><p>Each numeric variable</p>
+</div></td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left gt_striped"><div class='gt_from_md'><p><code>all_nominal()</code></p>
+</div></td>
+      <td class="gt_row gt_left gt_striped"><div class='gt_from_md'><p>Each categorical variable (e.g. factor, string)</p>
+</div></td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left"><div class='gt_from_md'><p><code>dplyr::select()</code> helpers</p>
+</div></td>
+      <td class="gt_row gt_left"><div class='gt_from_md'><p><code>starts_with('Lot_')</code>, etc.</p>
+</div></td>
+    </tr>
+  </tbody>
+  
+  
+</table></div>
+
+---
+class: middle
+
+# .center[Combining selectors]
+
+Use commas to separate
+
+
+```r
+rec %&gt;% 
+* step_novel(all_nominal(), -all_outcomes()) %&gt;%
+  step_zv(all_predictors())
+```
+
+
+
+---
+class: middle
+
+.center[
+# Quiz
+
+How does recipes know what is a **predictor** and what is an **outcome**?
+]
+--
+
+
+```r
+rec &lt;-
+* recipe(Sale_Price ~ .,
+         data = ames)
+```
+
+--
+
+.center[The .display[formula] ➡️ *indicates outcomes vs predictors*]
+
+---
+class: middle
+
+.center[
+# Quiz
+
+How does recipes know what is **numeric** and what is **nominal**?
+]
+
+--
+
+
+```r
+rec &lt;- 
+  recipe(Sale_Price ~ ., 
+*        data = ames)
+```
+
+--
+
+.center[The .display[data] ➡️ *is only used to catalog the names and types of each variable*]
+
+---
+class: middle, center
+
+# Quiz
+
+PCA requires variables to be **centered** and **scaled**. What does that mean?
+
+---
+background-image: url(images/pca/pca.001.jpeg)
+background-size: contain
+
+---
+class: middle
+
+.center[
+# `step_center()`
+
+Centers numeric variables by subtracting the mean
+
+]
+
+
+```r
+rec &lt;- 
+  recipe(Sale_Price ~ ., 
+         data = ames) %&gt;% 
+* step_center(all_numeric())
+```
+
+---
+class: middle
+
+.center[
+# `step_scale()`
+
+Scales numeric variables by dividing by the standard deviation
+
+]
+
+
+```r
+rec &lt;- 
+  recipe(Sale_Price ~ ., 
+         data = ames) %&gt;% 
+  step_center(all_numeric()) %&gt;% 
+* step_scale(all_numeric())
+```
+
+---
+class: middle, center
+
+# Quiz
+
+Why do you need to "train" a recipe?
+
+--
+
+Imagine "scaling" a new data point. What do you subtract from it? 
+What do you divide it by?
+
+---
+background-image: url(images/pca/pca.002.jpeg)
+background-size: contain
+
+---
+background-image: url(images/pca/pca.003.jpeg)
+background-size: contain
+
+---
+background-image: url(images/pca/pca.004.jpeg)
+background-size: contain
+
+---
+background-image: url(images/pca/pca.005.jpeg)
+background-size: contain
+
+---
+class: middle
+
+.center[
+# `prep()` and `bake()`
+
+"trains" a recipe and then transforms data with the prepped recipe
+]
+
+
+```r
+rec %&gt;% 
+  prep(training = ames_train) %&gt;%
+  bake(new_data = ames_test) # or ames_train
+```
+
+--
+
+.footnote[.display[You don't need to do this!
+The fit functions do 
+it for you]]
+
+
+---
+background-image: url(images/recipes.png)
+background-size: cover
+
+---
+
+
+
+
+```r
+rec %&gt;% 
+  prep(ames_train) %&gt;%
+  bake(ames_test) 
+# A tibble: 732 x 81
+   MS_SubClass MS_Zoning Lot_Frontage Lot_Area Street Alley Lot_Shape
+   &lt;fct&gt;       &lt;fct&gt;            &lt;dbl&gt;    &lt;dbl&gt; &lt;fct&gt;  &lt;fct&gt; &lt;fct&gt;    
+ 1 One_Story_… Resident…      2.48     3.00    Pave   No_A… Slightly…
+ 2 One_Story_… Resident…      0.663    0.217   Pave   No_A… Regular  
+ 3 One_Story_… Resident…      1.05     0.153   Pave   No_A… Regular  
+ 4 Two_Story_… Resident…      0.514   -0.00732 Pave   No_A… Slightly…
+ 5 Two_Story_… Resident…     -0.320    6.00    Pave   No_A… Moderate…
+ 6 One_Story_… Resident…      0.901    0.185   Pave   No_A… Regular  
+ 7 One_Story_… Resident…      0.216   -0.221   Pave   No_A… Regular  
+ 8 Two_Story_… Resident…     -1.09    -1.16    Pave   No_A… Regular  
+ 9 Two_Story_… Resident…     -1.72    -0.304   Pave   No_A… Regular  
+10 Two_Story_… Resident…      0.00782  0.927   Pave   No_A… Moderate…
+# … with 722 more rows, and 74 more variables: Land_Contour &lt;fct&gt;,
+#   Utilities &lt;fct&gt;, Lot_Config &lt;fct&gt;, Land_Slope &lt;fct&gt;, Neighborhood &lt;fct&gt;,
+#   Condition_1 &lt;fct&gt;, Condition_2 &lt;fct&gt;, Bldg_Type &lt;fct&gt;, House_Style &lt;fct&gt;,
+#   Overall_Qual &lt;fct&gt;, Overall_Cond &lt;fct&gt;, Year_Built &lt;dbl&gt;,
+#   Year_Remod_Add &lt;dbl&gt;, Roof_Style &lt;fct&gt;, Roof_Matl &lt;fct&gt;,
+#   Exterior_1st &lt;fct&gt;, Exterior_2nd &lt;fct&gt;, Mas_Vnr_Type &lt;fct&gt;,
+#   Mas_Vnr_Area &lt;dbl&gt;, Exter_Qual &lt;fct&gt;, Exter_Cond &lt;fct&gt;, Foundation &lt;fct&gt;,
+#   Bsmt_Qual &lt;fct&gt;, Bsmt_Cond &lt;fct&gt;, Bsmt_Exposure &lt;fct&gt;,
+#   BsmtFin_Type_1 &lt;fct&gt;, BsmtFin_SF_1 &lt;dbl&gt;, BsmtFin_Type_2 &lt;fct&gt;,
+#   BsmtFin_SF_2 &lt;dbl&gt;, Bsmt_Unf_SF &lt;dbl&gt;, Total_Bsmt_SF &lt;dbl&gt;, Heating &lt;fct&gt;,
+#   Heating_QC &lt;fct&gt;, Central_Air &lt;fct&gt;, Electrical &lt;fct&gt;, First_Flr_SF &lt;dbl&gt;,
+#   Second_Flr_SF &lt;dbl&gt;, Low_Qual_Fin_SF &lt;dbl&gt;, Gr_Liv_Area &lt;dbl&gt;,
+#   Bsmt_Full_Bath &lt;dbl&gt;, Bsmt_Half_Bath &lt;dbl&gt;, Full_Bath &lt;dbl&gt;,
+#   Half_Bath &lt;dbl&gt;, Bedroom_AbvGr &lt;dbl&gt;, Kitchen_AbvGr &lt;dbl&gt;,
+#   Kitchen_Qual &lt;fct&gt;, TotRms_AbvGrd &lt;dbl&gt;, Functional &lt;fct&gt;,
+#   Fireplaces &lt;dbl&gt;, Fireplace_Qu &lt;fct&gt;, Garage_Type &lt;fct&gt;,
+#   Garage_Finish &lt;fct&gt;, Garage_Cars &lt;dbl&gt;, Garage_Area &lt;dbl&gt;,
+#   Garage_Qual &lt;fct&gt;, Garage_Cond &lt;fct&gt;, Paved_Drive &lt;fct&gt;,
+#   Wood_Deck_SF &lt;dbl&gt;, Open_Porch_SF &lt;dbl&gt;, Enclosed_Porch &lt;dbl&gt;,
+#   Three_season_porch &lt;dbl&gt;, Screen_Porch &lt;dbl&gt;, Pool_Area &lt;dbl&gt;,
+#   Pool_QC &lt;fct&gt;, Fence &lt;fct&gt;, Misc_Feature &lt;fct&gt;, Misc_Val &lt;dbl&gt;,
+#   Mo_Sold &lt;dbl&gt;, Year_Sold &lt;dbl&gt;, Sale_Type &lt;fct&gt;, Sale_Condition &lt;fct&gt;,
+#   Longitude &lt;dbl&gt;, Latitude &lt;dbl&gt;, Sale_Price &lt;dbl&gt;
+```
+
+
+
+---
+
+.center[
+
+# Quiz
+]
+
+.left-column[
+
+```
+# A tibble: 6 x 1
+  Roof_Style
+  &lt;fct&gt;     
+1 Hip       
+2 Gable     
+3 Mansard   
+4 Gambrel   
+5 Shed      
+6 Flat      
+```
+]
+
+.right-column[
+
+```
+# A tibble: 2,930 x 6
+     Hip Gable Mansard Gambrel  Shed  Flat
+   &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+ 1     1     0       0       0     0     0
+ 2     0     1       0       0     0     0
+ 3     1     0       0       0     0     0
+ 4     1     0       0       0     0     0
+ 5     0     1       0       0     0     0
+ 6     0     1       0       0     0     0
+ 7     0     1       0       0     0     0
+ 8     0     1       0       0     0     0
+ 9     0     1       0       0     0     0
+10     0     1       0       0     0     0
+# … with 2,920 more rows
+```
+
+]
+
+---
+class: middle, center
+
+# Dummy Variables
+
+
+```r
+lm(Sale_Price ~ Roof_Style, data = ames)
+```
+
+
+```
+# A tibble: 6 x 5
+  term              estimate std.error statistic  p.value
+  &lt;chr&gt;                &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
+1 (Intercept)        184799.    17167.    10.8   1.57e-26
+2 Roof_StyleGable    -14487.    17240.    -0.840 4.01e- 1
+3 Roof_StyleGambrel  -46514.    23719.    -1.96  5.00e- 2
+4 Roof_StyleHip       41891.    17475.     2.40  1.66e- 2
+5 Roof_StyleMansard  -18573.    28818.    -0.644 5.19e- 1
+6 Roof_StyleShed       8401.    38386.     0.219 8.27e- 1
+```
+
+---
+class: middle
+
+.center[
+# `step_dummy()`
+
+Converts nominal data into dummy variables
+which, numeric, are suitable for linear algebra.
+
+]
+
+
+```r
+rec %&gt;% 
+* step_dummy(all_nominal())
+```
+
+.footnote[You *don't* need this for decision trees or ensembles of trees]
+
+---
+class: middle, center
+
+# Quiz
+
+Let's think about the modeling. 
+
+What if there were no homes with shed roofs in the training data?
+
+--
+
+Will the model have a coefficient for shed roof?
+
+--
+
+.display[No]
+
+--
+
+What will happen if the test data has a home with a shed roof?
+
+--
+
+.display[Error!]
+
+---
+class: middle
+
+.center[
+# `step_novel()`
+
+Adds a catch-all level to a factor for any new values, 
+which lets R intelligently predict new levels in the test set.
+
+]
+
+
+```r
+rec %&gt;% 
+* step_novel(all_nominal()) %&gt;%
+  step_dummy(all_nominal()) 
+```
+
+.footnote[Use *before* `step_dummy()` so new level is dummified]
+
+---
+class: middle, center
+
+# Quiz
+
+What would happen if you try to scale a variable that doesn't vary?
+
+--
+
+Error! You'd be dividing by zero!
+
+---
+class: middle
+
+.center[
+# `step_zv()`
+
+Intelligently handles zero variance variables 
+(variables that contain only a single value)
+
+]
+
+
+
+```r
+rec %&gt;% 
+  step_novel(all_nominal()) %&gt;%
+  step_dummy(all_nominal()) %&gt;%
+* step_zv(all_predictors())
+```
+
+
+---
+class: middle, center
+
+# Quiz
+
+What step function would do PCA?
+
+--
+
+&lt;iframe src="https://tidymodels.github.io/recipes/reference/step_pca.html" width="100%" height="400px"&gt;&lt;/iframe&gt;
+
+---
+class: middle
+
+.center[
+# `step_pca()`
+
+Replaces variables with components
+
+]
+
+
+
+```r
+rec %&gt;%  
+  step_pca(all_numeric(),
+*          num_comp = 5)
+```
+
+---
+class: your-turn
+
+# Your Turn 1
+
+Write a recipe for the `Sale_Price ~ .` variables that:
+
+1. Adds a novel level to all factors
+1. Converts all factors to dummy variables
+1. Catches any zero variance variables
+1. Centers all of the predictors
+1. Scales all of the predictors
+1. Computes the first 5 principal components
+
+Save the result as `pca_rec`
+
+<div class="countdown" id="timer_5e46ec22" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">05</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+
+```r
+pca_rec &lt;- 
+  recipe(Sale_Price ~ ., data = ames) %&gt;%
+  step_novel(all_nominal()) %&gt;%
+  step_dummy(all_nominal()) %&gt;%
+  step_zv(all_predictors()) %&gt;%
+  step_center(all_predictors()) %&gt;%
+  step_scale(all_predictors()) %&gt;%
+  step_pca(all_predictors(), num_comp = 5)
+pca_rec
+Data Recipe
+
+Inputs:
+
+      role #variables
+   outcome          1
+ predictor         80
+
+Operations:
+
+Novel factor level assignment for all_nominal
+Dummy variables from all_nominal
+Zero variance filter on all_predictors
+Centering for all_predictors
+Scaling for all_predictors
+No PCA components were extracted.
+```
+
+---
+class: middle
+
+.center[
+# roles
+
+You can also give variables a "role" within a recipe and then select by roles.
+
+]
+
+
+
+```r
+has_role(match = "privacy")
+add_role(rec, Fence, new_role = "privacy")
+update_role(rec, Fence, new_role = "privacy", old_role = "yard")
+remove_role(rec, Fence, old_role = "yard")
+```
+
+
+---
+class: middle, center
+
+# Quiz
+
+If we use `add_model()` to add a model to a workflow, what would we use to add a recipe?
+
+--
+
+Let's see!
+
+---
+class: your-turn
+
+# Your Turn 2
+
+Make a workflow that combines `pca_rec` and with `lm_spec`.
+
+<div class="countdown" id="timer_5e46e95d" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">01</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+
+
+```r
+pca_wf &lt;-
+  workflow() %&gt;% 
+  add_recipe(pca_rec) %&gt;% 
+  add_model(lm_spec)
+pca_wf
+══ Workflow ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+Preprocessor: Recipe
+Model: linear_reg()
+
+── Preprocessor ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+6 Recipe Steps
+
+● step_novel()
+● step_dummy()
+● step_zv()
+● step_center()
+● step_scale()
+● step_pca()
+
+── Model ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Linear Regression Model Specification (regression)
+
+Computational engine: lm 
+```
+
+
+---
+class: middle
+
+.center[
+# `add_recipe()`
+
+Adds a recipe to a workflow.
+
+]
+
+
+```r
+pca_wf &lt;- workflow() %&gt;%
+* add_recipe(pca_rec) %&gt;%
+  add_model(lm_spec)
+```
+
+---
+class: middle
+
+.center[
+# Quiz
+
+Do you need to add a formula if you have a recipe?
+]
+--
+.center[
+Nope!
+]
+
+```r
+rec &lt;- 
+* recipe(Sale_Price ~ .,
+         data = ames)
+```
+
+---
+class: your-turn
+
+# Your Turn 3
+
+Try our pca workflow on `ames_split`. What is the RMSE?
+
+<div class="countdown" id="timer_5e46ecf1" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+
+---
+
+
+```r
+pca_wf %&gt;% 
+  fit_split(split = ames_split) %&gt;% 
+  collect_metrics()
+# A tibble: 2 x 3
+  .metric .estimator .estimate
+  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+1 rmse    standard   37831.   
+2 rsq     standard       0.787
+```
+
+---
+class: middle
+
+.center[
+# `update_recipe()`
+
+Replace the recipe in a workflow.
+
+]
+
+
+```r
+pca_wf %&gt;%
+* update_recipe(bc_rec)
+```
+
+---
+class: your-turn
+
+# Your Turn 4
+
+Modify the code to build a new pca recipe that uses a BoxCox transformation instead of centering and scaling the data. 
+
+Then update `pca_wf` to use the new recipe.
+
+*Hint: Guess. Use tab completion. Or visit http://tidymodels.github.io/recipes/reference/index.html.*
+
+<div class="countdown" id="timer_5e46ebc3" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+
+
+```r
+bc_rec &lt;- 
+  recipe(Sale_Price ~ ., data = ames) %&gt;%
+  step_novel(all_nominal()) %&gt;%
+  step_dummy(all_nominal()) %&gt;%
+  step_zv(all_predictors()) %&gt;%
+* step_BoxCox(all_predictors()) %&gt;%
+  step_pca(all_predictors(), num_comp = 5)
+
+bc_wf &lt;- 
+  pca_wf %&gt;% 
+    update_recipe(bc_rec)
+```
+
+---
+
+
+```r
+bc_wf %&gt;% 
+  fit_split(split = ames_split) %&gt;% 
+  collect_metrics()
+# A tibble: 2 x 3
+  .metric .estimator .estimate
+  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+1 rmse    standard   40948.   
+2 rsq     standard       0.758
+```
+
+---
+class: middle, center
+
+# Feature Engineering
+
+.pull-left[
+Before
+
+![](https://media.giphy.com/media/Wn74RUT0vjnoU98Hnt/giphy.gif)
+]
+
+--
+
+.pull-right[
+After
+
+![](https://media.giphy.com/media/108GZES8iG0myc/giphy.gif)
+]
+
+---
+
+# StackOverflow Data
+
+
+```r
+library(modeldata)
+data(stackoverflow)
+```
+
+
+```r
+glimpse(stackoverflow)
+Observations: 5,594
+Variables: 21
+$ Country                              &lt;fct&gt; United Kingdom, United States, U…
+$ Salary                               &lt;dbl&gt; 100000.000, 130000.000, 175000.0…
+$ YearsCodedJob                        &lt;int&gt; 20, 20, 16, 4, 1, 1, 13, 4, 7, 1…
+$ OpenSource                           &lt;dbl&gt; 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0,…
+$ Hobby                                &lt;dbl&gt; 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0,…
+$ CompanySizeNumber                    &lt;dbl&gt; 5000, 1000, 10000, 1000, 5000, 2…
+$ Remote                               &lt;fct&gt; Remote, Remote, Not remote, Not …
+$ CareerSatisfaction                   &lt;int&gt; 8, 9, 7, 9, 5, 8, 7, 7, 8, 9, 10…
+$ Data_scientist                       &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
+$ Database_administrator               &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
+$ Desktop_applications_developer       &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0,…
+$ Developer_with_stats_math_background &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,…
+$ DevOps                               &lt;dbl&gt; 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
+$ Embedded_developer                   &lt;dbl&gt; 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
+$ Graphic_designer                     &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
+$ Graphics_programming                 &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
+$ Machine_learning_specialist          &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
+$ Mobile_developer                     &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,…
+$ Quality_assurance_engineer           &lt;dbl&gt; 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
+$ Systems_administrator                &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
+$ Web_developer                        &lt;dbl&gt; 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1,…
+```
+
+---
+class: middle
+
+.center[
+# Quiz
+
+Name that package!
+]
+
+
+```r
+set.seed(100) # Important!
+so_split &lt;- initial_split(stackoverflow, strata = Remote)
+so_train &lt;- training(so_split)
+so_test  &lt;- testing(so_split)
+```
+
+--
+
+.center[.display[rsample]]
+
+
+---
+class: middle
+
+.center[
+# Quiz
+
+Name that package!
+]
+
+
+```r
+tree_spec &lt;- 
+  decision_tree() %&gt;%         
+  set_engine("rpart") %&gt;%      
+  set_mode("classification") 
+```
+
+--
+
+.center[.display[parsnip]]
+
+---
+class: middle
+
+.center[
+# Quiz
+
+Name that package!
+]
+
+
+```r
+so_rec &lt;- recipe(Remote ~ ., data = so_train) %&gt;% 
+  step_dummy(all_nominal(), -all_outcomes()) %&gt;% 
+  step_lincomb(all_predictors())
+```
+
+--
+
+.center[.display[recipes]]
+
+---
+class: middle
+
+.center[
+# Quiz
+
+Name that package!
+]
+
+
+```r
+so_wf &lt;- workflow() %&gt;% 
+  add_model(tree_spec) %&gt;% 
+  add_recipe(so_rec)
+```
+
+--
+
+.center[.display[workflows]]
+
+---
+class: middle
+.center[
+
+# `fit_split()`
+
+]
+
+
+```r
+set.seed(1980)
+so_wf %&gt;% 
+  fit_split(split = so_split) %&gt;% 
+  collect_metrics()
+# A tibble: 2 x 3
+  .metric  .estimator .estimate
+  &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
+1 accuracy binary         0.900
+2 roc_auc  binary         0.5  
+```
+
+---
+
+
+```r
+set.seed(1980)
+so_wf %&gt;% 
+  fit_split(split = so_split,
+            metrics = metric_set(accuracy, roc_auc, sens, spec)) %&gt;% 
+  collect_metrics()
+# A tibble: 4 x 3
+  .metric  .estimator .estimate
+  &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
+1 accuracy binary         0.900
+2 sens     binary         0    
+3 spec     binary         1    
+4 roc_auc  binary         0.5  
+```
+
+---
+class: inverse, middle, center
+
+# Can you guess what my confusion matrix looks like?
+
+---
+class: middle
+
+.left-column[
+# uh oh
+]
+
+.right-column[
+
+```r
+so_wf %&gt;% 
+  fit_split(split = so_split) %&gt;% 
+  collect_predictions() %&gt;% 
+  conf_mat(truth = Remote, estimate = .pred_class)
+            Truth
+Prediction   Remote Not remote
+  Remote          0          0
+  Not remote    140       1258
+```
+]
+---
+class: middle
+
+.left-column[
+# uh oh
+]
+
+.right-column[
+&lt;img src="figs/02-Recipes/unnamed-chunk-49-1.png" width="504" /&gt;
+]
+
+---
+
+
+```r
+so_train %&gt;% 
+  count(Remote)
+# A tibble: 2 x 2
+  Remote         n
+  &lt;fct&gt;      &lt;int&gt;
+1 Remote       435
+2 Not remote  3761
+
+so_test %&gt;% 
+  count(Remote)
+# A tibble: 2 x 2
+  Remote         n
+  &lt;fct&gt;      &lt;int&gt;
+1 Remote       140
+2 Not remote  1258
+```
+
+---
+class: inverse, middle, center
+
+
+# How can we get better at identifying the less frequent class?
+
+--
+
+Sub-class sampling
+
+---
+class: middle, center
+
+# Downsampling
+
+.pull-left[
+
+
+&lt;img src="figs/02-Recipes/uni-biscatter-1.png" width="504" /&gt;
+
+]
+
+--
+
+.pull-right[
+&lt;img src="figs/02-Recipes/unnamed-chunk-51-1.png" width="504" /&gt;
+
+]
+
+---
+class: middle, center
+
+# Upsampling
+
+.pull-left[
+
+
+&lt;img src="figs/02-Recipes/unnamed-chunk-52-1.png" width="504" /&gt;
+
+]
+
+--
+
+.pull-right[
+&lt;img src="figs/02-Recipes/unnamed-chunk-53-1.png" width="504" /&gt;
+
+]
+
+---
+class: your-turn
+
+# Your Turn 5
+
+Add a recipe step to downsample the remote variable majority class in the training set prior to model training. Edit your workflow, then re-fit the model and examine the metrics. Is the ROC AUC better than chance (.5)?
+
+<div class="countdown" id="timer_5e46eb45" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+
+---
+
+
+```r
+so_down &lt;- recipe(Remote ~ ., data = so_train) %&gt;% 
+  step_dummy(all_nominal(), -all_outcomes()) %&gt;% 
+  step_lincomb(all_predictors()) %&gt;% 
+* step_downsample(all_outcomes())
+
+so_downwf &lt;- so_wf %&gt;% 
+* update_recipe(so_down)
+
+set.seed(1980)
+*so_downwf %&gt;%
+  fit_split(split = so_split,
+            metrics = metric_set(roc_auc, sens, spec)) %&gt;% 
+  collect_metrics()
+# A tibble: 3 x 3
+  .metric .estimator .estimate
+  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+1 sens    binary         0.671
+2 spec    binary         0.692
+3 roc_auc binary         0.686
+```
+
+---
+
+.left-column[
+# Ahh!
+]
+
+.right-column[
+&lt;img src="figs/02-Recipes/unnamed-chunk-56-1.png" width="504" /&gt;
+]
+
+---
+class: middle
+
+.center[
+# `juice()`
+
+Get the preprocessed training data back from a prepped recipe. Returns a tibble.
+]
+
+
+```r
+so_down %&gt;% 
+  prep(training = so_train, 
+       retain = TRUE) %&gt;% 
+  juice()
+```
+
+
+---
+class: middle
+
+.center[
+
+# Downsampling
+
+]
+
+.pull-left[
+
+
+```r
+so_train %&gt;% 
+  count(Remote)
+# A tibble: 2 x 2
+  Remote         n
+  &lt;fct&gt;      &lt;int&gt;
+1 Remote       435
+2 Not remote  3761
+```
+]
+
+--
+
+.pull-right[
+
+```r
+so_down %&gt;% 
+  prep(training = so_train, 
+       retain = TRUE) %&gt;% 
+* juice() %&gt;%
+  count(Remote)
+# A tibble: 2 x 2
+  Remote         n
+  &lt;fct&gt;      &lt;int&gt;
+1 Remote       435
+2 Not remote   435
+```
+
+]
+
+---
+
+# .center[`step_downsample()`]
+
+Down-sampling is performed on the training set *only*. Default is `skip = TRUE`. 
+
+.pull-left[
+
+
+```r
+so_test %&gt;% 
+  count(Remote)
+# A tibble: 2 x 2
+  Remote         n
+  &lt;fct&gt;      &lt;int&gt;
+1 Remote       140
+2 Not remote  1258
+```
+]
+
+--
+
+.pull-right[
+
+```r
+so_down %&gt;% 
+  prep(training = so_train) %&gt;% 
+  bake(new_data = so_test) %&gt;% 
+  count(Remote)
+# A tibble: 2 x 2
+  Remote         n
+  &lt;fct&gt;      &lt;int&gt;
+1 Remote       140
+2 Not remote  1258
+```
+
+]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="https://platform.twitter.com/widgets.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "solarized-light",
+"highlightLanguage": ["r", "css", "yaml"],
+"slideNumberFormat": "",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
