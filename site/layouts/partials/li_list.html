@@ -1,10 +1,10 @@
 {{ $item := . }}
 
 {{/* Dynamic view adjusts to content type. */}}
-{{ $icon_pack := "far" }}
-{{ $icon := "fa-file-alt" }}
+{{ $icon_pack := "fas" }}
+{{ $icon := "fa-folder-open" }}
 {{ $show_authors := false }}
-{{ $show_buttons := false }}
+{{ $show_buttons := true }}
 {{ $link := $item.RelPermalink }}
 {{ $target := "" }}
 {{ if $item.Params.external_link }}
