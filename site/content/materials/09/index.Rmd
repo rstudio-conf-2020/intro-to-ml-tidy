@@ -18,7 +18,9 @@ summary: Code appendix by session and package
 library(tidyverse)
 library(DT)
 
-tmf <- read_csv(here::here("site/content/materials/09/tm-functions.csv")) 
+tmf <- read_csv(here::here("site/content/materials/09/tm-functions.csv")) %>% 
+  mutate(session = as.factor(session), 
+         package = as.factor(package))
 
 tmf %>% 
     datatable(rownames = FALSE,
